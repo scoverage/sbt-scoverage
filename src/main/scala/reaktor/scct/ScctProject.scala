@@ -6,7 +6,8 @@ import java.util.jar.Manifest
 trait ScctProject extends DefaultProject {
   private lazy val pluginLibDir = rootProject.info.pluginsManagedDependencyPath / String.format("scala_%s", defScalaVersion.value)
   def coverageSelfTest = false
-  def scctPluginJar = pluginLibDir / "scct_2.7.7-0.1-SNAPSHOT.jar"
+  def scctPluginJar = testClasspath ** "scct_2.8.0.RC7-1.0.jar"
+
   def testRuntimeScctPluginJar = if (!coverageSelfTest) scctPluginJar else outputPath / "scct-xml.jar"
   def instrumentedClassDir = outputPath / "coverage-classes"
   def reportDir = outputPath / "coverage-report"
@@ -17,7 +18,7 @@ trait ScctProject extends DefaultProject {
     override def analysisPath = outputPath / "coverage-analysis"
     override def classpath = scctPluginJar +++ super.classpath
     override def baseCompileOptions = coverageCompileOption :: super.baseCompileOptions.toList
-    def coverageCompileOption = CompileOption("-Xplugin:"+scctPluginJar)
+    def coverageCompileOption = CompileOption("-Xplugin:"+scctPluginJar.get.mkString)
   }
   class InstrumentedTestCompileConfig extends TestCompileConfig {
     override def classpath = scctPluginJar +++ instrumentedClassDir +++ (super.classpath --- mainCompilePath)
