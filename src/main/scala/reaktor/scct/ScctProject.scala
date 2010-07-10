@@ -4,8 +4,7 @@ import sbt._
 import java.util.jar.Manifest
 
 trait ScctProject extends DefaultProject {
-  def scctPluginJar = testClasspath ** "scct_2.8.0.RC7-1.0.jar"
-
+  def scctPluginJar = (info.pluginsManagedDependencyPath / "scala_2.7.7") ** "scct_*.jar"
   def testRuntimeScctPluginJar = scctPluginJar
   def instrumentedClassDir = outputPath / "coverage-classes"
   def reportDir = outputPath / "coverage-report"
