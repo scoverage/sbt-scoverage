@@ -4,7 +4,7 @@ import sbt._
 import java.util.jar.Manifest
 
 trait ScctProject extends BasicScalaProject with MavenStyleScalaPaths {
-  def scctPluginJar = (info.pluginsManagedDependencyPath / "scala_2.7.7") ** "scct_*.jar"
+  def scctPluginJar = (info.pluginsManagedDependencyPath / "scala_%s".format(defScalaVersion.value)) ** "scct_*.jar"
   def testRuntimeScctPluginJar = scctPluginJar
   def instrumentedClassDir = outputPath / "coverage-classes"
   def reportDir = outputPath / "coverage-report"
