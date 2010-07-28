@@ -38,8 +38,23 @@ trait ScctProject extends BasicScalaProject with MavenStyleScalaPaths {
   protected def instrumentedTestRunClassPath =
     testRuntimeScctPluginJar +++ instrumentedClassDir +++ (testClasspath --- mainCompilePath)
   protected def instrumentedTestOptions =
-    testOptions
-
+    testOptions ++ Seq(TestSetup(setProps), TestCleanup(reportNow))
+  protected def setProps() = {
+    println("Setting props for "+name)
+    System.setProperty("scct.report.hook", "system.property")
+    System.setProperty("scct.project.name", name)
+    System.setProperty("scct.report.dir", reportDir.toString)
+    System.setProperty("scct.source.dir", mainScalaSourcePath.absolutePath)
+    None
+  }
+  protected def reportNow() = {
+    println("Generating report for "+name)
+    val reportProperty = "scct.%s.fire.report".format(name)
+    System.setProperty(reportProperty, "true")
+    println("Wait for report completion.")
+    while (System.getProperty(reportProperty) != "done") Thread.sleep(200)
+    None
+  }
   protected def testCoverageAction =
     testTask(testFrameworks, instrumentedTestRunClassPath, instrumentTestCompileConditional.analysis, instrumentedTestOptions).dependsOn(testCoverageCompile, copyResources, copyTestResources, setupCoverageEnv)
 
@@ -49,8 +64,6 @@ trait ScctProject extends BasicScalaProject with MavenStyleScalaPaths {
   lazy val setupCoverageEnv = task {
     if (reportDir.exists) FileUtilities.clean(reportDir, log)
     FileUtilities.createDirectory(reportDir, log)
-    System.setProperty("scct.report.dir", reportDir.toString)
-    System.setProperty("scct.src.reference.dir", mainScalaSourcePath.absolutePath)
     None
   }
 
