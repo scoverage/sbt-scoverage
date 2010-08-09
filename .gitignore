@@ -1,5 +1,6 @@
-sbt-scct.iml
-sbt-scct.ipr
+sbt-scct-for-2.8.iml
+sbt-scct-for-2.8.ipr
+sbt-scct-for-2.8.iws
 project/boot/
 project/build/target/
 project/plugins/lib_managed/
