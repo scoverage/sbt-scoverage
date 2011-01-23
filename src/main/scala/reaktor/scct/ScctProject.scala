@@ -38,7 +38,7 @@ trait ScctProject extends BasicScalaProject with MavenStyleScalaPaths {
   protected def instrumentedTestRunClassPath =
     testRuntimeScctPluginJar +++ instrumentedClassDir +++ (testClasspath --- mainCompilePath)
   protected def instrumentedTestOptions =
-    testOptions ++ Seq(TestSetup(setProps), TestCleanup(reportNow))
+    testOptions ++ Seq(TestSetup(() => setProps), TestCleanup(() => reportNow))
   protected def setProps() = {
     println("Setting props for "+name)
     System.setProperty("scct.report.hook", "system.property")
