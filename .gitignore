@@ -1,6 +1,3 @@
-sbt-scct-for-2.8.iml
-sbt-scct-for-2.8.ipr
-sbt-scct-for-2.8.iws
 project/boot/
 project/build/target/
 project/plugins/lib_managed/
@@ -10,4 +7,3 @@ project/plugins/target/
 project/sbt_project_definition.iml
 lib_managed/
 target/
-out/
