@@ -15,7 +15,9 @@ object ScctPlugin extends Plugin {
       scctReportDir <<= crossTarget / "coverage-report",
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
-      libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT" % "scct,scct-test",
+      //resolvers += "scct repository" at "http://mtkopone.github.com/scct/maven-repo",
+
+      libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT" % "scct",
 
       sources in Scct <<= (sources in Compile),
       sourceDirectory in Scct <<= (sourceDirectory in Compile),
@@ -27,10 +29,16 @@ object ScctPlugin extends Plugin {
 
       sources in ScctTest <<= (sources in Test),
       sourceDirectory in ScctTest <<= (sourceDirectory in Test),
-      externalDependencyClasspath in ScctTest <<= (externalDependencyClasspath in ScctTest, externalDependencyClasspath in Test) map { (s, t) => s ++ t },
+      externalDependencyClasspath in ScctTest <<= Classpaths.concat(externalDependencyClasspath in ScctTest, externalDependencyClasspath in Test),
 
-      testOptions in ScctTest <+= (name in Scct, scalaSource in Scct, scctReportDir) map { (n, src, out) =>
+      internalDependencyClasspath in Scct <<= (internalDependencyClasspath in Compile),
+      internalDependencyClasspath in ScctTest <<= (internalDependencyClasspath in Test, internalDependencyClasspath in ScctTest, classDirectory in Compile) map { (testDeps, scctDeps, oldClassDir) =>
+        scctDeps ++ testDeps.filter(_.data != oldClassDir)
+      },
+
+      testOptions in ScctTest <+= (name in Scct, baseDirectory in Scct, scalaSource in Scct, scctReportDir) map { (n, base, src, out) =>
         Tests.Setup { () =>
+          System.setProperty("scct.basedir", base.getAbsolutePath)
           System.setProperty("scct.report.hook", "system.property")
           System.setProperty("scct.project.name", n)
           System.setProperty("scct.report.dir", out.getAbsolutePath)
