@@ -1,6 +1,6 @@
 organization := "reaktor"
 
-name := "scct-sbt"
+name := "sbt-scct"
 
 version := "0.2-SNAPSHOT"
 
