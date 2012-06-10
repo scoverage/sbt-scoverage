@@ -15,7 +15,7 @@ object ScctPlugin extends Plugin {
       scctReportDir <<= crossTarget / "coverage-report",
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
-      libraryDependencies += "reaktor" %% "scct" % "0.1-SNAPSHOT" % "scct,scct-test",
+      libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT" % "scct,scct-test",
 
       sources in Scct <<= (sources in Compile),
       sourceDirectory in Scct <<= (sourceDirectory in Compile),
