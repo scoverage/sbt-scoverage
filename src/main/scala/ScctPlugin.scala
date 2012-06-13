@@ -68,4 +68,42 @@ object ScctPlugin extends Plugin {
     new File(url.toURI).getAbsolutePath
   }
 
+  // Report mergin':
+
+  object ScctMergeReportKeys {
+    val sourceFiles = TaskKey[Seq[File]]("scct-merge-report-source-files")
+    val merge = TaskKey[File]("scct-merge-report")
+  }
+  import ScctMergeReportKeys._
+
+  val mergeReportSettings = Seq(
+    scctReportDir <<= crossTarget / "coverage-report",
+    sourceFiles <<= (thisProjectRef, buildStructure) map coverageResultFiles,
+    merge <<= (sourceFiles, scctReportDir) map generateReport
+  )
+
+  def coverageResultFiles(projectRef: ProjectRef, structure: Load.BuildStructure) = {
+    val projects = aggregated(projectRef, structure)
+    projects flatMap { p =>
+      val dir = (scctReportDir in ScctTest in LocalProject(p)).get(structure.data)
+      dir.flatMap { d =>
+        val f = new File(d, "coverage-result.data")
+        if (f.exists) Some(f) else None
+      }
+    }
+  }
+
+  def generateReport(input: Seq[File], out: File) = {
+    import reaktor.scct.report._
+    MultiProjectHtmlReporter.report(input, out)
+    out
+  }
+
+  def aggregated(projectRef: ProjectRef, structure: Load.BuildStructure): Seq[String] = {
+    val aggregate = Project.getProject(projectRef, structure).toSeq.flatMap(_.aggregate)
+    aggregate flatMap { ref =>
+      ref.project +: aggregated(ref, structure)
+    }
+  }
+
 }
