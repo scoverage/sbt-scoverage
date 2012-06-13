@@ -1,3 +1,4 @@
+import java.util.Properties
 import sbt._
 import sbt.Keys._
 
@@ -36,13 +37,16 @@ object ScctPlugin extends Plugin {
         scctDeps ++ testDeps.filter(_.data != oldClassDir)
       },
 
-      testOptions in ScctTest <+= (name in Scct, baseDirectory in Scct, scalaSource in Scct, scctReportDir) map { (n, base, src, out) =>
+      testOptions in ScctTest <+= (name in Scct, baseDirectory in Scct, scalaSource in Scct, classDirectory in ScctTest, scctReportDir) map { (n, base, src, testClassesDir, reportDir) =>
         Tests.Setup { () =>
-          System.setProperty("scct.basedir", base.getAbsolutePath)
-          System.setProperty("scct.report.hook", "system.property")
-          System.setProperty("scct.project.name", n)
-          System.setProperty("scct.report.dir", out.getAbsolutePath)
-          System.setProperty("scct.source.dir", src.getAbsolutePath)
+          val props = new Properties()
+          props.setProperty("scct.basedir", base.getAbsolutePath)
+          props.setProperty("scct.report.hook", "system.property")
+          props.setProperty("scct.project.name", n)
+          props.setProperty("scct.report.dir", reportDir.getAbsolutePath)
+          props.setProperty("scct.source.dir", src.getAbsolutePath)
+          val out = testClassesDir / "scct.properties"
+          IO.write(props, "Env for scct test run and report generation", out)
         }
       },
       testOptions in ScctTest <+= (state, name in Scct) map { (s, n) =>
