@@ -60,7 +60,7 @@ object ScctPlugin extends Plugin {
       },
 
       // Sugar: copy test from ScctTest to Scct so you can use scct:test
-      test in Scct <<= (test in ScctTest)
+      Keys.test in Scct <<= (Keys.test in ScctTest)
     )
 
   def scctJarPath = {
