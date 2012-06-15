@@ -16,7 +16,8 @@ object ScctPlugin extends Plugin {
       scctReportDir <<= crossTarget / "coverage-report",
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
-      //resolvers += "scct repository" at "http://mtkopone.github.com/scct/maven-repo",
+
+      resolvers += "scct-repository" at "http://mtkopone.github.com/scct/maven-repo",
 
       libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT" % "scct",
 
