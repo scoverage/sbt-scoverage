@@ -17,17 +17,22 @@ object ScctPlugin extends Plugin {
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
 
-      resolvers += "scct-repository" at "http://mtkopone.github.com/scct/maven-repo",
+      // Assuming you have the repo, since you have this plugin:
+      // resolvers += "scct-repository" at "http://mtkopone.github.com/scct/maven-repo",
 
       libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT" % "scct",
 
       sources in Scct <<= (sources in Compile),
       sourceDirectory in Scct <<= (sourceDirectory in Compile),
-      scalacOptions in Scct <++= (name in Scct, baseDirectory in Scct) map { (n,b) => Seq(
-        "-Xplugin:"+scctJarPath,
-        "-P:scct:projectId:"+n,
-        "-P:scct:basedir:"+b
-      )},
+
+      scalacOptions in Scct <++= (name in Scct, baseDirectory in Scct, update) map { (n, b, report) =>
+        val pluginClasspath = report matching configurationFilter("scct")
+        Seq(
+          "-Xplugin:" + pluginClasspath.head.getAbsolutePath,
+          "-P:scct:projectId:" + n,
+          "-P:scct:basedir:" + b
+        )
+      },
 
       sources in ScctTest <<= (sources in Test),
       sourceDirectory in ScctTest <<= (sourceDirectory in Test),
