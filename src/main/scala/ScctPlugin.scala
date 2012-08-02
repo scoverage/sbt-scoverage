@@ -17,8 +17,7 @@ object ScctPlugin extends Plugin {
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
 
-      // Assuming you have the repo, since you have this plugin:
-      // resolvers += "scct-repository" at "http://mtkopone.github.com/scct/maven-repo",
+      resolvers += "scct-repository" at "http://mtkopone.github.com/scct/maven-repo",
 
       libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT" % "scct",
 
@@ -63,7 +62,7 @@ object ScctPlugin extends Plugin {
           System.setProperty(reportProperty, "true")
           val maxSleep = compat.Platform.currentTime + 60L*1000L
           while (sys.props(reportProperty) != "done" && compat.Platform.currentTime < maxSleep) Thread.sleep(200L)
-          if (sys.props(reportProperty) != "done") println("Timed out waiting for scct coverage report")
+          if (sys.props(reportProperty) != "done") println("scct: ["+n+"] Timed out waiting for coverage report.")
         }
       },
 
