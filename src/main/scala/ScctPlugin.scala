@@ -1,6 +1,7 @@
 import java.util.Properties
 import sbt._
 import sbt.Keys._
+import xml.transform._
 
 object ScctPlugin extends Plugin {
 
@@ -67,8 +68,21 @@ object ScctPlugin extends Plugin {
       },
 
       // Sugar: copy test from ScctTest to Scct so you can use scct:test
-      Keys.test in Scct <<= (Keys.test in ScctTest)
+      Keys.test in Scct <<= (Keys.test in ScctTest),
+
+      // filter scct dependencies for publishing
+      pomPostProcess := { (node: xml.Node) => pomTransformer(node) }
     )
+
+  val pomTransformer = new RuleTransformer(new RewriteRule {
+    override def transform(node: xml.Node): Seq[xml.Node] = node match {
+      case e: xml.Elem if e.label == "dependency" =>
+        if ((e \ "scope" text)  == "scct") Nil else Seq(e)
+      case e: xml.Elem if e.label == "repository" =>
+        if ((e \ "name" text) == "scct-repository") Nil else Seq(e)
+      case e => Seq(e)
+    }
+  })
 
   def scctJarPath = {
     val url = classOf[reaktor.scct.ScctInstrumentPlugin].getProtectionDomain().getCodeSource().getLocation()
