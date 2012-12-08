@@ -30,6 +30,7 @@ object ScctPlugin extends Plugin {
 
       scalacOptions in Scct <++= (name in Scct, baseDirectory in Scct, update) map { (n, b, report) =>
         val pluginClasspath = report matching configurationFilter("scct")
+        if (pluginClasspath.isEmpty) throw new Exception("Fatal: scct not in libraryDependencies. Use e.g. <+= or <++= instead of <<=")
         Seq(
           "-Xplugin:" + pluginClasspath.head.getAbsolutePath,
           "-P:scct:projectId:" + n,
