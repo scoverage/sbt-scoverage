@@ -113,12 +113,13 @@ object ScctPlugin extends Plugin {
       ref.project +: aggregated(ref, structure)
     }
   }
+  /** Generate hook that is invoked before each tests execution. */
   def testSetup() =
     (name in Scct, baseDirectory in Scct, scalaSource in Scct, classDirectory in ScctTest, definedTests in ScctTest, scctReportDir, streams) map {
       (name, baseDirectory, scalaSource, classDirectory, definedTests, scctReportDir, streams) =>
         if (definedTests.isEmpty) {
           streams.log.debug(logPrefix(name) + "No tests found. Skip SCCT setup hook.")
-          Tests.Cleanup { () => {} }
+          Tests.Setup { () => {} }
         } else
           Tests.Setup { () =>
             val out = classDirectory / "scct.properties"
@@ -132,6 +133,7 @@ object ScctPlugin extends Plugin {
             IO.write(props, "Env for scct test run and report generation", out)
           }
     }
+  /** Generate hook that is invoked after each tests execution. */
   def testCleanup() =
     (name in Scct, classDirectory in ScctTest, definedTests in ScctTest, streams) map {
       (name, classDirectory, definedTests, streams) =>
