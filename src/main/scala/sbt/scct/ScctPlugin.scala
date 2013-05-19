@@ -51,27 +51,8 @@ object ScctPlugin extends Plugin {
         scctDeps ++ testDeps.filter(_.data != oldClassDir)
       },
 
-      testOptions in ScctTest <+= (name in Scct, baseDirectory in Scct, scalaSource in Scct, classDirectory in ScctTest, scctReportDir) map { (n, base, src, testClassesDir, reportDir) =>
-        Tests.Setup { () =>
-          val props = new Properties()
-          props.setProperty("scct.basedir", base.getAbsolutePath)
-          props.setProperty("scct.report.hook", "system.property")
-          props.setProperty("scct.project.name", n)
-          props.setProperty("scct.report.dir", reportDir.getAbsolutePath)
-          props.setProperty("scct.source.dir", src.getAbsolutePath)
-          val out = testClassesDir / "scct.properties"
-          IO.write(props, "Env for scct test run and report generation", out)
-        }
-      },
-      testOptions in ScctTest <+= (state, name in Scct) map { (s, n) =>
-        Tests.Cleanup { () =>
-          val reportProperty = "scct.%s.fire.report".format(n)
-          System.setProperty(reportProperty, "true")
-          val maxSleep = compat.Platform.currentTime + 60L*1000L
-          while (sys.props(reportProperty) != "done" && compat.Platform.currentTime < maxSleep) Thread.sleep(200L)
-          if (sys.props(reportProperty) != "done") println("scct: ["+n+"] Timed out waiting for coverage report.")
-        }
-      },
+      testOptions in ScctTest <+= testSetup,
+      testOptions in ScctTest <+= testCleanup,
 
       // Sugar: copy test from ScctTest to Scct so you can use scct:test
       Keys.test in Scct <<= (Keys.test in ScctTest),
@@ -132,5 +113,43 @@ object ScctPlugin extends Plugin {
       ref.project +: aggregated(ref, structure)
     }
   }
-
+  def testSetup() =
+    (name in Scct, baseDirectory in Scct, scalaSource in Scct, classDirectory in ScctTest, definedTests in ScctTest, scctReportDir, streams) map {
+      (name, baseDirectory, scalaSource, classDirectory, definedTests, scctReportDir, streams) =>
+        if (definedTests.isEmpty) {
+          streams.log.debug(logPrefix(name) + "No tests found. Skip SCCT setup hook.")
+          Tests.Cleanup { () => {} }
+        } else
+          Tests.Setup { () =>
+            val out = classDirectory / "scct.properties"
+            streams.log.debug(logPrefix(name) + "Prepare SCCT environment at %s".format(out.getCanonicalPath()))
+            val props = new Properties()
+            props.setProperty("scct.basedir", baseDirectory.getAbsolutePath)
+            props.setProperty("scct.report.hook", "system.property")
+            props.setProperty("scct.project.name", name)
+            props.setProperty("scct.report.dir", scctReportDir.getAbsolutePath)
+            props.setProperty("scct.source.dir", scalaSource.getAbsolutePath)
+            IO.write(props, "Env for scct test run and report generation", out)
+          }
+    }
+  def testCleanup() =
+    (name in Scct, classDirectory in ScctTest, definedTests in ScctTest, streams) map {
+      (name, classDirectory, definedTests, streams) =>
+        if (definedTests.isEmpty) {
+          streams.log.debug(logPrefix(name) + "No tests found. Skip SCCT cleanup hook.")
+          Tests.Cleanup { () => {} }
+        } else
+          Tests.Cleanup { () =>
+            streams.log.debug(logPrefix(name) + "Waiting for coverage report generation.")
+            val out = classDirectory / "scct.properties"
+            val reportProperty = "scct.%s.fire.report".format(name)
+            System.setProperty(reportProperty, "true")
+            val maxSleep = compat.Platform.currentTime + 60L * 1000L
+            while (sys.props(reportProperty) != "done" && compat.Platform.currentTime < maxSleep) Thread.sleep(200L)
+            if (sys.props(reportProperty) != "done") streams.log.debug(logPrefix(name) + "Timed out waiting for coverage report.")
+            out.delete
+            streams.log.debug(logPrefix(name) + "Cleanup SCCT environment")
+          }
+    }
+  def logPrefix(name: String) = "scct: [" + name + "] "
 }
