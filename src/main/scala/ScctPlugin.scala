@@ -41,6 +41,8 @@ object ScctPlugin extends Plugin {
       sources in ScctTest <<= (sources in Test),
       sourceDirectory in ScctTest <<= (sourceDirectory in Test),
 
+      resourceDirectory in ScctTest <<= (resourceDirectory in Compile),
+
       externalDependencyClasspath in Scct <<= Classpaths.concat(externalDependencyClasspath in Scct, externalDependencyClasspath in Compile),
       externalDependencyClasspath in ScctTest <<= Classpaths.concat(externalDependencyClasspath in ScctTest, externalDependencyClasspath in Test),
 
