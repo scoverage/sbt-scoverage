@@ -1,4 +1,4 @@
-!https://travis-ci.org/SCCT/sbt-scct.png?branch=master!:https://travis-ci.org/SCCT/sbt-scct
+[![Build Status](https://travis-ci.org/SCCT/sbt-scct.png?branch=master)](https://travis-ci.org/SCCT/sbt-scct)
 
 sbt-scct
 ========
