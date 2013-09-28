@@ -12,10 +12,7 @@ crossScalaVersions := Seq("2.10.0-RC3", "2.9.2", "2.9.1-1", "2.9.1", "2.9.0-1", 
 sbtPlugin := true
 
 // Load scct from remote:
-resolvers += "scct-github-repository" at "http://mtkopone.github.com/scct/maven-repo"
-
-// For local development:
-// resolvers += "scct-repository" at "file:///Users/mtkopone/dev/scct-root/gh-pages/maven-repo"
+resolvers += "scct-github-repository" at "http://scct.github.com/scct/maven-repo"
 
 libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT"
 
