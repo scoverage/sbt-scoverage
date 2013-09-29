@@ -18,7 +18,7 @@ relevant branches
 
 > master
 
-sbt 0.12, scala 2.9, and improving.
+Cross-building for sbt 0.12 (scala 2.9) and 0.13 (scala 2.10) and improving.
 
 > sbt-0.7.7
 
