@@ -31,7 +31,7 @@ publishArtifact in Test := false
 
 pomIncludeRepository := { x => false }
 
-pomExtra := <url>http://seratch.github.com/scalikejdbc</url>
+pomExtra := <url>http://scct.github.io/scct/</url>
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -40,8 +40,8 @@ pomExtra := <url>http://seratch.github.com/scalikejdbc</url>
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:seratch/scct.git</url>
-    <connection>scm:git:git@github.com:seratch/scct.git</connection>
+    <url>git@github.com:SCCT/sbt-scct.git</url>
+    <connection>scm:git:git@github.com:SCCT/sbt-scct.git</connection>
   </scm>
   <developers>
     <developer>
