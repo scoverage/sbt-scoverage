@@ -23,9 +23,9 @@ object ScctPlugin extends Plugin {
       // Local dev:
       // resolvers += "scct-repository" at "file:///Users/mtkopone/dev/scct-root/gh-pages/maven-repo",
       // Actual usage:
-      resolvers += "scct-repository" at "http://mtkopone.github.com/scct/maven-repo",
+      resolvers += "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/snapshots",
 
-      libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT" % "scct",
+      libraryDependencies += "com.github.scct" %% "scct" % "0.2-SNAPSHOT" % "scct",
 
       sources in Scct <<= (sources in Compile),
       sourceDirectory in Scct <<= (sourceDirectory in Compile),

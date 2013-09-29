@@ -15,9 +15,9 @@ crossBuildingSettings
 CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
 
 // Load scct from remote:
-resolvers += "scct-github-repository" at "http://scct.github.com/scct/maven-repo"
+resolvers += "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "reaktor" %% "scct" % "0.2-SNAPSHOT"
+libraryDependencies += "com.github.scct" %% "scct" % "0.2-SNAPSHOT"
 
 publishTo <<= version { (v: String) =>
   val nexus = "https://oss.sonatype.org/"
