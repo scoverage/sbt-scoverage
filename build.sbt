@@ -6,7 +6,7 @@ version := "0.2-SNAPSHOT"
 
 scalaVersion := "2.10.2"
 
-crossScalaVersions := Seq("2.10.2", "2.9.2", "2.9.1-1", "2.9.1", "2.9.0-1", "2.9.0")
+crossScalaVersions := Seq("2.10.2", "2.9.2", "2.9.1-1", "2.9.1", "2.9.0")
 
 sbtPlugin := true
 
