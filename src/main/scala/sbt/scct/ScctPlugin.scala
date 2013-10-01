@@ -74,7 +74,7 @@ object ScctPlugin extends Plugin {
   })
 
   def scctJarPath = {
-    val url = classOf[reaktor.scct.ScctInstrumentPlugin].getProtectionDomain().getCodeSource().getLocation()
+    val url = classOf[com.github.scct.ScctInstrumentPlugin].getProtectionDomain().getCodeSource().getLocation()
     new File(url.toURI).getAbsolutePath
   }
 
@@ -104,7 +104,7 @@ object ScctPlugin extends Plugin {
   }
 
   def generateReport(input: Seq[File], out: File) = {
-    import reaktor.scct.report._
+    import com.github.scct.report._
     MultiProjectHtmlReporter.report(input, out)
     out
   }
