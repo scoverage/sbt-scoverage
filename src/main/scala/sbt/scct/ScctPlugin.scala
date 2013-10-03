@@ -25,7 +25,7 @@ object ScctPlugin extends Plugin {
       // Actual usage:
       resolvers += "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/snapshots",
 
-      libraryDependencies += "com.github.scct" %% "scct" % "0.2-SNAPSHOT" % "scct",
+      libraryDependencies += "com.github.scct" %% "scct" % "0.3-SNAPSHOT" % "scct",
 
       sources in Scct <<= (sources in Compile),
       sourceDirectory in Scct <<= (sourceDirectory in Compile),
