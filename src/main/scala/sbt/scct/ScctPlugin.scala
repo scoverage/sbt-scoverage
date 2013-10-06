@@ -20,9 +20,6 @@ object ScctPlugin extends Plugin {
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
 
-      // Local dev:
-      // resolvers += "scct-repository" at "file:///Users/mtkopone/dev/scct-root/gh-pages/maven-repo",
-      // Actual usage:
       resolvers += "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/snapshots",
 
       libraryDependencies += "com.github.scct" %% "scct" % "0.3-SNAPSHOT" % "scct",
@@ -36,7 +33,8 @@ object ScctPlugin extends Plugin {
         Seq(
           "-Xplugin:" + pluginClasspath.head.getAbsolutePath,
           "-P:scct:projectId:" + n,
-          "-P:scct:basedir:" + b
+          "-P:scct:basedir:" + b,
+          "-P:scct:excludePackages:"
         )
       },
 
