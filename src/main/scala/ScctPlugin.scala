@@ -17,6 +17,7 @@ object ScctPlugin extends Plugin {
     inConfig(ScctTest)(Defaults.testSettings) ++
     Seq(
       scctReportDir <<= crossTarget / "coverage-report",
+      scctExcludePackages <<= scctExcludePackages ?? "",
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
 
@@ -35,7 +36,6 @@ object ScctPlugin extends Plugin {
           "-Xplugin:" + pluginClasspath.head.getAbsolutePath,
           "-P:scct:projectId:" + n,
           "-P:scct:basedir:" + b
-          //"-P:scct:excludePackages:" + e
         )
       },
 
