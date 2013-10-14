@@ -14,7 +14,6 @@ crossBuildingSettings
 
 CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
 
-// Load scct from remote:
 resolvers += "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 libraryDependencies += "com.github.scct" %% "scct" % "0.3-SNAPSHOT"
