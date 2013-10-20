@@ -37,6 +37,7 @@ object ScctPlugin extends Plugin {
 
       sources in ScctTest <<= (sources in Test),
       sourceDirectory in ScctTest <<= (sourceDirectory in Test),
+      unmanagedResources in ScctTest <<= (unmanagedResources in Test),
 
       resourceDirectory in ScctTest <<= (resourceDirectory in Compile),
 
