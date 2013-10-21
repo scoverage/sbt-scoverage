@@ -9,5 +9,5 @@ scala:
 # Sonatype secure
 env:
   global:
-  - secure: "UJh2caCAZsoRpXChgZDqRwe4td3hqo8KTjzr42X8SMFjRLvnxpoHDyEmGRRdX/pkdU6ktga0k7CDGVFwLYSttRZY4GojF+F1bInv3gmFEvsS/6ZNy01q75mg+QIcuOZeyYH2ziGy4kLkAWYCM8fGqtnYLZQks1isu4zpIqujGwk="
-  - secure: "m7n/S66NeaO8fWMqPGjesELkWvjpQxFdFmoSMylerXvnY+xwRx1xYHiWrEOrG8kB/kX6+BCwan1QsJ6qn3HPaetG+iTg/AR9mHMy+CgCKhub+V7oy+EXmtaarsAMvxoRxpx9RGrwoFRlozm+fNnSdoY4kt0QNCJOXXY1F8igaes="
+  - secure: SRyS9zNRzo9LlJuSCEuh5k6407cQuCoopTI7NfyhUT/Cf7sS9eiwZgPt2L9x7W/3nk0pB833u15T5lgY3E7vlMc4qix+0qR8Ic1osuWiIcbxVzAklrqkTg+wz9+tuRjeitP9fRecA+9rmyGpPyJyGDFt5iG4+/2AuB23bmW205g=
+  - secure: F9kplDenPuQe3oOIdZ2jAnYG6kjawjwoCUCa4gfY8HDzRDO9CbdhpmL3V5pFNOZbPOGNHyG+qdsmFTX//VVo2P36rKP5dtHJfTDooJYZeJemxcCRpNrdFy02iy3NSK7k0N1R88N2UIeRXxCk7ZYXruslQtudBMdaG4JtAlGkqyQ=
