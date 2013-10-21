@@ -51,3 +51,5 @@ pomExtra := <url>http://scct.github.io/scct/</url>
       <url>http://mtkopone.github.com</url>
     </developer>
   </developers>
+
+credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", System.getenv("SONATYPE_USER"), System.getenv("SONATYPE_PASS"))
