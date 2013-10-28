@@ -1,5 +1,3 @@
-package sbt.scct
-
 import java.util.Properties
 import sbt._
 import sbt.Keys._
