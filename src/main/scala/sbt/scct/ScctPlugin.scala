@@ -20,7 +20,7 @@ object ScctPlugin extends Plugin {
 
       ivyConfigurations ++= Seq(Scct, ScctTest),
 
-      libraryDependencies += "com.github.scct" %% "scct" % "0.2" % "scct",
+      libraryDependencies += "com.github.scct" %% "scct" % "0.2.1" % "scct",
 
       sources in Scct <<= (sources in Compile),
       sourceDirectory in Scct <<= (sourceDirectory in Compile),

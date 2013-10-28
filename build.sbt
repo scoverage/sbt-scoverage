@@ -2,11 +2,11 @@ organization := "com.github.scct"
 
 name := "sbt-scct"
 
-version := "0.2"
+version := "0.2.1"
 
 scalaVersion := "2.10.2"
 
-crossScalaVersions := Seq("2.10.2", "2.9.2", "2.9.1-1", "2.9.1", "2.9.0")
+crossScalaVersions := Seq("2.10.2", "2.9.2", "2.9.1-1", "2.9.1", "2.9.0-1", "2.9.0")
 
 sbtPlugin := true
 
@@ -14,7 +14,7 @@ crossBuildingSettings
 
 CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
 
-libraryDependencies += "com.github.scct" %% "scct" % "0.2"
+libraryDependencies += "com.github.scct" %% "scct" % "0.2.1"
 
 publishTo <<= version { (v: String) =>
   val nexus = "https://oss.sonatype.org/"
