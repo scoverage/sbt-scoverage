@@ -4,12 +4,10 @@ import java.util.Properties
 import sbt._
 import sbt.Keys._
 import xml.transform._
-import scales.ScalesPlugin
 
 object ScalesSbtPlugin extends Plugin {
 
   val scalesReportDir = SettingKey[File]("scales-report-dir")
-
   val scalesExcludePackages = SettingKey[String]("scales-exclude-package")
 
   lazy val scales = config("scales")
@@ -34,9 +32,10 @@ object ScalesSbtPlugin extends Plugin {
 
         scalacOptions in scales <++= (name in scales, baseDirectory in scales, update) map {
           (n, b, report) =>
-            val pluginClasspath = report matching configurationFilter("scales")
+            val pluginClasspath = report matching configurationFilter("scalac-scales-plugin")
             if (pluginClasspath.isEmpty)
-              throw new Exception("Fatal: scales not in libraryDependencies. Use e.g. <+= or <++= instead of <<=")
+              throw new Exception(
+                "Fatal: scalac-scales-plugin not in libraryDependencies. Use e.g. <+= or <++= instead of <<=")
             Seq(
               "-Xplugin:" + pluginClasspath.head.getAbsolutePath,
               "-P:scales:projectId:" + n,
@@ -75,10 +74,8 @@ object ScalesSbtPlugin extends Plugin {
 
   val pomTransformer = new RuleTransformer(new RewriteRule {
     override def transform(node: xml.Node): Seq[xml.Node] = node match {
-      case e: xml.Elem if e.label == "dependency" =>
-        if ((e \ "scope" text) == "scales") Nil else Seq(e)
-      case e: xml.Elem if e.label == "repository" =>
-        if ((e \ "name" text) == "scales-repository") Nil else Seq(e)
+      case e: xml.Elem if e.label == "dependency" => if ((e \ "scope" text) == "scales") Nil else Seq(e)
+      case e: xml.Elem if e.label == "repository" => if ((e \ "name" text) == "scales-repository") Nil else Seq(e)
       case e => Seq(e)
     }
   })
@@ -101,11 +98,10 @@ object ScalesSbtPlugin extends Plugin {
     projects flatMap {
       p =>
         val dir = (scalesReportDir in scalesTest in LocalProject(p)).get(structure.data)
-        dir.flatMap {
-          d =>
-            val f = new File(d, "coverage-result.data")
-            if (f.exists) Some(f) else None
-        }
+        dir.flatMap(d => {
+          val f = new File(d, "coverage-result.data")
+          if (f.exists) Some(f) else None
+        })
     }
   }
 
@@ -119,8 +115,15 @@ object ScalesSbtPlugin extends Plugin {
     }
   }
   /** Generate hook that is invoked before each tests execution. */
-  def testSetup() =
-    (name in scales, baseDirectory in scales, scalaSource in scales, classDirectory in scalesTest, scalesExcludePackages in scalesTest, definedTests in scalesTest, scalesReportDir, streams) map {
+  def testSetup() = {
+    (name in scales,
+      baseDirectory in scales,
+      scalaSource in scales,
+      classDirectory in scalesTest,
+      scalesExcludePackages in scalesTest,
+      definedTests in scalesTest,
+      scalesReportDir,
+      streams) map {
       (name,
        baseDirectory,
        scalaSource,
@@ -138,7 +141,7 @@ object ScalesSbtPlugin extends Plugin {
           Tests.Setup {
             () =>
               val out = classDirectory / "scales.properties"
-              streams.log.debug(logPrefix(name) + "Prepare scales environment at %s".format(out.getCanonicalPath()))
+              streams.log.debug(logPrefix(name) + "Prepare scales environment at %s".format(out.getCanonicalPath))
               val props = new Properties()
               props.setProperty("scales.basedir", baseDirectory.getAbsolutePath)
               props.setProperty("scales.report.hook", "system.property")
@@ -149,10 +152,18 @@ object ScalesSbtPlugin extends Plugin {
               IO.write(props, "Env for scales test run and report generation", out)
           }
     }
+  }
+
   /** Generate hook that is invoked after each tests execution. */
-  def testCleanup() =
-    (name in scales, classDirectory in scalesTest, definedTests in scalesTest, streams) map {
-      (name, classDirectory, definedTests, streams) =>
+  def testCleanup() = {
+    (name in scales,
+      classDirectory in scalesTest,
+      definedTests in scalesTest,
+      streams) map {
+      (name,
+       classDirectory,
+       definedTests,
+       streams) =>
         if (definedTests.isEmpty) {
           streams.log.debug(logPrefix(name) + "No tests found. Skip scales cleanup hook.")
           Tests.Cleanup {
@@ -167,12 +178,13 @@ object ScalesSbtPlugin extends Plugin {
               System.setProperty(reportProperty, "true")
               val maxSleep = compat.Platform.currentTime + 60L * 1000L
               while (sys.props(reportProperty) != "done" && compat.Platform.currentTime < maxSleep) Thread.sleep(200L)
-              if (sys.props(reportProperty) != "done") streams
-                .log
-                .debug(logPrefix(name) + "Timed out waiting for coverage report.")
+              if (sys.props(reportProperty) != "done")
+                streams.log.debug(logPrefix(name) + "Timed out waiting for coverage report.")
               out.delete
               streams.log.debug(logPrefix(name) + "Cleanup scales environment")
           }
     }
+  }
+
   def logPrefix(name: String) = "scales: [" + name + "] "
 }
