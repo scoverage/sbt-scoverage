@@ -4,10 +4,4 @@ after_script:
   - if [[ $TRAVIS_TEST_RESULT == 0 && "$TRAVIS_BRANCH" == "master" ]]; then sbt "^publish"; fi
 
 scala:
-  - "2.9.2"
-
-# Sonatype secure
-env:
-  global:
-  - secure: SRyS9zNRzo9LlJuSCEuh5k6407cQuCoopTI7NfyhUT/Cf7sS9eiwZgPt2L9x7W/3nk0pB833u15T5lgY3E7vlMc4qix+0qR8Ic1osuWiIcbxVzAklrqkTg+wz9+tuRjeitP9fRecA+9rmyGpPyJyGDFt5iG4+/2AuB23bmW205g=
-  - secure: F9kplDenPuQe3oOIdZ2jAnYG6kjawjwoCUCa4gfY8HDzRDO9CbdhpmL3V5pFNOZbPOGNHyG+qdsmFTX//VVo2P36rKP5dtHJfTDooJYZeJemxcCRpNrdFy02iy3NSK7k0N1R88N2UIeRXxCk7ZYXruslQtudBMdaG4JtAlGkqyQ=
+  - "2.10.3"
