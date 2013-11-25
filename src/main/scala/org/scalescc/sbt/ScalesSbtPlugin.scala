@@ -22,8 +22,8 @@ object ScalesSbtPlugin extends Plugin {
 
         ivyConfigurations ++= Seq(scales, scalesTest),
 
-        //resolvers += Resolver.url("local-ivy", new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
-        resolvers += "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/snapshots",
+        resolvers += Resolver.url("local-ivy",
+          new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
 
         libraryDependencies += "org.scalescc" %% "scalac-scales-plugin" % "0.1.0-SNAPSHOT" % "scales",
 
@@ -32,15 +32,16 @@ object ScalesSbtPlugin extends Plugin {
 
         scalacOptions in scales <++= (name in scales, baseDirectory in scales, update) map {
           (n, b, report) =>
-            val pluginClasspath = report matching configurationFilter("scalac-scales-plugin")
-            if (pluginClasspath.isEmpty)
-              throw new Exception(
-                "Fatal: scalac-scales-plugin not in libraryDependencies. Use e.g. <+= or <++= instead of <<=")
-            Seq(
-              "-Xplugin:" + pluginClasspath.head.getAbsolutePath,
-              "-P:scales:projectId:" + n,
-              "-P:scales:basedir:" + b
-            )
+            val scalesDeps = report matching configurationFilter("scales")
+            scalesDeps.find(_.getAbsolutePath.contains("scalac-scales-plugin")) match {
+              case None => throw new Exception("Fatal: scalac-scales-plugin not in libraryDependencies")
+              case Some(classpath) =>
+                Seq(
+                  "-Xplugin:" + classpath.getAbsolutePath
+                  //     "-P:scales:projectId:" + n,
+                  //    "-P:scales:basedir:" + b
+                )
+            }
         },
 
         sources in scalesTest <<= (sources in Test),
@@ -68,52 +69,18 @@ object ScalesSbtPlugin extends Plugin {
 
         // filter scales dependencies for publishing
         pomPostProcess := {
-          (node: xml.Node) => pomTransformer(node)
+          (node: xml.Node) => filterPomForScalesDeps(node)
         }
       )
 
-  val pomTransformer = new RuleTransformer(new RewriteRule {
+  val filterPomForScalesDeps = new RuleTransformer(new RewriteRule {
     override def transform(node: xml.Node): Seq[xml.Node] = node match {
-      case e: xml.Elem if e.label == "dependency" => if ((e \ "scope" text) == "scales") Nil else Seq(e)
+      case e: xml.Elem if e.label == "dependency" => if ((e \ "scope" text) == "scalac-scales-plugin") Nil else Seq(e)
       case e: xml.Elem if e.label == "repository" => if ((e \ "name" text) == "scales-repository") Nil else Seq(e)
       case e => Seq(e)
     }
   })
 
-  object scalesMergeReportKeys {
-    val sourceFiles = TaskKey[Seq[File]]("scales-merge-report-source-files")
-    val merge = TaskKey[File]("scales-merge-report")
-  }
-
-  import scalesMergeReportKeys._
-
-  val mergeReportSettings = Seq(
-    scalesReportDir <<= crossTarget / "coverage-report",
-    sourceFiles <<= (thisProjectRef, buildStructure) map coverageResultFiles,
-    merge <<= (sourceFiles, scalesReportDir) map generateReport
-  )
-
-  def coverageResultFiles(projectRef: ProjectRef, structure: Load.BuildStructure) = {
-    val projects = aggregated(projectRef, structure)
-    projects flatMap {
-      p =>
-        val dir = (scalesReportDir in scalesTest in LocalProject(p)).get(structure.data)
-        dir.flatMap(d => {
-          val f = new File(d, "coverage-result.data")
-          if (f.exists) Some(f) else None
-        })
-    }
-  }
-
-  def generateReport(input: Seq[File], out: File) = out
-
-  def aggregated(projectRef: ProjectRef, structure: Load.BuildStructure): Seq[String] = {
-    val aggregate = Project.getProject(projectRef, structure).toSeq.flatMap(_.aggregate)
-    aggregate flatMap {
-      ref =>
-        ref.project +: aggregated(ref, structure)
-    }
-  }
   /** Generate hook that is invoked before each tests execution. */
   def testSetup() = {
     (name in scales,
@@ -132,6 +99,7 @@ object ScalesSbtPlugin extends Plugin {
        definedTests,
        scalesReportDir,
        streams) =>
+        println("SCALES !! BEOFRE TEST !!!")
         if (definedTests.isEmpty) {
           streams.log.debug(logPrefix(name) + "No tests found. Skip scales setup hook.")
           Tests.Setup {
@@ -164,6 +132,7 @@ object ScalesSbtPlugin extends Plugin {
        classDirectory,
        definedTests,
        streams) =>
+        println("SCALES !! AFTER TEST !!!")
         if (definedTests.isEmpty) {
           streams.log.debug(logPrefix(name) + "No tests found. Skip scales cleanup hook.")
           Tests.Cleanup {

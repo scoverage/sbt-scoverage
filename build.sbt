@@ -2,17 +2,11 @@ organization := "org.scalescc"
 
 name := "sbt-scales"
 
-version := "0.1.0-SNAPSHOT"
+version := "0.1.1-SNAPSHOT"
 
 scalaVersion := "2.10.3"
 
-crossScalaVersions := Seq("2.10.3")
-
 sbtPlugin := true
-
-//crossBuildingSettings
-
-//CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
 
 libraryDependencies += "org.scalescc" %% "scalac-scales-plugin" % "0.1.0-SNAPSHOT"
 
@@ -22,6 +16,8 @@ publishTo <<= isSnapshot {
 }
 
 publishMavenStyle := false
+
+publishArtifact in Test := false
 
 credentials += Credentials(
   "Sonatype Nexus Repository Manager",
