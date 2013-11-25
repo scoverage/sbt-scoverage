@@ -8,7 +8,6 @@ import xml.transform._
 object ScalesSbtPlugin extends Plugin {
 
   val scalesReportDir = SettingKey[File]("scales-report-dir")
-  val scalesExcludePackages = SettingKey[String]("scales-exclude-package")
 
   lazy val scales = config("scales")
   lazy val scalesTest = config("scales-test") extend scales
@@ -18,7 +17,6 @@ object ScalesSbtPlugin extends Plugin {
       inConfig(scalesTest)(Defaults.testSettings) ++
       Seq(
         scalesReportDir <<= crossTarget / "coverage-report",
-        scalesExcludePackages <<= scalesExcludePackages ?? "",
 
         ivyConfigurations ++= Seq(scales, scalesTest),
 
@@ -87,7 +85,6 @@ object ScalesSbtPlugin extends Plugin {
       baseDirectory in scales,
       scalaSource in scales,
       classDirectory in scalesTest,
-      scalesExcludePackages in scalesTest,
       definedTests in scalesTest,
       scalesReportDir,
       streams) map {
@@ -95,7 +92,6 @@ object ScalesSbtPlugin extends Plugin {
        baseDirectory,
        scalaSource,
        classDirectory,
-       scalesExcludePackages,
        definedTests,
        scalesReportDir,
        streams) =>
@@ -116,7 +112,6 @@ object ScalesSbtPlugin extends Plugin {
               props.setProperty("scales.project.name", name)
               props.setProperty("scales.report.dir", scalesReportDir.getAbsolutePath)
               props.setProperty("scales.source.dir", scalaSource.getAbsolutePath)
-              props.setProperty("scales.excluded.paths.regex", scalesExcludePackages.configuration.getOrElse(""))
               IO.write(props, "Env for scales test run and report generation", out)
           }
     }
