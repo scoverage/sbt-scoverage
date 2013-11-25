@@ -2,13 +2,17 @@ organization := "org.scalescc"
 
 name := "sbt-scales"
 
-version := "0.1.1-SNAPSHOT"
+version := "0.11.0-SNAPSHOT"
 
 scalaVersion := "2.10.3"
 
 sbtPlugin := true
 
-libraryDependencies += "org.scalescc" %% "scalac-scales-plugin" % "0.1.0-SNAPSHOT"
+resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository"
+
+libraryDependencies ++= Seq(
+  "org.scalescc" %% "scalac-scales-plugin" % "0.11.0-SNAPSHOT"
+)
 
 publishTo <<= isSnapshot {
   snapshot =>
