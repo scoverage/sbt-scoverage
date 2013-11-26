@@ -5,7 +5,6 @@ import sbt.Keys._
 import scales._
 import sbt.File
 import scales.report.{ScalesHtmlWriter, CoberturaXmlWriter, ScalesXmlWriter}
-import scala.Some
 
 object ScalesSbtPlugin extends Plugin {
 
