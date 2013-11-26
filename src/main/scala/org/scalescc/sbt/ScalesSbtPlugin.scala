@@ -24,7 +24,7 @@ object ScalesSbtPlugin extends Plugin {
         resolvers += Resolver.url("local-ivy",
           new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
 
-        libraryDependencies += "org.scalescc" %% "scalac-scales-plugin" % "0.11.0-SNAPSHOT" % Scales.name,
+        libraryDependencies += "com.sksamuel.scala-scales" %% "scalac-scales-plugin" % "0.90.0" % Scales.name,
 
         sources in Scales <<= (sources in Compile),
         sourceDirectory in Scales <<= (sourceDirectory in Compile),
