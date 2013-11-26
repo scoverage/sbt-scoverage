@@ -8,10 +8,10 @@ import scales.report.{ScalesHtmlWriter, CoberturaXmlWriter, ScalesXmlWriter}
 
 object ScalesSbtPlugin extends Plugin {
 
-  val scalesReportDir = SettingKey[File]("scales-report-dir")
+  val scalesReportDir = SettingKey[File]("scoot-report-dir")
 
-  lazy val Scales = config("scales")
-  lazy val ScalesTest = config("scales-test") extend Scales
+  lazy val Scales = config("scoot")
+  lazy val ScalesTest = config("scoot-test") extend Scales
 
   lazy val instrumentSettings = {
     inConfig(Scales)(Defaults.compileSettings) ++
@@ -24,16 +24,16 @@ object ScalesSbtPlugin extends Plugin {
         resolvers += Resolver.url("local-ivy",
           new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
 
-        libraryDependencies += "com.sksamuel.scala-scales" %% "scalac-scales-plugin" % "0.90.0" % Scales.name,
+        libraryDependencies += "com.sksamuel.scoot" %% "scalac-scoot-plugin" % "0.91.0" % Scales.name,
 
         sources in Scales <<= (sources in Compile),
         sourceDirectory in Scales <<= (sourceDirectory in Compile),
 
         scalacOptions in Scales <++= (name in Scales, baseDirectory in Scales, update) map {
           (n, b, report) =>
-            val scalesDeps = report matching configurationFilter("scales")
-            scalesDeps.find(_.getAbsolutePath.contains("scalac-scales-plugin")) match {
-              case None => throw new Exception("Fatal: scalac-scales-plugin not in libraryDependencies")
+            val scalesDeps = report matching configurationFilter("scoot")
+            scalesDeps.find(_.getAbsolutePath.contains("scalac-scoot-plugin")) match {
+              case None => throw new Exception("Fatal: scalac-scoot-plugin not in libraryDependencies")
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
@@ -93,13 +93,13 @@ object ScalesSbtPlugin extends Plugin {
               val targetDirectory = new File("target/coverage-report")
               targetDirectory.mkdirs()
 
-              println("Generating ScalesXML report...")
+              println("Generating ScootXML report...")
               ScalesXmlWriter.write(coverage, targetDirectory)
 
               println("Generating CoberturaXML report...")
               CoberturaXmlWriter.write(coverage, targetDirectory)
 
-              println("Generating Scales HTML report...")
+              println("Generating ScootHTML report...")
               ScalesHtmlWriter.write(coverage, targetDirectory)
           }
         }

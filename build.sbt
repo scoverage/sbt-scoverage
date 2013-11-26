@@ -1,6 +1,6 @@
-name := "sbt-scales"
+name := "sbt-scoot"
 
-organization := "com.sksamuel.scala-scales"
+organization := "com.sksamuel.scoot"
 
 version := "0.90.1"
 
@@ -11,7 +11,7 @@ sbtPlugin := true
 resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository"
 
 libraryDependencies ++= Seq(
-  "com.sksamuel.scala-scales" %% "scalac-scales-plugin" % "0.90.0"
+  "com.sksamuel.scoot" %% "scalac-scoot-plugin" % "0.90.0"
 )
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
