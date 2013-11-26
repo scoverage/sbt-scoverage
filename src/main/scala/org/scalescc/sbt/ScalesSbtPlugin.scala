@@ -1,19 +1,11 @@
 package org.scalescc.sbt
 
-import java.util.Properties
 import sbt._
 import sbt.Keys._
-import xml.transform._
-import scales.{Coverage, Env}
+import scales._
+import sbt.File
 import scales.report.{ScalesHtmlWriter, CoberturaXmlWriter, ScalesXmlWriter}
-import java.io._
-import sbt.File
-import sbt.File
 import scala.Some
-import sbt.File
-import scala.Some
-import java.io.File
-import sbt.File
 
 object ScalesSbtPlugin extends Plugin {
 
@@ -45,7 +37,8 @@ object ScalesSbtPlugin extends Plugin {
               case None => throw new Exception("Fatal: scalac-scales-plugin not in libraryDependencies")
               case Some(classpath) =>
                 Seq(
-                  "-Xplugin:" + classpath.getAbsolutePath
+                  "-Xplugin:" + classpath.getAbsolutePath,
+                  "-Yrangepos"
                 )
             }
         },
@@ -67,7 +60,6 @@ object ScalesSbtPlugin extends Plugin {
             scalesDeps ++ testDeps.filter(_.data != oldClassDir)
         },
 
-        testOptions in ScalesTest <+= testsSetup,
         testOptions in ScalesTest <+= testsCleanup,
 
         // make scales config the same as scalesTest config
@@ -75,62 +67,12 @@ object ScalesSbtPlugin extends Plugin {
       )
   }
 
-  /** Generate hook that is invoked before each tests execution. */
-  def testsSetup = {
-    (name in Scales,
-      baseDirectory in Scales,
-      scalaSource in Scales,
-      classDirectory in ScalesTest,
-      definedTests in ScalesTest,
-      scalesReportDir,
-      streams) map {
-      (name,
-       baseDirectory,
-       scalaSource,
-       classDirectory,
-       definedTests,
-       scalesReportDir,
-       streams) =>
-        if (definedTests.isEmpty) {
-          Tests.Setup {
-            () => {}
-          }
-        } else
-          Tests.Setup {
-            () =>
-              val out = classDirectory / "scales.properties"
-              val props = new Properties()
-              props.setProperty("scales.basedir", baseDirectory.getAbsolutePath)
-              IO.write(props, "Env for scales", out)
-          }
-    }
-  }
-
-  // todo figure out how to access these from another dep
-  def invoked(file: File): Seq[Int] = {
-    val reader = new BufferedReader(new FileReader(Env.measurementFile))
-    val line = reader.readLine()
-    reader.close()
-    line.split(";").filterNot(_.isEmpty).map(_.toInt)
-  }
-
-  // todo figure out how to access these from another dep
-  def deserialize(file: File): Coverage = deserialize(new FileInputStream(file))
-  def deserialize(in: InputStream): Coverage = {
-    val oos = new ObjectInputStream(in)
-    val coverage = oos.readObject().asInstanceOf[Coverage]
-    oos.close()
-    coverage
-  }
-
   /** Generate hook that is invoked after each tests execution. */
   def testsCleanup = {
-    (name in Scales,
-      classDirectory in ScalesTest,
+    (target in ScalesTest,
       definedTests in ScalesTest,
       streams) map {
-      (name,
-       classDirectory,
+      (target,
        definedTests,
        streams) =>
         if (definedTests.isEmpty) {
@@ -141,13 +83,12 @@ object ScalesSbtPlugin extends Plugin {
           Tests.Cleanup {
             () =>
 
-              println(Keys.target in Test)
+              println(target)
               println(Env.coverageFile)
               println(Env.measurementFile)
 
-              val coverage = deserialize(Env.coverageFile)
-              val measurements = invoked(Env.measurementFile)
-
+              val coverage = IOUtils.deserialize(getClass.getClassLoader, Env.coverageFile)
+              val measurements = IOUtils.invoked(Env.measurementFile)
               coverage.apply(measurements)
 
               val targetDirectory = new File("target/coverage-report")
@@ -161,8 +102,6 @@ object ScalesSbtPlugin extends Plugin {
 
               println("Generating Scales HTML report...")
               ScalesHtmlWriter.write(coverage, targetDirectory)
-
-              ()
           }
         }
     }
