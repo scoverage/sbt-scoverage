@@ -1,4 +1,4 @@
-sbt-scales
+sbt-scoot
 ========
 
-sbt integration to scales
+sbt integration for scoot

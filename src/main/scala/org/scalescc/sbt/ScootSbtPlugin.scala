@@ -8,7 +8,7 @@ import scales.report.{ScalesHtmlWriter, CoberturaXmlWriter, ScalesXmlWriter}
 
 object ScootSbtPlugin extends Plugin {
 
-  val scalesReportDir = SettingKey[File]("scoot-report-dir")
+  val scootReportDir = SettingKey[File]("scoot-report-dir")
 
   lazy val Scoot = config("scoot")
   lazy val ScootTest = config("scoot-test") extend Scoot
@@ -17,7 +17,7 @@ object ScootSbtPlugin extends Plugin {
     inConfig(Scoot)(Defaults.compileSettings) ++
       inConfig(ScootTest)(Defaults.testSettings) ++
       Seq(
-        scalesReportDir <<= crossTarget / "coverage-report",
+        scootReportDir <<= crossTarget / "coverage-report",
 
         ivyConfigurations ++= Seq(Scoot, ScootTest),
 
@@ -31,8 +31,8 @@ object ScootSbtPlugin extends Plugin {
 
         scalacOptions in Scoot <++= (name in Scoot, baseDirectory in Scoot, update) map {
           (n, b, report) =>
-            val scalesDeps = report matching configurationFilter("scoot")
-            scalesDeps.find(_.getAbsolutePath.contains("scalac-scoot-plugin")) match {
+            val scootDeps = report matching configurationFilter("scoot")
+            scootDeps.find(_.getAbsolutePath.contains("scalac-scoot-plugin")) match {
               case None => throw new Exception("Fatal: scalac-scoot-plugin not in libraryDependencies")
               case Some(classpath) =>
                 Seq(
@@ -55,13 +55,13 @@ object ScootSbtPlugin extends Plugin {
 
         internalDependencyClasspath in Scoot <<= (internalDependencyClasspath in Compile),
         internalDependencyClasspath in ScootTest <<= (internalDependencyClasspath in Test, internalDependencyClasspath in ScootTest, classDirectory in Compile) map {
-          (testDeps, scalesDeps, oldClassDir) =>
-            scalesDeps ++ testDeps.filter(_.data != oldClassDir)
+          (testDeps, scootDeps, oldClassDir) =>
+            scootDeps ++ testDeps.filter(_.data != oldClassDir)
         },
 
         testOptions in ScootTest <+= testsCleanup,
 
-        // make scales config the same as scalesTest config
+        // make scoot config the same as scootTest config
         test in Scoot <<= (test in ScootTest)
       )
   }
@@ -94,13 +94,13 @@ object ScootSbtPlugin extends Plugin {
               targetDirectory.mkdirs()
 
               println("Generating ScootXML report...")
-              ScalesXmlWriter.write(coverage, targetDirectory)
+              ScootXmlWriter.write(coverage, targetDirectory)
 
               println("Generating CoberturaXML report...")
               CoberturaXmlWriter.write(coverage, targetDirectory)
 
               println("Generating ScootHTML report...")
-              ScalesHtmlWriter.write(coverage, targetDirectory)
+              ScootXmlWriter.write(coverage, targetDirectory)
           }
         }
     }
