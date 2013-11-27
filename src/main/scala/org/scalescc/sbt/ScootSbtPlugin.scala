@@ -6,30 +6,30 @@ import scales._
 import sbt.File
 import scales.report.{ScalesHtmlWriter, CoberturaXmlWriter, ScalesXmlWriter}
 
-object ScalesSbtPlugin extends Plugin {
+object ScootSbtPlugin extends Plugin {
 
   val scalesReportDir = SettingKey[File]("scoot-report-dir")
 
-  lazy val Scales = config("scoot")
-  lazy val ScalesTest = config("scoot-test") extend Scales
+  lazy val Scoot = config("scoot")
+  lazy val ScootTest = config("scoot-test") extend Scoot
 
   lazy val instrumentSettings = {
-    inConfig(Scales)(Defaults.compileSettings) ++
-      inConfig(ScalesTest)(Defaults.testSettings) ++
+    inConfig(Scoot)(Defaults.compileSettings) ++
+      inConfig(ScootTest)(Defaults.testSettings) ++
       Seq(
         scalesReportDir <<= crossTarget / "coverage-report",
 
-        ivyConfigurations ++= Seq(Scales, ScalesTest),
+        ivyConfigurations ++= Seq(Scoot, ScootTest),
 
         resolvers += Resolver.url("local-ivy",
           new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
 
-        libraryDependencies += "com.sksamuel.scoot" %% "scalac-scoot-plugin" % "0.91.0" % Scales.name,
+        libraryDependencies += "com.sksamuel.scoot" %% "scalac-scoot-plugin" % "0.91.0" % Scoot.name,
 
-        sources in Scales <<= (sources in Compile),
-        sourceDirectory in Scales <<= (sourceDirectory in Compile),
+        sources in Scoot <<= (sources in Compile),
+        sourceDirectory in Scoot <<= (sourceDirectory in Compile),
 
-        scalacOptions in Scales <++= (name in Scales, baseDirectory in Scales, update) map {
+        scalacOptions in Scoot <++= (name in Scoot, baseDirectory in Scoot, update) map {
           (n, b, report) =>
             val scalesDeps = report matching configurationFilter("scoot")
             scalesDeps.find(_.getAbsolutePath.contains("scalac-scoot-plugin")) match {
@@ -42,34 +42,34 @@ object ScalesSbtPlugin extends Plugin {
             }
         },
 
-        sources in ScalesTest <<= (sources in Test),
-        sourceDirectory in ScalesTest <<= (sourceDirectory in Test),
-        unmanagedResources in ScalesTest <<= (unmanagedResources in Test),
+        sources in ScootTest <<= (sources in Test),
+        sourceDirectory in ScootTest <<= (sourceDirectory in Test),
+        unmanagedResources in ScootTest <<= (unmanagedResources in Test),
 
-        resourceDirectory in ScalesTest <<= (resourceDirectory in Compile),
+        resourceDirectory in ScootTest <<= (resourceDirectory in Compile),
 
-        externalDependencyClasspath in Scales <<= Classpaths
-          .concat(externalDependencyClasspath in Scales, externalDependencyClasspath in Compile),
-        externalDependencyClasspath in ScalesTest <<= Classpaths
-          .concat(externalDependencyClasspath in ScalesTest, externalDependencyClasspath in Test),
+        externalDependencyClasspath in Scoot <<= Classpaths
+          .concat(externalDependencyClasspath in Scoot, externalDependencyClasspath in Compile),
+        externalDependencyClasspath in ScootTest <<= Classpaths
+          .concat(externalDependencyClasspath in ScootTest, externalDependencyClasspath in Test),
 
-        internalDependencyClasspath in Scales <<= (internalDependencyClasspath in Compile),
-        internalDependencyClasspath in ScalesTest <<= (internalDependencyClasspath in Test, internalDependencyClasspath in ScalesTest, classDirectory in Compile) map {
+        internalDependencyClasspath in Scoot <<= (internalDependencyClasspath in Compile),
+        internalDependencyClasspath in ScootTest <<= (internalDependencyClasspath in Test, internalDependencyClasspath in ScootTest, classDirectory in Compile) map {
           (testDeps, scalesDeps, oldClassDir) =>
             scalesDeps ++ testDeps.filter(_.data != oldClassDir)
         },
 
-        testOptions in ScalesTest <+= testsCleanup,
+        testOptions in ScootTest <+= testsCleanup,
 
         // make scales config the same as scalesTest config
-        test in Scales <<= (test in ScalesTest)
+        test in Scoot <<= (test in ScootTest)
       )
   }
 
   /** Generate hook that is invoked after each tests execution. */
   def testsCleanup = {
-    (target in ScalesTest,
-      definedTests in ScalesTest,
+    (target in ScootTest,
+      definedTests in ScootTest,
       streams) map {
       (target,
        definedTests,
