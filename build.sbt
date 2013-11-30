@@ -1,8 +1,8 @@
-name := "sbt-scoot"
+name := "sbt-scoverage"
 
-organization := "com.sksamuel.scoot"
+organization := "com.sksamuel.scoverage"
 
-version := "0.90.1"
+version := "0.92.0"
 
 scalaVersion := "2.10.3"
 
@@ -11,7 +11,7 @@ sbtPlugin := true
 resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository"
 
 libraryDependencies ++= Seq(
-  "com.sksamuel.scoot" %% "scalac-scoot-plugin" % "0.90.0"
+  "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.90.0"
 )
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
