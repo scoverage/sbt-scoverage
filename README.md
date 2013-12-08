@@ -7,7 +7,7 @@ sbt integration for scoverage
 
 Add the plugin to your build with the following in project/build.sbt:
 ```scala
-addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.92.0")
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.93")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
