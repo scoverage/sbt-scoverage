@@ -1,14 +1,9 @@
-package com.sksamuel.scoverage
-
 import sbt._
 import sbt.Keys._
-import sbt.File
-import scoverage.{IOUtils, Env}
-import scoverage.report.{ScoverageHtmlWriter, ScoverageXmlWriter, CoberturaXmlWriter}
 
 object ScoverageSbtPlugin extends Plugin {
 
-  val scoverageReportDir = SettingKey[File]("scoverage-report-dir")
+  val scoverageVersion = SettingKey[String]("scoverage-version")
 
   lazy val scoverage = config("scoverage")
   lazy val scoverageTest = config("scoverage-test") extend scoverage
@@ -17,15 +12,13 @@ object ScoverageSbtPlugin extends Plugin {
     inConfig(scoverage)(Defaults.compileSettings) ++
       inConfig(scoverageTest)(Defaults.testSettings) ++
       Seq(
-        scoverageReportDir <<= crossTarget / "coverage-report",
-
         ivyConfigurations ++= Seq(scoverage, scoverageTest),
 
-        resolvers += Resolver.url("local-ivy",
-          new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
+        //        resolvers += Resolver.url("local-ivy",
+        //        new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
 
         libraryDependencies +=
-          "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.92.0-SNAPSHOT" % scoverage.name,
+          "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.93" % scoverage.name,
 
         sources in scoverage <<= (sources in Compile),
         sourceDirectory in scoverage <<= (sourceDirectory in Compile),
