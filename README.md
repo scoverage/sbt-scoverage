@@ -3,6 +3,26 @@ sbt-scoverage
 
 sbt integration for scoverage
 
+## How to use
+
+Add the plugin to your build with the following in project/build.sbt:
+```scala
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.92.0")
+```
+
+Add the plugin settings to your project somewhere in build.sbt:
+```scala
+ScctPlugin.instrumentSettings
+```
+
+Then run the your tests with coverage enabled by entering:
+```
+$ sbt clean scct:test
+```
+
+After the tests have finished you should find the coverage reports inside `target`.
+
+If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
 ## License
 ```
