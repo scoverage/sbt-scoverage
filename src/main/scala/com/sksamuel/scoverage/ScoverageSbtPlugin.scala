@@ -4,7 +4,7 @@ import sbt._
 import sbt.Keys._
 import sbt.File
 import scoverage.{IOUtils, Env}
-import scoverage.report.{ScoverageXmlWriter, CoberturaXmlWriter}
+import scoverage.report.{ScoverageHtmlWriter, ScoverageXmlWriter, CoberturaXmlWriter}
 
 object ScoverageSbtPlugin extends Plugin {
 
@@ -70,9 +70,11 @@ object ScoverageSbtPlugin extends Plugin {
   /** Generate hook that is invoked after each tests execution. */
   def testsCleanup = {
     (target in scoverageTest,
+      scalaSource in Compile,
       definedTests in scoverageTest,
       streams) map {
       (target,
+       compileSourceDirectory,
        definedTests,
        streams) =>
         if (definedTests.isEmpty) {
@@ -91,17 +93,20 @@ object ScoverageSbtPlugin extends Plugin {
               val measurements = IOUtils.invoked(Env.measurementFile)
               coverage.apply(measurements)
 
-              val targetDirectory = new File("target/coverage-report")
-              targetDirectory.mkdirs()
+              val coberturaDirectory = target / "coverage-report"
+              val scoverageDirectory = target / "scoverage-report"
+
+              coberturaDirectory.mkdirs()
+              scoverageDirectory.mkdirs()
 
               println("Generating Cobertura XML report...")
-              CoberturaXmlWriter.write(coverage, targetDirectory)
+              new CoberturaXmlWriter(coberturaDirectory).write(coverage)
 
               println("Generating Scoverage XML report...")
-              ScoverageXmlWriter.write(coverage, targetDirectory)
+              new ScoverageXmlWriter(scoverageDirectory).write(coverage)
 
               println("Generating Scoverage HTML report...")
-              ScoverageXmlWriter.write(coverage, targetDirectory)
+              new ScoverageHtmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
 
               ()
           }
