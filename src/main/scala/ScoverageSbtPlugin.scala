@@ -5,12 +5,12 @@ import scoverage.report._
 
 object ScoverageSbtPlugin extends sbt.Plugin {
 
+  val ScalacScoveragePluginVersion = "0.95.0"
+
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
   }
-
-  val ScalacScoveragePluginVersion = "0.94.0"
 
   import ScoverageKeys._
 
