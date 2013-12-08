@@ -1,9 +1,15 @@
 import sbt._
 import sbt.Keys._
+import scoverage.Env
 
 object ScoverageSbtPlugin extends Plugin {
 
-  val scoverageVersion = SettingKey[String]("scoverage-version")
+  object ScoverageKeys {
+    val scoverageVersion = SettingKey[String]("scoverage-version")
+    val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
+  }
+
+  import ScoverageKeys._
 
   lazy val scoverage = config("scoverage")
   lazy val scoverageTest = config("scoverage-test") extend scoverage
@@ -14,14 +20,16 @@ object ScoverageSbtPlugin extends Plugin {
       Seq(
         ivyConfigurations ++= Seq(scoverage, scoverageTest),
 
-        //        resolvers += Resolver.url("local-ivy",
-        //        new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
+        resolvers += Resolver.url("local-ivy",
+          new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
 
         libraryDependencies +=
           "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.93" % scoverage.name,
 
         sources in scoverage <<= (sources in Compile),
         sourceDirectory in scoverage <<= (sourceDirectory in Compile),
+
+        excludedPackages := "",
 
         scalacOptions in scoverage <++= (name in scoverage, baseDirectory in scoverage, update) map {
           (n, b, report) =>
@@ -31,7 +39,8 @@ object ScoverageSbtPlugin extends Plugin {
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
-                  "-Yrangepos"
+                  "-Yrangepos",
+                  "-P:scoverage:excludedPackages:" + excludedPackages
                 )
             }
         },

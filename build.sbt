@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "com.sksamuel.scoverage"
 
-version := "0.93"
+version := "0.93.0"
 
 scalaVersion := "2.10.3"
 
@@ -18,7 +18,6 @@ libraryDependencies ++= Seq(
   "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.93"
 )
 
-
 publishTo <<= version {
   (v: String) =>
     val scalasbt = "http://repo.scala-sbt.org/scalasbt/"
@@ -26,6 +25,7 @@ publishTo <<= version {
     else ("sbt-plugin-releases", scalasbt + "sbt-plugin-releases")
     Some(Resolver.url(name, new URL(url))(Resolver.ivyStylePatterns))
 }
+
 
 publishMavenStyle := false
 
