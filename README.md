@@ -1,7 +1,7 @@
 sbt-scoverage
 ========
 
-sbt integration for scoverage
+sbt-scoverage is a plugin for SBT that integrates the scoverage code coverage library. Find out more about [scoverage](https://github.com/scoverage/scalac-scoverage-plugin).
 
 ## How to use
 
@@ -20,9 +20,13 @@ Then run the your tests with coverage enabled by entering:
 $ sbt clean scct:test
 ```
 
-After the tests have finished you should find the coverage reports inside `target`.
+After the tests have finished you should find the coverage reports inside `target/scoverage-report`.
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
+
+## Coveralls
+
+If you have an open source project then you can add code coverage metrics with the excellent website http://coveralls.io. Scoverage will integrate with coveralls using the [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) plugin.
 
 ## License
 ```
