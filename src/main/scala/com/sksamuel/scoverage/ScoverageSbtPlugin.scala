@@ -69,11 +69,13 @@ object ScoverageSbtPlugin extends Plugin {
 
   /** Generate hook that is invoked after each tests execution. */
   def testsCleanup = {
-    (target in scoverageTest,
+    (crossTarget in scoverageTest,
+      baseDirectory in Compile,
       scalaSource in Compile,
       definedTests in scoverageTest,
-      streams) map {
-      (target,
+      streams in Global) map {
+      (crossTarget,
+       baseDirectory,
        compileSourceDirectory,
        definedTests,
        streams) =>
@@ -85,29 +87,29 @@ object ScoverageSbtPlugin extends Plugin {
           Tests.Cleanup {
             () =>
 
-              println(target)
-              println(Env.coverageFile)
-              println(Env.measurementFile)
+              streams.log.info("Reading scoverage profile file from " + Env.coverageFile)
+              streams.log.info("Reading scoverage measurement file from " + Env.measurementFile)
 
               val coverage = IOUtils.deserialize(getClass.getClassLoader, Env.coverageFile)
               val measurements = IOUtils.invoked(Env.measurementFile)
               coverage.apply(measurements)
 
-              val coberturaDirectory = target / "coverage-report"
-              val scoverageDirectory = target / "scoverage-report"
+              val coberturaDirectory = crossTarget / "coverage-report"
+              val scoverageDirectory = crossTarget / "scoverage-report"
 
               coberturaDirectory.mkdirs()
               scoverageDirectory.mkdirs()
 
-              println("Generating Cobertura XML report...")
-              new CoberturaXmlWriter(coberturaDirectory).write(coverage)
+              streams.log.info("Generating Cobertura XML report...")
+              new CoberturaXmlWriter(baseDirectory, coberturaDirectory).write(coverage)
 
-              println("Generating Scoverage XML report...")
-              new ScoverageXmlWriter(scoverageDirectory).write(coverage)
+              streams.log.info("Generating Scoverage XML report...")
+              new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
 
-              println("Generating Scoverage HTML report...")
+              streams.log.info("Generating Scoverage HTML report...")
               new ScoverageHtmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
 
+              streams.log.info("Scoverage reports completed")
               ()
           }
         }
