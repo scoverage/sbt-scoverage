@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "com.sksamuel.scoverage"
 
-version := "0.93.0"
+version := "0.94.0"
 
 scalaVersion := "2.10.3"
 
@@ -10,13 +10,13 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf
 
 sbtPlugin := true
 
-resolvers += Resolver.mavenLocal
-
-resolvers += Resolver.defaultLocal
-
 libraryDependencies ++= Seq(
-  "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.93"
+  "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.94.0"
 )
+
+publishMavenStyle := false
+
+publishArtifact in Test := false
 
 publishTo <<= version {
   (v: String) =>
@@ -27,6 +27,4 @@ publishTo <<= version {
 }
 
 
-publishMavenStyle := false
 
-publishArtifact in Test := false

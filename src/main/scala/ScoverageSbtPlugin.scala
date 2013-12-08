@@ -1,13 +1,16 @@
 import sbt._
 import sbt.Keys._
-import scoverage.Env
+import scoverage._
+import scoverage.report._
 
-object ScoverageSbtPlugin extends Plugin {
+object ScoverageSbtPlugin extends sbt.Plugin {
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
   }
+
+  val ScalacScoveragePluginVersion = "0.94.0"
 
   import ScoverageKeys._
 
@@ -24,15 +27,18 @@ object ScoverageSbtPlugin extends Plugin {
           new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
 
         libraryDependencies +=
-          "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.93" % scoverage.name,
+          "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % ScalacScoveragePluginVersion % scoverage.name,
 
         sources in scoverage <<= (sources in Compile),
         sourceDirectory in scoverage <<= (sourceDirectory in Compile),
+        excludedPackages in scoverage := "",
 
-        excludedPackages := "",
-
-        scalacOptions in scoverage <++= (name in scoverage, baseDirectory in scoverage, update) map {
-          (n, b, report) =>
+        scalacOptions in scoverage <++= (name in scoverage,
+          baseDirectory in scoverage,
+          crossTarget in scoverageTest,
+          update,
+          excludedPackages in scoverage) map {
+          (n, b, target, report, excluded) =>
             val scoverageDeps = report matching configurationFilter("scoverage")
             scoverageDeps.find(_.getAbsolutePath.contains("scalac-scoverage-plugin")) match {
               case None => throw new Exception("Fatal: scalac-scoverage-plugin not in libraryDependencies")
@@ -40,7 +46,8 @@ object ScoverageSbtPlugin extends Plugin {
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
                   "-Yrangepos",
-                  "-P:scoverage:excludedPackages:" + excludedPackages
+                  "-P:scoverage:excludedPackages:" + Option(excluded).getOrElse(""),
+                  "-P:scoverage:dataDir:" + target
                 )
             }
         },
@@ -89,11 +96,11 @@ object ScoverageSbtPlugin extends Plugin {
           Tests.Cleanup {
             () =>
 
-              streams.log.info("Reading scoverage profile file from " + Env.coverageFile)
-              streams.log.info("Reading scoverage measurement file from " + Env.measurementFile)
+              streams.log.info("Reading scoverage profile file: " + Env.coverageFile(crossTarget))
+              streams.log.info("Reading scoverage measurement file: " + Env.measurementFile(crossTarget))
 
-              val coverage = IOUtils.deserialize(getClass.getClassLoader, Env.coverageFile)
-              val measurements = IOUtils.invoked(Env.measurementFile)
+              val coverage = IOUtils.deserialize(getClass.getClassLoader, Env.coverageFile(crossTarget))
+              val measurements = IOUtils.invoked(Env.measurementFile(crossTarget))
               coverage.apply(measurements)
 
               val coberturaDirectory = crossTarget / "coverage-report"
