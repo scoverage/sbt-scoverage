@@ -1,6 +1,6 @@
 name := "sbt-scoverage"
 
-organization := "com.sksamuel.scoverage"
+organization := "org.scala-sbt.plugins"
 
 version := "0.95.0"
 
@@ -18,13 +18,11 @@ publishMavenStyle := false
 
 publishArtifact in Test := false
 
-publishTo <<= version {
-  (v: String) =>
-    val scalasbt = "http://repo.scala-sbt.org/scalasbt/"
-    val (name, url) = if (v.trim.endsWith("SNAPSHOT")) ("sbt-plugin-snapshots", scalasbt + "sbt-plugin-snapshots")
-    else ("sbt-plugin-releases", scalasbt + "sbt-plugin-releases")
-    Some(Resolver.url(name, new URL(url))(Resolver.ivyStylePatterns))
+publishTo := {
+  Some(
+    Resolver.url(
+      "sbt-plugin-releases",
+      new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/")
+    )(Resolver.ivyStylePatterns)
+  )
 }
-
-
-
