@@ -3,6 +3,8 @@ sbt-scoverage
 
 sbt-scoverage is a plugin for SBT that integrates the scoverage code coverage library. Find out more about [scoverage](https://github.com/scoverage/scalac-scoverage-plugin).
 
+[![Build Status](https://travis-ci.org/scoverage/sbt-scoverage.png?branch=master)](https://travis-ci.org/scoverage/sbt-scoverage)
+
 ## How to use
 
 Add the plugin to your build with the following in project/build.sbt:
