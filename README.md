@@ -9,7 +9,7 @@ sbt-scoverage is a plugin for SBT that integrates the scoverage code coverage li
 
 Add the plugin to your build with the following in project/build.sbt:
 ```scala
-addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.93")
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.95.0")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
