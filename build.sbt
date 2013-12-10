@@ -4,7 +4,7 @@ name := "sbt-scoverage"
 
 organization := "com.sksamuel.scoverage"
 
-version := "0.95.0"
+version := "0.95.1"
 
 scalaVersion := "2.10.3"
 

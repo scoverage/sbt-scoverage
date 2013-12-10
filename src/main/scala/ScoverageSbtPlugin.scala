@@ -31,6 +31,7 @@ object ScoverageSbtPlugin extends sbt.Plugin {
 
         sources in scoverage <<= (sources in Compile),
         sourceDirectory in scoverage <<= (sourceDirectory in Compile),
+        resourceDirectory in scoverage <<= (resourceDirectory in Compile),
         excludedPackages in scoverage := "",
 
         scalacOptions in scoverage <++= (name in scoverage,
@@ -55,8 +56,7 @@ object ScoverageSbtPlugin extends sbt.Plugin {
         sources in scoverageTest <<= (sources in Test),
         sourceDirectory in scoverageTest <<= (sourceDirectory in Test),
         unmanagedResources in scoverageTest <<= (unmanagedResources in Test),
-
-        resourceDirectory in scoverageTest <<= (resourceDirectory in Compile),
+        resourceDirectory in scoverageTest <<= (resourceDirectory in Test),
 
         externalDependencyClasspath in scoverage <<= Classpaths
           .concat(externalDependencyClasspath in scoverage, externalDependencyClasspath in Compile),
