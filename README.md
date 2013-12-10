@@ -14,12 +14,12 @@ addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.93")
 
 Add the plugin settings to your project somewhere in build.sbt:
 ```scala
-ScctPlugin.instrumentSettings
+ScoverageSbtPlugin.instrumentSettings
 ```
 
 Then run the your tests with coverage enabled by entering:
 ```
-$ sbt clean scct:test
+$ sbt clean scoverage:test
 ```
 
 After the tests have finished you should find the coverage reports inside `target/scoverage-report`.
