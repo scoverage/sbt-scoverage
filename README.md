@@ -11,7 +11,7 @@ Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.95.3")
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.95.4")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
