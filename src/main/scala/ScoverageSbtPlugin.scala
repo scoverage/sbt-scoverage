@@ -2,6 +2,7 @@ import sbt._
 import sbt.Keys._
 import scoverage._
 import scoverage.report._
+import scala.language.postfixOps
 
 object ScoverageSbtPlugin extends sbt.Plugin {
 
@@ -19,12 +20,9 @@ object ScoverageSbtPlugin extends sbt.Plugin {
 
   lazy val instrumentSettings = {
     inConfig(scoverage)(Defaults.compileSettings) ++
-      inConfig(scoverageTest)(Defaults.testSettings) ++
+    inConfig(scoverageTest)(Defaults.testSettings) ++
       Seq(
-        ivyConfigurations ++= Seq(scoverage, scoverageTest),
-
-        resolvers += Resolver.url("local-ivy",
-          new URL("file://" + Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
+        ivyConfigurations ++= Seq(scoverage hide, scoverageTest hide),
 
         libraryDependencies +=
           "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % ScalacScoveragePluginVersion % scoverage.name,
@@ -40,7 +38,7 @@ object ScoverageSbtPlugin extends sbt.Plugin {
           update,
           excludedPackages in scoverage) map {
           (n, b, target, report, excluded) =>
-            val scoverageDeps = report matching configurationFilter("scoverage")
+            val scoverageDeps = report matching configurationFilter(scoverage.name)
             scoverageDeps.find(_.getAbsolutePath.contains("scalac-scoverage-plugin")) match {
               case None => throw new Exception("Fatal: scalac-scoverage-plugin not in libraryDependencies")
               case Some(classpath) =>
