@@ -28,9 +28,26 @@ After the tests have finished you should find the coverage reports inside `targe
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
+## Exclude classes
+
+You can exclude classes from being considered for coverage measurement by providing semicolon-separated list of
+regular expressions.
+
+Example:
+```scala
+ScoverageSbtPlugin.ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverage := "<empty>;Reverse.*;.*AuthService.*;models.data.*"
+```
+
 ## Coveralls
 
 If you have an open source project then you can add code coverage metrics with the excellent website http://coveralls.io. Scoverage will integrate with coveralls using the [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) plugin.
+
+## Plugin for SonarQube
+
+If you want to visually browse statement coverage reports then use this [plugin for SonarQube](https://github.com/RadoBuransky/sonar-scoverage-plugin).
+It allows you to review overall project statement coverage as well as dig deeper into sub-modules, directories and
+source code files to see uncovered statements. Statement coverage measurement can become an integral part of your
+team's continuous integration process and a required quality standard.
 
 ## License
 ```
