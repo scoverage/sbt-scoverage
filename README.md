@@ -28,7 +28,7 @@ After the tests have finished you should find the coverage reports inside `targe
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
-## Exclude classes
+## Exclude classes and packages
 
 You can exclude classes from being considered for coverage measurement by providing semicolon-separated list of
 regular expressions.
