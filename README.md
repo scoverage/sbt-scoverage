@@ -35,7 +35,8 @@ regular expressions.
 
 Example:
 ```scala
-ScoverageSbtPlugin.ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverage := "<empty>;Reverse.*;.*AuthService.*;models.data.*"
+ScoverageSbtPlugin.ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverage :=
+  "<empty>;Reverse.*;.*AuthService.*;models.data.*"
 ```
 
 ## Coveralls
