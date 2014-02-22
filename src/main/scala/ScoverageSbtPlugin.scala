@@ -6,7 +6,7 @@ import scala.language.postfixOps
 
 object ScoverageSbtPlugin extends sbt.Plugin {
 
-  val ScalacScoveragePluginVersion = "0.95.6"
+  val ScalacScoveragePluginVersion = "0.95.7"
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
@@ -111,7 +111,10 @@ object ScoverageSbtPlugin extends sbt.Plugin {
               new CoberturaXmlWriter(baseDirectory, coberturaDirectory).write(coverage)
 
               streams.log.info("Generating Scoverage XML report...")
-              new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
+              new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, false).write(coverage)
+
+              streams.log.info("Generating Scoverage Debug report...")
+              new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, true).write(coverage)
 
               streams.log.info("Generating Scoverage HTML report...")
               new ScoverageHtmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
