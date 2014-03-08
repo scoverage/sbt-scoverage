@@ -6,12 +6,11 @@ import scoverage._
 import scoverage.report._
 import scala.language.postfixOps
 
-object ScoverageSbtPlugin extends ScoverageSbtPlugin {
-}
+object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
 class ScoverageSbtPlugin extends sbt.Plugin {
 
-  val ScalacScoveragePluginVersion = "0.95.7"
+  val ScalacScoveragePluginVersion = "0.95.9"
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
