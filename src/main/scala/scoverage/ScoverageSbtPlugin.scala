@@ -10,7 +10,7 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
 class ScoverageSbtPlugin extends sbt.Plugin {
 
-  val ScalacScoveragePluginVersion = "0.95.9"
+  val ScalacScoveragePluginVersion = "0.95.10"
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
