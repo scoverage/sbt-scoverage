@@ -1,17 +1,19 @@
 name := "sbt-scoverage"
 
-organization := "com.sksamuel.scoverage"
+organization := "org.scoverage"
 
-version := "0.95.10"
+version := "0.97.0"
 
 scalaVersion := "2.10.3"
+
+crossScalaVersions := Seq("2.10.3", "2.11.0-RC1")
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 
 sbtPlugin := true
 
 libraryDependencies ++= Seq(
-  "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % "0.95.10"
+  "org.scoverage" %% "scalac-scoverage-plugin" % "0.95.10"
 )
 
 publishTo := Some(Resolver.url("sbt-plugin-releases",
