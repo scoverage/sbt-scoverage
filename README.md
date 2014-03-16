@@ -11,7 +11,7 @@ Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.95.7")
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-scoverage" % "0.98.0")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
@@ -36,8 +36,22 @@ regular expressions.
 Example:
 ```scala
 ScoverageSbtPlugin.ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverage :=
-  "<empty>;Reverse.*;.*AuthService.*;models.data.*"
+  "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
 ```
+
+The regular expressions are matched against the fully qualified class name, and must match the entire string to take effect.
+
+Any matched classes will not be instrumented or included in the coverage report.
+
+You can also mark sections of code with comments like:
+
+```scala
+  // $COVERAGE:OFF$
+  ...
+  // $COVERAGE:ON$
+```
+
+Any code between two such comments will not be instrumented or included in the coverage report.
 
 ## Disable parallel test execution
 

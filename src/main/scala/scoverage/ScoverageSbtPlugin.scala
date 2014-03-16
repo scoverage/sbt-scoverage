@@ -10,7 +10,8 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
 class ScoverageSbtPlugin extends sbt.Plugin {
 
-  val ScalacScoveragePluginVersion = "0.95.10"
+  // This version number should match that imported in build.sbt
+  val ScalacScoveragePluginVersion = "0.98.0"
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
