@@ -39,6 +39,14 @@ ScoverageSbtPlugin.ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverag
   "<empty>;Reverse.*;.*AuthService.*;models.data.*"
 ```
 
+## Disable parallel test execution
+
+It is possible to disable the parallel execution for tests:
+
+```scala
+parallelExecution in ScoverageSbtPlugin.scoverageTest := false,
+```
+
 ## Coveralls
 
 If you have an open source project then you can add code coverage metrics with the excellent website http://coveralls.io. Scoverage will integrate with coveralls using the [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) plugin.
