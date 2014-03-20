@@ -46,9 +46,9 @@ Any matched classes will not be instrumented or included in the coverage report.
 You can also mark sections of code with comments like:
 
 ```scala
-  // $COVERAGE:OFF$
+  // $COVERAGE-OFF$
   ...
-  // $COVERAGE:ON$
+  // $COVERAGE-ON$
 ```
 
 Any code between two such comments will not be instrumented or included in the coverage report.
