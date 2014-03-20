@@ -30,7 +30,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         ivyConfigurations ++= Seq(scoverage hide, scoverageTest hide),
 
         libraryDependencies +=
-          "com.sksamuel.scoverage" %% "scalac-scoverage-plugin" % ScalacScoveragePluginVersion % scoverage.name,
+          "org.scoverage" %% "scalac-scoverage-plugin" % ScalacScoveragePluginVersion % scoverage.name,
 
         sources in scoverage <<= (sources in Compile),
         sourceDirectory in scoverage <<= (sourceDirectory in Compile),
