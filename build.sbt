@@ -6,7 +6,7 @@ version := "0.98.0"
 
 scalaVersion := "2.10.3"
 
-crossScalaVersions := Seq("2.10.3", "2.11.0-RC1")
+crossScalaVersions := Seq("2.10.3", "2.11.0-RC3")
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 

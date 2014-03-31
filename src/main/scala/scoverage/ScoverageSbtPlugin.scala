@@ -2,7 +2,6 @@ package scoverage
 
 import sbt._
 import sbt.Keys._
-import scoverage._
 import scoverage.report._
 import scala.language.postfixOps
 
@@ -11,7 +10,9 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
+  val ScoverageGroupId = "org.scoverage"
   val ScalacScoveragePluginVersion = "0.98.0"
+  val ScalacScoveragePluginName = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
@@ -30,7 +31,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         ivyConfigurations ++= Seq(scoverage hide, scoverageTest hide),
 
         libraryDependencies +=
-          "org.scoverage" %% "scalac-scoverage-plugin" % ScalacScoveragePluginVersion % scoverage.name,
+          ScoverageGroupId %% ScalacScoveragePluginName % ScalacScoveragePluginVersion % scoverage.name,
 
         sources in scoverage <<= (sources in Compile),
         sourceDirectory in scoverage <<= (sourceDirectory in Compile),
