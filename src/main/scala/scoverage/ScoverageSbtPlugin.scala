@@ -11,7 +11,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
   val ScoverageGroupId = "org.scoverage"
-  val ScalacScoveragePluginVersion = "0.98.1"
+  val ScalacScoveragePluginVersion = "0.98.2"
   val ScalacScoverageArtifactName = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
@@ -100,11 +100,14 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           Tests.Cleanup {
             () =>
 
-              streams.log.info("Reading scoverage profile file: " + Env.coverageFile(crossTarget))
-              streams.log.info("Reading scoverage measurement file: " + Env.measurementFile(crossTarget))
+              val coverageFile = IOUtils.coverageFile(crossTarget)
+              val measurementFiles = IOUtils.findMeasurementFiles(crossTarget)
 
-              val coverage = IOUtils.deserialize(getClass.getClassLoader, Env.coverageFile(crossTarget))
-              val measurements = IOUtils.invoked(Env.measurementFile(crossTarget))
+              streams.log.info(s"Reading scoverage profile file [$coverageFile]")
+              streams.log.info(s"Reading scoverage measurement files [$measurementFiles]")
+
+              val coverage = IOUtils.deserialize(getClass.getClassLoader, coverageFile)
+              val measurements = IOUtils.invoked(measurementFiles)
               coverage.apply(measurements)
 
               val coberturaDirectory = crossTarget / "coverage-report"

@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-version := "0.98.1"
+version := "0.98.2"
 
 scalaVersion := "2.10.3"
 
@@ -14,7 +14,7 @@ sbtPlugin := true
 
 // If you change this, remember to also change the same value in ScoverageSbtPlugin.scala
 libraryDependencies ++= Seq(
-  "org.scoverage" %% "scalac-scoverage-plugin" % "0.98.1"
+  "org.scoverage" %% "scalac-scoverage-plugin" % "0.98.2"
 )
 
 publishTo := Some(Resolver.url("sbt-plugin-releases",
