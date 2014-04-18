@@ -110,6 +110,9 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               val measurements = IOUtils.invoked(measurementFiles)
               coverage.apply(measurements)
 
+              coverageFile.delete()
+              for ( file <- measurementFiles ) file.delete()
+
               val coberturaDirectory = crossTarget / "coverage-report"
               val scoverageDirectory = crossTarget / "scoverage-report"
 
