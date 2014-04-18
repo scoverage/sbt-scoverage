@@ -11,8 +11,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
   val ScoverageGroupId = "org.scoverage"
-  val ScalacScoveragePluginVersion = "0.98.2"
-  val ScalacScoverageArtifactName = "scalac-scoverage-plugin"
+  val ScalacScoverageVersion = "0.98.2"
+  val ScalacScoverageArtifact = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
@@ -21,32 +21,31 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   import ScoverageKeys._
 
-  lazy val scoverage = config("scoverage")
-  lazy val scoverageTest = config("scoverage-test") extend scoverage
+  lazy val ScoverageCompile = config("scoverage")
+  lazy val ScoverageTest = config("scoverage-test") extend ScoverageCompile
 
   lazy val instrumentSettings = {
-    inConfig(scoverage)(Defaults.compileSettings) ++
-    inConfig(scoverageTest)(Defaults.testSettings) ++
+    inConfig(ScoverageCompile)(Defaults.compileSettings) ++
+    inConfig(ScoverageTest)(Defaults.testSettings) ++
       Seq(
-        ivyConfigurations ++= Seq(scoverage hide, scoverageTest hide),
+        ivyConfigurations ++= Seq(ScoverageCompile hide, ScoverageTest hide),
 
-        libraryDependencies +=
-          ScoverageGroupId %% ScalacScoverageArtifactName % ScalacScoveragePluginVersion % scoverage.name,
+        libraryDependencies += ScoverageGroupId %% ScalacScoverageArtifact % ScalacScoverageVersion % ScoverageCompile.name,
 
-        sources in scoverage <<= (sources in Compile),
-        sourceDirectory in scoverage <<= (sourceDirectory in Compile),
-        resourceDirectory in scoverage <<= (resourceDirectory in Compile),
-        excludedPackages in scoverage := "",
+        sources in ScoverageCompile <<= (sources in Compile),
+        sourceDirectory in ScoverageCompile <<= (sourceDirectory in Compile),
+        resourceDirectory in ScoverageCompile <<= (resourceDirectory in Compile),
+        excludedPackages in ScoverageCompile := "",
 
-        scalacOptions in scoverage <++= (name in scoverage,
-          baseDirectory in scoverage,
-          crossTarget in scoverageTest,
+        scalacOptions in ScoverageCompile <++= (name in ScoverageCompile,
+          baseDirectory in ScoverageCompile,
+          crossTarget in ScoverageTest,
           update,
-          excludedPackages in scoverage) map {
+          excludedPackages in ScoverageCompile) map {
           (n, b, target, report, excluded) =>
-            val scoverageDeps = report matching configurationFilter(scoverage.name)
-            scoverageDeps.find(_.getAbsolutePath.contains(ScalacScoverageArtifactName)) match {
-              case None => throw new Exception(s"Fatal: $ScalacScoverageArtifactName not in libraryDependencies")
+            val scoverageDeps = report matching configurationFilter(ScoverageCompile.name)
+            scoverageDeps.find(_.getAbsolutePath.contains(ScalacScoverageArtifact)) match {
+              case None => throw new Exception(s"Fatal: $ScalacScoverageArtifact not in libraryDependencies")
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
@@ -57,35 +56,35 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             }
         },
 
-        sources in scoverageTest <<= (sources in Test),
-        sourceDirectory in scoverageTest <<= (sourceDirectory in Test),
-        unmanagedResources in scoverageTest <<= (unmanagedResources in Test),
-        resourceDirectory in scoverageTest <<= (resourceDirectory in Test),
+        sources in ScoverageTest <<= (sources in Test),
+        sourceDirectory in ScoverageTest <<= (sourceDirectory in Test),
+        unmanagedResources in ScoverageTest <<= (unmanagedResources in Test),
+        resourceDirectory in ScoverageTest <<= (resourceDirectory in Test),
 
-        externalDependencyClasspath in scoverage <<= Classpaths
-          .concat(externalDependencyClasspath in scoverage, externalDependencyClasspath in Compile),
-        externalDependencyClasspath in scoverageTest <<= Classpaths
-          .concat(externalDependencyClasspath in scoverageTest, externalDependencyClasspath in Test),
+        externalDependencyClasspath in ScoverageCompile <<= Classpaths
+          .concat(externalDependencyClasspath in ScoverageCompile, externalDependencyClasspath in Compile),
+        externalDependencyClasspath in ScoverageTest <<= Classpaths
+          .concat(externalDependencyClasspath in ScoverageTest, externalDependencyClasspath in Test),
 
-        internalDependencyClasspath in scoverage <<= (internalDependencyClasspath in Compile),
-        internalDependencyClasspath in scoverageTest <<= (internalDependencyClasspath in Test, internalDependencyClasspath in scoverageTest, classDirectory in Compile) map {
+        internalDependencyClasspath in ScoverageCompile <<= (internalDependencyClasspath in Compile),
+        internalDependencyClasspath in ScoverageTest <<= (internalDependencyClasspath in Test, internalDependencyClasspath in ScoverageTest, classDirectory in Compile) map {
           (testDeps, scoverageDeps, oldClassDir) =>
             scoverageDeps ++ testDeps.filter(_.data != oldClassDir)
         },
 
-        testOptions in scoverageTest <+= testsCleanup,
+        testOptions in ScoverageTest <+= testsCleanup,
 
         // make scoverage config the same as scoverageTest config
-        test in scoverage <<= (test in scoverageTest)
+        test in ScoverageCompile <<= (test in ScoverageTest)
       )
   }
 
   /** Generate hook that is invoked after each tests execution. */
   def testsCleanup = {
-    (crossTarget in scoverageTest,
+    (crossTarget in ScoverageTest,
       baseDirectory in Compile,
       scalaSource in Compile,
-      definedTests in scoverageTest,
+      definedTests in ScoverageTest,
       streams in Global) map {
       (crossTarget,
        baseDirectory,
