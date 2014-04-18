@@ -11,7 +11,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
   val ScoverageGroupId = "org.scoverage"
-  val ScalacScoverageVersion = "0.98.2"
+  val ScalacScoverageVersion = "0.98.3"
   val ScalacScoverageArtifact = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
