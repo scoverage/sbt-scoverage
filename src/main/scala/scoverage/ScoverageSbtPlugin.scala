@@ -11,8 +11,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
   val ScoverageGroupId = "org.scoverage"
-  val ScalacScoveragePluginVersion = "0.98.0"
-  val ScalacScoveragePluginName = "scalac-scoverage-plugin"
+  val ScalacScoveragePluginVersion = "0.98.1"
+  val ScalacScoverageArtifactName = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
     val scoverageVersion = SettingKey[String]("scoverage-version")
@@ -31,7 +31,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         ivyConfigurations ++= Seq(scoverage hide, scoverageTest hide),
 
         libraryDependencies +=
-          ScoverageGroupId %% ScalacScoveragePluginName % ScalacScoveragePluginVersion % scoverage.name,
+          ScoverageGroupId %% ScalacScoverageArtifactName % ScalacScoveragePluginVersion % scoverage.name,
 
         sources in scoverage <<= (sources in Compile),
         sourceDirectory in scoverage <<= (sourceDirectory in Compile),
@@ -45,8 +45,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           excludedPackages in scoverage) map {
           (n, b, target, report, excluded) =>
             val scoverageDeps = report matching configurationFilter(scoverage.name)
-            scoverageDeps.find(_.getAbsolutePath.contains("scalac-scoverage-plugin")) match {
-              case None => throw new Exception("Fatal: scalac-scoverage-plugin not in libraryDependencies")
+            scoverageDeps.find(_.getAbsolutePath.contains(ScalacScoverageArtifactName)) match {
+              case None => throw new Exception(s"Fatal: $ScalacScoverageArtifactName not in libraryDependencies")
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
