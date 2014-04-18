@@ -21,10 +21,10 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   import ScoverageKeys._
 
-  lazy val ScoverageCompile = config("scoverage")
-  lazy val ScoverageTest = config("scoverage-test") extend ScoverageCompile
+  val ScoverageCompile = config("scoverage")
+  val ScoverageTest = config("scoverage-test") extend ScoverageCompile
 
-  lazy val instrumentSettings = {
+  val instrumentSettings = {
     inConfig(ScoverageCompile)(Defaults.compileSettings) ++
     inConfig(ScoverageTest)(Defaults.testSettings) ++
       Seq(
