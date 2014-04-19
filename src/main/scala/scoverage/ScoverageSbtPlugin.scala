@@ -21,8 +21,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   import ScoverageKeys._
 
-  val ScoverageCompile = config("scoverage")
-  val ScoverageTest = config("scoverage-test") extend ScoverageCompile
+  val ScoverageCompile = config("scoverage") extend Compile
+  val ScoverageTest = config("scoverage-test") extend Test
 
   val instrumentSettings = {
     inConfig(ScoverageCompile)(Defaults.compileSettings) ++
