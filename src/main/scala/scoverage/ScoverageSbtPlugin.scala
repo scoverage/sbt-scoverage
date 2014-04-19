@@ -22,7 +22,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
   import ScoverageKeys._
 
   val ScoverageCompile = config("scoverage") extend Compile
-  val ScoverageTest = config("scoverage-test") extend Test
+  val ScoverageTest = config("scoverage-test") extend ScoverageCompile
 
   val instrumentSettings = {
     inConfig(ScoverageCompile)(Defaults.compileSettings) ++
@@ -37,12 +37,11 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         resourceDirectory in ScoverageCompile <<= (resourceDirectory in Compile),
         excludedPackages in ScoverageCompile := "",
 
-        scalacOptions in ScoverageCompile <++= (name in ScoverageCompile,
-          baseDirectory in ScoverageCompile,
+        scalacOptions in ScoverageCompile <++= (
           crossTarget in ScoverageTest,
           update,
           excludedPackages in ScoverageCompile) map {
-          (n, b, target, report, excluded) =>
+          (target, report, excluded) =>
             val scoverageDeps = report matching configurationFilter(ScoverageCompile.name)
             scoverageDeps.find(_.getAbsolutePath.contains(ScalacScoverageArtifact)) match {
               case None => throw new Exception(s"Fatal: $ScalacScoverageArtifact not in libraryDependencies")
