@@ -10,8 +10,8 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
-  val ScoverageGroupId = "org.scoverage"
-  val ScalacScoverageVersion = "0.98.3"
+  val ScoverageGroup = "org.scoverage"
+  val ScoverageVersion = "0.98.3"
   val ScalacScoverageArtifact = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
@@ -21,26 +21,22 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   import ScoverageKeys._
 
-  val ScoverageCompile = config("scoverage") extend Compile
-  val ScoverageTest = config("scoverage-test") extend ScoverageCompile
+  val ScoverageCompile: Configuration = config("scoverage") extend Compile
+  val ScoverageTest: Configuration = config("scoverage-test") extend ScoverageCompile
 
-  val instrumentSettings = {
+  val instrumentSettings: Seq[Setting[_]] = {
     inConfig(ScoverageCompile)(Defaults.compileSettings) ++
-    inConfig(ScoverageTest)(Defaults.testSettings) ++
+      inConfig(ScoverageTest)(Defaults.testSettings) ++
       Seq(
         ivyConfigurations ++= Seq(ScoverageCompile hide, ScoverageTest hide),
-
-        libraryDependencies += ScoverageGroupId %% ScalacScoverageArtifact % ScalacScoverageVersion % ScoverageCompile.name,
+        libraryDependencies += ScoverageGroup %% ScalacScoverageArtifact % ScoverageVersion % ScoverageCompile.name,
 
         sources in ScoverageCompile <<= (sources in Compile),
         sourceDirectory in ScoverageCompile <<= (sourceDirectory in Compile),
         resourceDirectory in ScoverageCompile <<= (resourceDirectory in Compile),
         excludedPackages in ScoverageCompile := "",
 
-        scalacOptions in ScoverageCompile <++= (
-          crossTarget in ScoverageTest,
-          update,
-          excludedPackages in ScoverageCompile) map {
+        scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
           (target, report, excluded) =>
             val scoverageDeps = report matching configurationFilter(ScoverageCompile.name)
             scoverageDeps.find(_.getAbsolutePath.contains(ScalacScoverageArtifact)) match {
@@ -57,8 +53,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
         sources in ScoverageTest <<= (sources in Test),
         sourceDirectory in ScoverageTest <<= (sourceDirectory in Test),
-        unmanagedResources in ScoverageTest <<= (unmanagedResources in Test),
         resourceDirectory in ScoverageTest <<= (resourceDirectory in Test),
+        unmanagedResources in ScoverageTest <<= (unmanagedResources in Test),
 
         externalDependencyClasspath in ScoverageCompile <<= Classpaths
           .concat(externalDependencyClasspath in ScoverageCompile, externalDependencyClasspath in Compile),
