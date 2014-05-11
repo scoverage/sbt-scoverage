@@ -34,6 +34,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         sources in ScoverageCompile <<= (sources in Compile),
         sourceDirectory in ScoverageCompile <<= (sourceDirectory in Compile),
         resourceDirectory in ScoverageCompile <<= (resourceDirectory in Compile),
+        resourceGenerators in ScoverageCompile <<= (resourceGenerators in Compile),
         excludedPackages in ScoverageCompile := "",
 
         scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
@@ -54,6 +55,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         sources in ScoverageTest <<= (sources in Test),
         sourceDirectory in ScoverageTest <<= (sourceDirectory in Test),
         resourceDirectory in ScoverageTest <<= (resourceDirectory in Test),
+        resourceGenerators in ScoverageTest <<= (resourceGenerators in Test),
         unmanagedResources in ScoverageTest <<= (unmanagedResources in Test),
 
         externalDependencyClasspath in ScoverageCompile <<= Classpaths
