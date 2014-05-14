@@ -47,7 +47,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
                   "-Xplugin:" + classpath.getAbsolutePath,
                   "-Yrangepos",
                   "-P:scoverage:excludedPackages:" + Option(excluded).getOrElse(""),
-                  "-P:scoverage:dataDir:" + target
+                  "-P:scoverage:dataDir:" + target.getAbsolutePath + "/scoverage-data"
                 )
             }
         },
@@ -98,8 +98,14 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           Tests.Cleanup {
             () =>
 
-              val coverageFile = IOUtils.coverageFile(crossTarget)
-              val measurementFiles = IOUtils.findMeasurementFiles(crossTarget)
+              val dataDir = crossTarget.getAbsolutePath + "/scoverage-data"
+              val coberturaDir = crossTarget / "coverage-report"
+              val reportDir = crossTarget / "scoverage-report"
+              coberturaDir.mkdirs()
+              reportDir.mkdirs()
+
+              val coverageFile = IOUtils.coverageFile(dataDir)
+              val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
               s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
               s.log.info(s"[scoverage] Reading scoverage measurements [${measurementFiles.toList}]")
@@ -108,25 +114,16 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               val measurements = IOUtils.invoked(measurementFiles)
               coverage.apply(measurements)
 
-              coverageFile.delete()
-              for ( file <- measurementFiles ) file.delete()
+              s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+              new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
-              val coberturaDirectory = crossTarget / "coverage-report"
-              val scoverageDirectory = crossTarget / "scoverage-report"
+              s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
+              new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
 
-              coberturaDirectory.mkdirs()
-              scoverageDirectory.mkdirs()
+              new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-              s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDirectory.getAbsolutePath}/cobertura.xml]")
-              new CoberturaXmlWriter(baseDirectory, coberturaDirectory).write(coverage)
-
-              s.log.info(s"[scoverage] Generating XML report [${scoverageDirectory.getAbsolutePath}/scoverage.xml]")
-              new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, false).write(coverage)
-
-              new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, true).write(coverage)
-
-              s.log.info(s"[scoverage] Generating XML report [${scoverageDirectory.getAbsolutePath}/index.html]")
-              new ScoverageHtmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
+              s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/index.html]")
+              new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
               s.log.info("[scoverage] Reports completed")
               ()
