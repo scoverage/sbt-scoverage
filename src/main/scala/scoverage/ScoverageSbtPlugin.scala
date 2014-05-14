@@ -101,8 +101,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               val coverageFile = IOUtils.coverageFile(crossTarget)
               val measurementFiles = IOUtils.findMeasurementFiles(crossTarget)
 
-              s.log.info(s"Reading scoverage instrumentation [$coverageFile]")
-              s.log.info(s"Reading scoverage measurements [${measurementFiles.toList}]")
+              s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
+              s.log.info(s"[scoverage] Reading scoverage measurements [${measurementFiles.toList}]")
 
               val coverage = IOUtils.deserialize(coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
@@ -117,19 +117,18 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               coberturaDirectory.mkdirs()
               scoverageDirectory.mkdirs()
 
-              s.log.info(s"Generating Cobertura XML report [${coberturaDirectory.getAbsolutePath}/cobertura.xml]")
+              s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDirectory.getAbsolutePath}/cobertura.xml]")
               new CoberturaXmlWriter(baseDirectory, coberturaDirectory).write(coverage)
 
-              s.log.info(s"Generating Scoverage XML report [${scoverageDirectory.getAbsolutePath}/scoverage.xml]")
+              s.log.info(s"[scoverage] Generating XML report [${scoverageDirectory.getAbsolutePath}/scoverage.xml]")
               new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, false).write(coverage)
 
-              s.log.info(s"Generating Scoverage XML report [${scoverageDirectory.getAbsolutePath}/scoverage-debug.xml]")
               new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, true).write(coverage)
 
-              s.log.info(s"Generating Scoverage XML report [${scoverageDirectory.getAbsolutePath}/index.html]")
+              s.log.info(s"[scoverage] Generating XML report [${scoverageDirectory.getAbsolutePath}/index.html]")
               new ScoverageHtmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
 
-              s.log.info("Scoverage reports completed")
+              s.log.info("[scoverage] Reports completed")
               ()
           }
         }
