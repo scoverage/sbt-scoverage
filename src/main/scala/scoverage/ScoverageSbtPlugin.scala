@@ -74,7 +74,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         testOptions in ScoverageTest <<= (testOptions in Test),
         testOptions in ScoverageTest <+= testsCleanup,
 
-        // make scoverage config the same as scoverageTest config
+        // copy the test task into compile so we can do scoverage:test instead of scoverage-test:test
         test in ScoverageCompile <<= (test in ScoverageTest)
       )
   }
@@ -98,6 +98,9 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         } else {
           Tests.Cleanup {
             () =>
+
+              s.log.info(s"[scoverage] Waiting for measurement data to sync...")
+              Thread.sleep(2000) // have noticed some delay in writing, hacky but works
 
               val dataDir = crossTarget / "/scoverage-data"
               val coberturaDir = crossTarget / "coverage-report"
