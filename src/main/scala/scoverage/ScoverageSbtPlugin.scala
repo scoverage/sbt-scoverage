@@ -104,7 +104,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               streams.log.info(s"Reading scoverage profile file [$coverageFile]")
               streams.log.info(s"Reading scoverage measurement files [${measurementFiles.toList}]")
 
-              val coverage = IOUtils.deserialize(getClass.getClassLoader, coverageFile)
+              val coverage = IOUtils.deserialize(coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
               coverage.apply(measurements)
 
