@@ -19,7 +19,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   import ScoverageKeys._
 
-  val ScoverageCompile: Configuration = config("scoverage") extend Compile
+  val ScoverageCompile: Configuration = config("scoverage")
   val ScoverageTest: Configuration = config("scoverage-test") extend ScoverageCompile
 
   val instrumentSettings: Seq[Setting[_]] = {
@@ -71,6 +71,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             scoverageDeps ++ testDeps.filter(_.data != oldClassDir)
         },
 
+        testOptions in ScoverageTest <<= (testOptions in Test),
         testOptions in ScoverageTest <+= testsCleanup,
 
         // make scoverage config the same as scoverageTest config
@@ -78,7 +79,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       )
   }
 
-  /** Generate hook that is invoked after each tests execution. */
+  /** Generate hook that is invoked after the tests have executed. */
   def testsCleanup = {
     (crossTarget in ScoverageTest,
       baseDirectory in Compile,
@@ -98,7 +99,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           Tests.Cleanup {
             () =>
 
-              val dataDir = crossTarget.getAbsolutePath + "/scoverage-data"
+              val dataDir = crossTarget / "/scoverage-data"
               val coberturaDir = crossTarget / "coverage-report"
               val reportDir = crossTarget / "scoverage-report"
               coberturaDir.mkdirs()
