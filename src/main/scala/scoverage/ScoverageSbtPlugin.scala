@@ -10,8 +10,6 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
-  val ScoverageGroup = "org.scoverage"
-  val ScoverageVersion = "0.98.4"
   val ScalacScoverageArtifact = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
@@ -29,7 +27,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       inConfig(ScoverageTest)(Defaults.testSettings) ++
       Seq(
         ivyConfigurations ++= Seq(ScoverageCompile hide, ScoverageTest hide),
-        libraryDependencies += ScoverageGroup %% ScalacScoverageArtifact % ScoverageVersion % ScoverageCompile.name,
+        libraryDependencies += organization.value %% ScalacScoverageArtifact % version.value % ScoverageCompile.name,
 
         sources in ScoverageCompile <<= (sources in Compile),
         sourceDirectory in ScoverageCompile <<= (sourceDirectory in Compile),
