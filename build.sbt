@@ -10,9 +10,10 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf
 
 sbtPlugin := true
 
-// If you change this, remember to also change the same value in ScoverageSbtPlugin.scala
+resolvers += Resolver.mavenLocal
+
 libraryDependencies ++= Seq(
-  "org.scoverage" %% "scalac-scoverage-plugin" % "0.99.0"
+  "org.scoverage" %% "scalac-scoverage-plugin" % version.value
 )
 
 publishTo := Some(Resolver.url("sbt-plugin-releases",
