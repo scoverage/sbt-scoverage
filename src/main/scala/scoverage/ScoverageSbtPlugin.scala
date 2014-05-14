@@ -112,7 +112,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
               s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
-              s.log.info(s"[scoverage] Reading scoverage measurements [${measurementFiles.toList}]")
+              s.log.info(s"[scoverage] Reading scoverage measurements...")
 
               val coverage = IOUtils.deserialize(coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
@@ -123,7 +123,6 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
               s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
-
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
               s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/index.html]")
