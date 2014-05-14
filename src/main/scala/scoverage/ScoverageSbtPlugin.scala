@@ -102,7 +102,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               val measurementFiles = IOUtils.findMeasurementFiles(crossTarget)
 
               streams.log.info(s"Reading scoverage profile file [$coverageFile]")
-              streams.log.info(s"Reading scoverage measurement files [$measurementFiles]")
+              streams.log.info(s"Reading scoverage measurement files [${measurementFiles.toList}]")
 
               val coverage = IOUtils.deserialize(getClass.getClassLoader, coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
