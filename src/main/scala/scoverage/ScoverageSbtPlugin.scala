@@ -89,7 +89,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
        baseDirectory,
        compileSourceDirectory,
        definedTests,
-       streams) =>
+       s) =>
         if (definedTests.isEmpty) {
           Tests.Cleanup {
             () => {}
@@ -101,8 +101,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               val coverageFile = IOUtils.coverageFile(crossTarget)
               val measurementFiles = IOUtils.findMeasurementFiles(crossTarget)
 
-              streams.log.info(s"Reading scoverage profile file [$coverageFile]")
-              streams.log.info(s"Reading scoverage measurement files [${measurementFiles.toList}]")
+              s.log.info(s"Reading scoverage instrumentation [$coverageFile]")
+              s.log.info(s"Reading scoverage measurements [${measurementFiles.toList}]")
 
               val coverage = IOUtils.deserialize(coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
@@ -117,19 +117,19 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               coberturaDirectory.mkdirs()
               scoverageDirectory.mkdirs()
 
-              streams.log.info("Generating Cobertura XML report...")
+              s.log.info(s"Generating Cobertura XML report [${coberturaDirectory.getAbsolutePath}/cobertura.xml]")
               new CoberturaXmlWriter(baseDirectory, coberturaDirectory).write(coverage)
 
-              streams.log.info("Generating Scoverage XML report...")
+              s.log.info(s"Generating Scoverage XML report [${scoverageDirectory.getAbsolutePath}/scoverage.xml]")
               new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, false).write(coverage)
 
-              streams.log.info("Generating Scoverage Debug report...")
+              s.log.info(s"Generating Scoverage XML report [${scoverageDirectory.getAbsolutePath}/scoverage-debug.xml]")
               new ScoverageXmlWriter(compileSourceDirectory, scoverageDirectory, true).write(coverage)
 
-              streams.log.info("Generating Scoverage HTML report...")
+              s.log.info(s"Generating Scoverage XML report [${scoverageDirectory.getAbsolutePath}/index.html]")
               new ScoverageHtmlWriter(compileSourceDirectory, scoverageDirectory).write(coverage)
 
-              streams.log.info("Scoverage reports completed")
+              s.log.info("Scoverage reports completed")
               ()
           }
         }
