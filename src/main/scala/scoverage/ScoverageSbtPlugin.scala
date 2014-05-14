@@ -11,7 +11,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
   val ScoverageGroup = "org.scoverage"
-  val ScoverageVersion = "0.98.3"
+  val ScoverageVersion = "0.98.4"
   val ScalacScoverageArtifact = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
@@ -36,6 +36,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         resourceDirectory in ScoverageCompile <<= (resourceDirectory in Compile),
         resourceGenerators in ScoverageCompile <<= (resourceGenerators in Compile),
         excludedPackages in ScoverageCompile := "",
+        javacOptions in ScoverageCompile <<= (javacOptions in Compile),
+        javaOptions in ScoverageCompile <<= (javaOptions in Compile),
 
         scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
           (target, report, excluded) =>
@@ -57,6 +59,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         resourceDirectory in ScoverageTest <<= (resourceDirectory in Test),
         resourceGenerators in ScoverageTest <<= (resourceGenerators in Test),
         unmanagedResources in ScoverageTest <<= (unmanagedResources in Test),
+        javacOptions in ScoverageTest <<= (javacOptions in Test),
+        javaOptions in ScoverageTest <<= (javaOptions in Test),
 
         externalDependencyClasspath in ScoverageCompile <<= Classpaths
           .concat(externalDependencyClasspath in ScoverageCompile, externalDependencyClasspath in Compile),
