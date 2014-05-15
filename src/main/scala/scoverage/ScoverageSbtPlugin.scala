@@ -14,7 +14,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   object ScoverageKeys {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
-    val coverageMinimum = SettingKey[Int]("scoverage-minimum-coverage")
+    val minimumCoverage = SettingKey[Int]("scoverage-minimum-coverage")
+    val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
   }
 
   import ScoverageKeys._
@@ -38,7 +39,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         javacOptions in ScoverageCompile <<= (javacOptions in Compile),
         javaOptions in ScoverageCompile <<= (javaOptions in Compile),
 
-        coverageMinimum := 0, // default is no minimum
+        minimumCoverage := 0, // default is no minimum
+        failOnMinimumCoverage := false,
 
         scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
           (target, report, excluded) =>
@@ -88,13 +90,15 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       baseDirectory in Compile,
       scalaSource in Compile,
       definedTests in ScoverageTest,
-      coverageMinimum in ScoverageTest,
+      minimumCoverage in ScoverageTest,
+      failOnMinimumCoverage in ScoverageTest,
       streams in Global) map {
       (crossTarget,
        baseDirectory,
        compileSourceDirectory,
        definedTests,
        min,
+       failOnMin,
        s) =>
         if (definedTests.isEmpty) {
           Tests.Cleanup {
@@ -133,16 +137,19 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/index.html]")
               new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
+              s.log.info("[scoverage] Reports completed")
+
               // check for default minimum
               if (min > 0) {
                 if (min > coverage.statementCoverage) {
-                  s.log.error(s"Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
+                  s.log.error(s"[scoverage] Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
+                  if (failOnMin)
+                    throw new RuntimeException("Coverage minimum was not reached")
                 } else {
-                  s.log.info(s"Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
+                  s.log.info(s"[scoverage] Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
                 }
               }
 
-              s.log.info("[scoverage] Reports completed")
               s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
               ()
           }
