@@ -39,7 +39,7 @@ regular expressions.
 
 Example:
 ```scala
-ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverage := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
+ScoverageKeys.excludedPackages in scoverageTest := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
 ```
 
 The regular expressions are matched against the fully qualified class name, and must match the entire string to take effect.
@@ -89,7 +89,7 @@ team's continuous integration process and a required quality standard.
 ```
 This software is licensed under the Apache 2 license, quoted below.
 
-Copyright 2013 Stephen Samuel
+Copyright 2014 Stephen Samuel and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
