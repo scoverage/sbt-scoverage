@@ -15,12 +15,12 @@ Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.98.2")
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.2")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
 ```scala
-ScoverageSbtPlugin.instrumentSettings
+instrumentSettings
 ```
 
 Then run the your tests with coverage enabled by entering:
@@ -39,8 +39,7 @@ regular expressions.
 
 Example:
 ```scala
-ScoverageSbtPlugin.ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverage :=
-  "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
+ScoverageKeys.excludedPackages in ScoverageSbtPlugin.scoverage := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
 ```
 
 The regular expressions are matched against the fully qualified class name, and must match the entire string to take effect.
@@ -57,12 +56,22 @@ You can also mark sections of code with comments like:
 
 Any code between two such comments will not be instrumented or included in the coverage report.
 
+## Minimum coverage
+
+You can use the following two keys to set the minimum coverage, and if you want to fail the build if the coverage is less than the minimum.
+
+```scala
+ScoverageKeys.minimumCoverage := 80
+
+ScoverageKeys.failOnMinimumCoverage := true
+```
+
 ## Disable parallel test execution
 
 It is possible to disable the parallel execution for tests:
 
 ```scala
-parallelExecution in ScoverageSbtPlugin.scoverageTest := false,
+parallelExecution in scoverageTest := false,
 ```
 
 ## Coveralls
