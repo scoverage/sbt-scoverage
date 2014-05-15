@@ -9,11 +9,10 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
-  val ScalacScoverageArtifact = "scalac-scoverage-plugin"
+  val ScalacArtifact = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
-    val compilerVersion = SettingKey[String]("scoverage-compiler-version")
   }
 
   import ScoverageKeys._
@@ -27,8 +26,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       Seq(
         ivyConfigurations ++= Seq(ScoverageCompile.hide, ScoverageTest.hide),
         libraryDependencies += {
-          organization.value % (ScalacScoverageArtifact + "_" + compilerVersion.value) % version.value %
-            ScoverageCompile.name
+          organization.value % (ScalacArtifact + "_"+ scalaBinaryVersion.value) % version.value % ScoverageCompile.name
         },
         sources in ScoverageCompile <<= (sources in Compile),
         sourceDirectory in ScoverageCompile <<= (sourceDirectory in Compile),
@@ -41,22 +39,16 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
           (target, report, excluded) =>
             val scoverageDeps = report matching configurationFilter(ScoverageCompile.name)
-            scoverageDeps.find(_.getAbsolutePath.contains(ScalacScoverageArtifact)) match {
-              case None => throw new Exception(s"Fatal: $ScalacScoverageArtifact not in libraryDependencies")
+            scoverageDeps.find(_.getAbsolutePath.contains(ScalacArtifact)) match {
+              case None => throw new Exception(s"Fatal: $ScalacArtifact not in libraryDependencies")
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
+                  "-Yrangepos",
                   "-P:scoverage:excludedPackages:" + Option(excluded).getOrElse(""),
                   "-P:scoverage:dataDir:" + target.getAbsolutePath + "/scoverage-data"
                 )
             }
-        },
-
-        scalacOptions in ScoverageCompile ++= {
-          compilerVersion.value match {
-            case "2.11" => Seq("-Yrangepos")
-            case _ => Nil
-          }
         },
 
         sources in ScoverageTest <<= (sources in Test),
