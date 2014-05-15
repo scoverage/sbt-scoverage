@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-version := "0.99.2"
+version := "0.99.2.1"
 
 scalaVersion := "2.10.4"
 
