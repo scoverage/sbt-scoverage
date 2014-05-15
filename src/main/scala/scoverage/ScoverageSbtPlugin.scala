@@ -10,18 +10,19 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   // This version number should match that imported in build.sbt
   val ScalacArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "0.99.1"
+  val ScoverageVersion = "0.99.2"
 
   object ScoverageKeys {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
+    val coverageMinimum = SettingKey[Int]("scoverage-minimum-coverage")
   }
 
   import ScoverageKeys._
 
-  val ScoverageCompile: Configuration = config("scoverage")
-  val ScoverageTest: Configuration = config("scoverage-test") extend ScoverageCompile
+  lazy val ScoverageCompile: Configuration = config("scoverage")
+  lazy val ScoverageTest: Configuration = config("scoverage-test") extend ScoverageCompile
 
-  val instrumentSettings: Seq[Setting[_]] = {
+  lazy val instrumentSettings: Seq[Setting[_]] = {
     inConfig(ScoverageCompile)(Defaults.compileSettings) ++
       inConfig(ScoverageTest)(Defaults.testSettings) ++
       Seq(
@@ -36,6 +37,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         excludedPackages in ScoverageCompile := "",
         javacOptions in ScoverageCompile <<= (javacOptions in Compile),
         javaOptions in ScoverageCompile <<= (javaOptions in Compile),
+
+        coverageMinimum := 0, // default is no minimum
 
         scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
           (target, report, excluded) =>
@@ -85,11 +88,13 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       baseDirectory in Compile,
       scalaSource in Compile,
       definedTests in ScoverageTest,
+      coverageMinimum in ScoverageTest,
       streams in Global) map {
       (crossTarget,
        baseDirectory,
        compileSourceDirectory,
        definedTests,
+       min,
        s) =>
         if (definedTests.isEmpty) {
           Tests.Cleanup {
@@ -127,6 +132,12 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
               s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/index.html]")
               new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
+
+              // check for default minimum
+              if (min > 0 && min < coverage.statementCoverage) {
+                // fail build
+                s.log.error(s"Coverage is below minimum [${coverage.statementCoverageFormatted} < $min]")
+              }
 
               s.log.info("[scoverage] Reports completed")
               ()
