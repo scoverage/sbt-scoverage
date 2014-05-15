@@ -134,12 +134,16 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
               // check for default minimum
-              if (min > 0 && min < coverage.statementCoverage) {
-                // fail build
-                s.log.error(s"Coverage is below minimum [${coverage.statementCoverageFormatted} < $min]")
+              if (min > 0) {
+                if (min > coverage.statementCoverage) {
+                  s.log.error(s"Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
+                } else {
+                  s.log.info(s"Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
+                }
               }
 
               s.log.info("[scoverage] Reports completed")
+              s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
               ()
           }
         }
