@@ -3,7 +3,6 @@ package scoverage
 import sbt._
 import sbt.Keys._
 import scoverage.report._
-import scala.language.postfixOps
 
 object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
@@ -13,8 +12,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
   val ScalacScoverageArtifact = "scalac-scoverage-plugin"
 
   object ScoverageKeys {
-    val scoverageVersion = SettingKey[String]("scoverage-version")
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
+    val compilerVersion = SettingKey[String]("scoverage-compiler-version")
   }
 
   import ScoverageKeys._
@@ -26,9 +25,11 @@ class ScoverageSbtPlugin extends sbt.Plugin {
     inConfig(ScoverageCompile)(Defaults.compileSettings) ++
       inConfig(ScoverageTest)(Defaults.testSettings) ++
       Seq(
-        ivyConfigurations ++= Seq(ScoverageCompile hide, ScoverageTest hide),
-        libraryDependencies += organization.value %% ScalacScoverageArtifact % version.value % ScoverageCompile.name,
-
+        ivyConfigurations ++= Seq(ScoverageCompile.hide, ScoverageTest.hide),
+        libraryDependencies += {
+          organization.value % (ScalacScoverageArtifact + "_" + compilerVersion.value) % version.value %
+            ScoverageCompile.name
+        },
         sources in ScoverageCompile <<= (sources in Compile),
         sourceDirectory in ScoverageCompile <<= (sourceDirectory in Compile),
         resourceDirectory in ScoverageCompile <<= (resourceDirectory in Compile),
@@ -45,11 +46,17 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
-                  "-Yrangepos",
                   "-P:scoverage:excludedPackages:" + Option(excluded).getOrElse(""),
                   "-P:scoverage:dataDir:" + target.getAbsolutePath + "/scoverage-data"
                 )
             }
+        },
+
+        scalacOptions in ScoverageCompile ++= {
+          compilerVersion.value match {
+            case "2.11" => Seq("-Yrangepos")
+            case _ => Nil
+          }
         },
 
         sources in ScoverageTest <<= (sources in Test),
