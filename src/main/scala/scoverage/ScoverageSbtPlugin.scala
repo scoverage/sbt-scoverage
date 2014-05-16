@@ -42,7 +42,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
         minimumCoverage := 0, // default is no minimum
         failOnMinimumCoverage := false,
-        highlighting := true,
+        highlighting := false,
 
         scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
           (target, report, excluded) =>
