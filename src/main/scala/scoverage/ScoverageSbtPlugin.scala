@@ -16,6 +16,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
     val minimumCoverage = SettingKey[Int]("scoverage-minimum-coverage")
     val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
+    val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
   }
 
   import ScoverageKeys._
@@ -41,6 +42,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
         minimumCoverage := 0, // default is no minimum
         failOnMinimumCoverage := false,
+        highlighting := true,
 
         scalacOptions in ScoverageCompile <++= (crossTarget in ScoverageTest, update, excludedPackages in ScoverageCompile) map {
           (target, report, excluded) =>
@@ -50,12 +52,13 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
-                  "-Yrangepos",
                   "-P:scoverage:excludedPackages:" + Option(excluded).getOrElse(""),
                   "-P:scoverage:dataDir:" + target.getAbsolutePath + "/scoverage-data"
                 )
             }
         },
+
+        scalacOptions in ScoverageCompile ++= (if (highlighting.value) List("-Yrangepos") else Nil),
 
         sources in ScoverageTest <<= (sources in Test),
         sourceDirectory in ScoverageTest <<= (sourceDirectory in Test),
