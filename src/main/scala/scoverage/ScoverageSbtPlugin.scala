@@ -14,7 +14,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   object ScoverageKeys {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
-    val minimumCoverage = SettingKey[Int]("scoverage-minimum-coverage")
+    val minimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
     val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
     val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
   }
