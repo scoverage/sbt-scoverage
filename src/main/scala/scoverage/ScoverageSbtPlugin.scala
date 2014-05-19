@@ -144,7 +144,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
               // check for default minimum
               if (min > 0) {
-                if (min > coverage.statementCoverage) {
+                if (min > coverage.statementCoveragePercent) {
                   s.log.error(s"[scoverage] Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
                   if (failOnMin)
                     throw new RuntimeException("Coverage minimum was not reached")
