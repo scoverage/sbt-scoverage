@@ -49,7 +49,7 @@ Any matched classes will not be instrumented or included in the coverage report.
 You can also mark sections of code with comments like:
 
 ```scala
-  // $COVERAGE-OFF$
+  // $COVERAGE-OFF$Disabling highlighting by default until a workaround for https://issues.scala-lang.org/browse/SI-8596 is found
   ...
   // $COVERAGE-ON$
 ```
@@ -65,6 +65,22 @@ ScoverageKeys.minimumCoverage := 80
 
 ScoverageKeys.failOnMinimumCoverage := true
 ```
+
+## Highlighting
+
+By default, statement highlighting in the HTML reports is disabled. This is because there is a compiler bug when 
+using range positioning, and until that is fixed it can break code that uses certain constructs. You can enable it to
+ see if your code is not affected by adding this to your build file:
+ 
+```scala
+ScoverageKeys.highlighting := true
+```
+
+## Failing tests
+
+If you are running into a scenario where your tests normally pass, but fail when scoverage is enabled, 
+then the most common culprit is timing issues on futures and other async operations. Scoverage does a lot of file 
+writing behind the scenes in order to track which statements have been executed, and this slows down tests, so try upping the timeouts by an order of magnitude.
 
 ## Disable parallel test execution
 
