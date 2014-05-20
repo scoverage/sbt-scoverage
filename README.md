@@ -39,7 +39,7 @@ regular expressions.
 
 Example:
 ```scala
-ScoverageKeys.excludedPackages in scoverageTest := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
+ScoverageKeys.excludedPackages in ScoverageCompile := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
 ```
 
 The regular expressions are matched against the fully qualified class name, and must match the entire string to take effect.
