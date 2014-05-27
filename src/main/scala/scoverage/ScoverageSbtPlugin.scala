@@ -67,6 +67,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         unmanagedResources in ScoverageTest <<= (unmanagedResources in Test),
         javacOptions in ScoverageTest <<= (javacOptions in Test),
         javaOptions in ScoverageTest <<= (javaOptions in Test),
+        fork in ScoverageTest <<= (fork in Test),
 
         externalDependencyClasspath in ScoverageCompile <<= Classpaths
           .concat(externalDependencyClasspath in ScoverageCompile, externalDependencyClasspath in Compile),
