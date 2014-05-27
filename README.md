@@ -87,7 +87,7 @@ writing behind the scenes in order to track which statements have been executed,
 It is possible to disable the parallel execution for tests:
 
 ```scala
-parallelExecution in scoverageTest := false,
+parallelExecution in ScoverageTest := false,
 ```
 
 ## Coveralls
