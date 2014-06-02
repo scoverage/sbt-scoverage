@@ -32,6 +32,10 @@ After the tests have finished you should find the coverage reports inside `targe
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
+## Where's the pretty output gone?
+
+In the recent releases you will see that the HTML source view no longer has highlighting. This is because of a scalac regression that appeared in 2.10.3+ and 2.11.0. See https://issues.scala-lang.org/browse/SI-8596. Once this is fixed and included in a release, we'll be able to turn the highlighting back on. In the meantime, the numbers generated in the reports are accurate.
+
 ## Exclude classes and packages
 
 You can exclude classes from being considered for coverage measurement by providing semicolon-separated list of
