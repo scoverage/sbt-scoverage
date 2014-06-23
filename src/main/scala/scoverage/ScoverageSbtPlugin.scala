@@ -138,7 +138,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-              s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/index.html]")
+              s.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
               new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
               s.log.info("[scoverage] Reports completed")
