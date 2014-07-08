@@ -24,3 +24,10 @@ publishMavenStyle := false
 publishArtifact in Test := false
 
 licenses +=("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
+
+
+ScriptedPlugin.scriptedSettings
+
+scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+  Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
+}
