@@ -1,0 +1,3 @@
+# run scoverage
+> clean
+> scoverage:test
