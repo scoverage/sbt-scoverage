@@ -117,7 +117,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         unmanagedResources in ScoverageCompile <<= (unmanagedResources in Compile),
         javaOptions in ScoverageCompile <<= (javaOptions in Compile),
         javacOptions in ScoverageCompile <<= (javacOptions in Compile),
-        fork in ScoverageCompileTest <<= (fork in Compile),
+        fork in ScoverageCompile <<= (fork in Compile),
         excludedPackages in ScoverageCompile := "",
 
         sources in ScoverageTest <<= (sources in Test),
