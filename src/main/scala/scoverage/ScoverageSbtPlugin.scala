@@ -17,7 +17,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
     lazy val minimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
     lazy val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
     lazy val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
-    lazy val postTestTask = taskKey[Unit]("scoverage-posttestcleanup")
+    lazy val scoverageReport = taskKey[Unit]("scoverage-report")
+    lazy val scoverageMultiReport = taskKey[Unit]("scoverage-multireport")
   }
 
   import ScoverageKeys._
@@ -54,7 +55,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             }
         },
 
-        postTestTask := {
+        scoverageReport := {
           val cross = crossTarget.value
           val compileSourceDirectory = (scalaSource in Compile).value
           val baseDir = (baseDirectory in Compile).value
@@ -108,6 +109,10 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
         },
 
+        scoverageMultiReport := {
+
+        },
+
         scalacOptions in ScoverageCompile ++= (if (highlighting.value) List("-Yrangepos") else Nil),
 
         sources in ScoverageCompile <<= (sources in Compile),
@@ -152,18 +157,14 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           (testDeps, scoverageDeps, oldClassDir) =>
             scoverageDeps ++ testDeps.filter(_.data != oldClassDir)
         },
-        internalDependencyClasspath in ScoverageITest <<= (internalDependencyClasspath in IntegrationTest, internalDependencyClasspath in ScoverageITest, classDirectory in Compile) map {
-          (testDeps, scoverageDeps, oldClassDir) =>
-            scoverageDeps ++ testDeps.filter(_.data != oldClassDir)
-        },
 
         test in ScoverageTest := {
           (test in Test).value
-          postTestTask.value
+          scoverageReport.value
         },
         test in ScoverageITest := {
-          (test in Test).value
-          postTestTask.value
+          (test in IntegrationTest).value
+          scoverageReport.value
         },
 
         // copy the test task into compile so we can do scoverage:test instead of scoverage-test:test etc
