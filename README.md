@@ -23,6 +23,13 @@ Add the plugin settings to your project somewhere in build.sbt:
 instrumentSettings
 ```
 
+Or if you are using Build.scala:
+```scala
+import scoverage.ScoverageSbtPlugin._
+...
+.settings(instrumentSettings: _*)
+```
+
 Then run the your tests with coverage enabled by entering:
 ```
 $ sbt clean scoverage:test
