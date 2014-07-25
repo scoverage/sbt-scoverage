@@ -158,17 +158,39 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             scoverageDeps ++ testDeps.filter(_.data != oldClassDir)
         },
 
-        test in ScoverageTest := {
-          (test in Test).value
-          scoverageReport.value
-        },
-        test in ScoverageITest := {
-          (test in IntegrationTest).value
-          scoverageReport.value
-        },
+	// After running the tests, create the coverage report:
+        test in ScoverageTest := sequence(List(
+          test in ScoverageTest,
+          scoverageReport in ScoverageTest))
+            .value,
+
+	// After running the tests, create the coverage report (ITest mode).
+	// NOTE: this will overwrite the previous report if both targets are chosen in the same run.
+	// The coverage report will be additive in that case.
+	//
+	// TODO: this feature needs some thought to be more useful.
+	// The following use cases are not currently supported:
+	//   - run test + itest, get a single report
+	//   - run test + itest, get two separate reports
+	// Only this use case is supported:
+	//   - run test OR itest, get a single report
+        test in ScoverageITest := sequence(List(
+          test in ScoverageITest,
+          scoverageReport in ScoverageITest))
+            .value,
 
         // copy the test task into compile so we can do scoverage:test instead of scoverage-test:test etc
         test in ScoverageCompile <<= (test in ScoverageTest)
       )
   }
+
+  /**
+   * Runs the given tasks sequentially.
+   * See http://eed3si9n.com/sequencing-tasks-with-sbt-sequential
+   */
+  private def sequence(tasks: List[Def.Initialize[Task[Unit]]]): Def.Initialize[Task[Unit]] =
+    tasks match {
+      case Nil => Def.task{ () }
+      case x :: xs => Def.taskDyn { val _ = x.value; sequence(xs) }
+    }
 }
