@@ -168,8 +168,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         },
 
         // copy the test task into compile so we can do scoverage:test instead of scoverage-test:test etc
-        test in ScoverageCompile <<= (test in ScoverageTest),
-        test in ScoverageCompile <<= (test in ScoverageITest)
+        test in ScoverageCompile <<= (test in ScoverageTest)
       )
   }
 }
