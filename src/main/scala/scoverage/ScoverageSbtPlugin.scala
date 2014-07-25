@@ -25,12 +25,10 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   lazy val ScoverageCompile: Configuration = config("scoverage")
   lazy val ScoverageTest: Configuration = config("scoverage-test") extend ScoverageCompile
-  lazy val ScoverageITest: Configuration = config("scoverage-itest") extend ScoverageTest
 
   lazy val instrumentSettings: Seq[Setting[_]] = {
     inConfig(ScoverageCompile)(Defaults.compileSettings) ++
       inConfig(ScoverageTest)(Defaults.testSettings) ++
-      inConfig(ScoverageITest)(Defaults.itSettings) ++
       Seq(
         ivyConfigurations ++= Seq(ScoverageCompile.hide, ScoverageTest.hide),
         libraryDependencies += {
@@ -135,22 +133,10 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         fork in ScoverageTest <<= (fork in Test),
         testOptions in ScoverageTest <<= (testOptions in Test),
 
-        sources in ScoverageITest <<= (sources in Test),
-        sourceDirectory in ScoverageITest <<= (sourceDirectory in IntegrationTest),
-        resourceDirectory in ScoverageITest <<= (resourceDirectory in IntegrationTest),
-        resourceGenerators in ScoverageITest <<= (resourceGenerators in IntegrationTest),
-        unmanagedResources in ScoverageITest <<= (unmanagedResources in IntegrationTest),
-        javaOptions in ScoverageITest <<= (javaOptions in IntegrationTest),
-        javacOptions in ScoverageITest <<= (javacOptions in IntegrationTest),
-        fork in ScoverageITest <<= (fork in IntegrationTest),
-        testOptions in ScoverageITest <<= (testOptions in IntegrationTest),
-
         externalDependencyClasspath in ScoverageCompile <<= Classpaths
           .concat(externalDependencyClasspath in ScoverageCompile, externalDependencyClasspath in Compile),
         externalDependencyClasspath in ScoverageTest <<= Classpaths
           .concat(externalDependencyClasspath in ScoverageTest, externalDependencyClasspath in Test),
-        externalDependencyClasspath in ScoverageITest <<= Classpaths
-          .concat(externalDependencyClasspath in ScoverageTest, externalDependencyClasspath in IntegrationTest),
 
         internalDependencyClasspath in ScoverageCompile <<= (internalDependencyClasspath in Compile),
         internalDependencyClasspath in ScoverageTest <<= (internalDependencyClasspath in Test, internalDependencyClasspath in ScoverageTest, classDirectory in Compile) map {
@@ -158,17 +144,24 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             scoverageDeps ++ testDeps.filter(_.data != oldClassDir)
         },
 
-        test in ScoverageTest := {
-          (test in Test).value
-          scoverageReport.value
-        },
-        test in ScoverageITest := {
-          (test in IntegrationTest).value
-          scoverageReport.value
-        },
+	// After running the tests, create the coverage report:
+        test in ScoverageTest := sequence(List(
+          test in ScoverageTest,
+          scoverageReport in ScoverageTest))
+            .value,
 
         // copy the test task into compile so we can do scoverage:test instead of scoverage-test:test etc
         test in ScoverageCompile <<= (test in ScoverageTest)
       )
   }
+
+  /**
+   * Runs the given tasks sequentially.
+   * See http://eed3si9n.com/sequencing-tasks-with-sbt-sequential
+   */
+  private def sequence(tasks: List[Def.Initialize[Task[Unit]]]): Def.Initialize[Task[Unit]] =
+    tasks match {
+      case Nil => Def.task{ () }
+      case x :: xs => Def.taskDyn { val _ = x.value; sequence(xs) }
+    }
 }
