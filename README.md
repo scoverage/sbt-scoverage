@@ -15,7 +15,7 @@ Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.5.1")
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.7.1")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
@@ -116,7 +116,7 @@ team's continuous integration process and a required quality standard.
 ```
 This software is licensed under the Apache 2 license, quoted below.
 
-Copyright 2014 Stephen Samuel and contributors
+Copyright 2013-2014 Stephen Samuel and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
