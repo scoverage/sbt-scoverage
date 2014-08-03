@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-version := "0.99.8"
+version := "0.99.9"
 
 scalaVersion := "2.10.4"
 
@@ -13,7 +13,7 @@ sbtPlugin := true
 resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
-  "org.scoverage" %% "scalac-scoverage-plugin" % "0.99.7"
+  "org.scoverage" %% "scalac-scoverage-plugin" % "0.99.9"
 )
 
 publishTo := Some(Resolver.url("sbt-plugin-releases",
@@ -24,7 +24,6 @@ publishMavenStyle := false
 publishArtifact in Test := false
 
 licenses +=("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
-
 
 ScriptedPlugin.scriptedSettings
 
