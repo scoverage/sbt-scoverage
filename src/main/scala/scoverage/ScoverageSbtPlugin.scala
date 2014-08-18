@@ -50,16 +50,15 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         scoverageOutputHTML := true,
         scoverageOutputCobertua := true,
 
-        scalacOptions in Scoverage <++= (crossTarget in Compile, update, excludedPackages in Scoverage) map {
-          (target, report, excluded) =>
-            val scoverageDeps = report matching configurationFilter(Scoverage.name)
+        scalacOptions in Scoverage := {
+            val scoverageDeps = update.value matching configurationFilter(Scoverage.name)
             scoverageDeps.find(_.getAbsolutePath.contains(ScalacArtifact)) match {
               case None => throw new Exception(s"Fatal: $ScalacArtifact not in libraryDependencies")
               case Some(classpath) =>
                 Seq(
                   "-Xplugin:" + classpath.getAbsolutePath,
-                  "-P:scoverage:excludedPackages:" + Option(excluded).getOrElse(""),
-                  "-P:scoverage:dataDir:" + target.getAbsolutePath + "/scoverage-data"
+                  "-P:scoverage:excludedPackages:" + Option((excludedPackages in Scoverage).value).getOrElse(""),
+                  "-P:scoverage:dataDir:" + crossTarget.value.getAbsolutePath + "/scoverage-data"
                 )
             }
         },
