@@ -16,7 +16,10 @@ class ScoverageSbtPlugin extends sbt.Plugin {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
     val minimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
     val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
-    val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
+    val highlighting = settingKey[Boolean]("enables range positioning for highlighting")
+    val scoverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
+    val scoverageOutputXML = settingKey[Boolean]("enables xml report generation")
+    val scoverageOutputHTML = settingKey[Boolean]("enables html report generation")
   }
 
   import ScoverageKeys._
@@ -43,6 +46,9 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         failOnMinimumCoverage := false,
         highlighting := false,
         excludedPackages in Scoverage := "",
+        scoverageOutputXML := true,
+        scoverageOutputHTML := true,
+        scoverageOutputCobertua := true,
 
         scalacOptions in Scoverage <++= (crossTarget in Compile, update, excludedPackages in Scoverage) map {
           (target, report, excluded) =>
@@ -103,18 +109,22 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           val measurements = IOUtils.invoked(measurementFiles)
           coverage.apply(measurements)
 
-          streams.value.log
-            .info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
-          new CoberturaXmlWriter((baseDirectory in Compile).value, coberturaDir).write(coverage)
+          if (scoverageOutputCobertua.value) {
+            streams.value.log
+              .info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+            new CoberturaXmlWriter((baseDirectory in Compile).value, coberturaDir).write(coverage)
+          }
 
-          streams.value.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
-          new ScoverageXmlWriter((scalaSource in Compile).value, reportDir, false).write(coverage)
-          new ScoverageXmlWriter((scalaSource in Compile).value, reportDir, true).write(coverage)
+          if (scoverageOutputXML.value) {
+            streams.value.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
+            new ScoverageXmlWriter((scalaSource in Compile).value, reportDir, false).write(coverage)
+            new ScoverageXmlWriter((scalaSource in Compile).value, reportDir, true).write(coverage)
+          }
 
-          streams.value.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
-          new ScoverageHtmlWriter((scalaSource in Compile).value, reportDir).write(coverage)
-
-          streams.value.log.info("[scoverage] Reports completed")
+          if (scoverageOutputHTML.value) {
+            streams.value.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
+            new ScoverageHtmlWriter((scalaSource in Compile).value, reportDir).write(coverage)
+          }
 
           val min = minimumCoverage.value
           val failOnMin = failOnMinimumCoverage.value
