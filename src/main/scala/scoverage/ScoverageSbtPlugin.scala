@@ -16,7 +16,6 @@ class ScoverageSbtPlugin extends sbt.Plugin {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
     val minimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
     val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
-    val scoverageDebug = settingKey[Boolean]("scoverage debug output")
     val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
     val scoverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val scoverageOutputXML = settingKey[Boolean]("enables xml report generation")
@@ -71,7 +70,6 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         minimumCoverage := 0, // default is no minimum
         failOnMinimumCoverage := false,
         highlighting := false,
-        scoverageDebug := false,
         scoverageOutputXML := true,
         scoverageOutputHTML := true,
         scoverageOutputCobertua := true,
@@ -84,8 +82,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               Seq(
                 "-Xplugin:" + classpath.getAbsolutePath,
                 "-P:scoverage:excludedPackages:" + Option(excludedPackages.value).getOrElse(""),
-                "-P:scoverage:dataDir:" + crossTarget.value.getAbsolutePath + "/scoverage-data",
-                "-P:scoverage:debug:" + scoverageDebug.value
+                "-P:scoverage:dataDir:" + crossTarget.value.getAbsolutePath + "/scoverage-data"
               )
           }
         },
@@ -172,43 +169,48 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
             s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
-            s.log.info(s"[scoverage] Reading scoverage measurements...")
 
-            val coverage = IOUtils.deserialize(coverageFile)
-            val measurements = IOUtils.invoked(measurementFiles)
-            coverage.apply(measurements)
+            if (coverageFile.exists) {
+              s.log.info(s"[scoverage] Reading scoverage measurements...")
+              val coverage = IOUtils.deserialize(coverageFile)
+              val measurements = IOUtils.invoked(measurementFiles)
+              coverage.apply(measurements)
 
-            s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
-            new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
+              s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+              new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
-            s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
-            new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
-            new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+              s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
+              new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
+              new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-            s.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
-            new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
+              s.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
+              new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
-            s.log.info("[scoverage] Reports completed")
+              s.log.info("[scoverage] Reports completed")
 
-            // check for default minimum
-            if (min > 0) {
-              def is100(d: Double) = Math.abs(100 - d) <= 0.00001
+              // check for default minimum
+              if (min > 0) {
+                def is100(d: Double) = Math.abs(100 - d) <= 0.00001
 
-              if (is100(min) && is100(coverage.statementCoveragePercent)) {
-                s.log.info(s"[scoverage] 100% Coverage !")
-              } else if (min > coverage.statementCoveragePercent) {
-                s
-                  .log
-                  .error(s"[scoverage] Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
-                if (failOnMin)
-                  throw new RuntimeException("Coverage minimum was not reached")
-              } else {
-                s.log.info(s"[scoverage] Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
+                if (is100(min) && is100(coverage.statementCoveragePercent)) {
+                  s.log.info(s"[scoverage] 100% Coverage !")
+                } else if (min > coverage.statementCoveragePercent) {
+                  s
+                    .log
+                    .error(s"[scoverage] Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
+                  if (failOnMin)
+                    throw new RuntimeException("Coverage minimum was not reached")
+                } else {
+                  s.log.info(s"[scoverage] Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
+                }
               }
-            }
 
-            s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
-            ()
+              s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
+              ()
+            } else {
+              s.log.info(s"[scoverage] Scoverage data file does not exist. Skipping report generation")
+              ()
+            }
         }
     }
   }
