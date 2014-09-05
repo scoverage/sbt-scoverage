@@ -10,12 +10,13 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   val OrgScoverage = "org.scoverage"
   val ScalacArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "0.99.7"
+  val ScoverageVersion = "0.99.8"
 
   object ScoverageKeys {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
     val minimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
     val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
+    val scoverageDebug = settingKey[Boolean]("scoverage debug output")
     val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
     val scoverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val scoverageOutputXML = settingKey[Boolean]("enables xml report generation")
@@ -70,6 +71,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         minimumCoverage := 0, // default is no minimum
         failOnMinimumCoverage := false,
         highlighting := false,
+        scoverageDebug := false,
         scoverageOutputXML := true,
         scoverageOutputHTML := true,
         scoverageOutputCobertua := true,
@@ -82,7 +84,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               Seq(
                 "-Xplugin:" + classpath.getAbsolutePath,
                 "-P:scoverage:excludedPackages:" + Option(excludedPackages.value).getOrElse(""),
-                "-P:scoverage:dataDir:" + crossTarget.value.getAbsolutePath + "/scoverage-data"
+                "-P:scoverage:dataDir:" + crossTarget.value.getAbsolutePath + "/scoverage-data",
+                "-P:scoverage:debug:" + scoverageDebug.value
               )
           }
         },
