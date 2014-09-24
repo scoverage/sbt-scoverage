@@ -14,6 +14,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   object ScoverageKeys {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
+    val scoverageExcludedFiles = settingKey[String]("regex for excluded file paths")
     val minimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
     val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
     val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
@@ -67,6 +68,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         dependencyClasspath in Scoverage <<= (dependencyClasspath in Compile),
 
         excludedPackages := "",
+        scoverageExcludedFiles := "",
         minimumCoverage := 0, // default is no minimum
         failOnMinimumCoverage := false,
         highlighting := false,
@@ -82,6 +84,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               Seq(
                 "-Xplugin:" + classpath.getAbsolutePath,
                 "-P:scoverage:excludedPackages:" + Option(excludedPackages.value).getOrElse(""),
+                "-P:scoverage:excludedFiles:" + Option(scoverageExcludedFiles.value).getOrElse(""),
                 "-P:scoverage:dataDir:" + crossTarget.value.getAbsolutePath + "/scoverage-data"
               )
           }
