@@ -82,11 +82,11 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             case None => throw new Exception(s"Fatal: $ScalacArtifact not in libraryDependencies")
             case Some(classpath) =>
               Seq(
-                "-Xplugin:" + classpath.getAbsolutePath,
-                "-P:scoverage:excludedPackages:" + Option(excludedPackages.value).getOrElse(""),
-                "-P:scoverage:excludedFiles:" + Option(scoverageExcludedFiles.value).getOrElse(""),
-                "-P:scoverage:dataDir:" + crossTarget.value.getAbsolutePath + "/scoverage-data"
-              )
+                s"-Xplugin:${classpath.getAbsolutePath}",
+                s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"
+              ) ++
+                Option(excludedPackages.value).map(v => s"-P:scoverage:excludedPackages:$v") ++
+                Option(scoverageExcludedFiles.value).map(v => s"-P:scoverage:excludedFiles:$v")
           }
         },
 
