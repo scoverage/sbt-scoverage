@@ -85,8 +85,14 @@ class ScoverageSbtPlugin extends sbt.Plugin {
                 s"-Xplugin:${classpath.getAbsolutePath}",
                 s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"
               ) ++
-                Option(excludedPackages.value).map(v => s"-P:scoverage:excludedPackages:$v") ++
-                Option(scoverageExcludedFiles.value).map(v => s"-P:scoverage:excludedFiles:$v")
+                Option(excludedPackages.value.trim).map{
+                  case "" => ""
+                  case v => s"-P:scoverage:excludedPackages:$v"
+                } ++
+                Option(scoverageExcludedFiles.value.trim).map{
+                  case "" => ""
+                  case v => s"-P:scoverage:excludedFiles:$v"
+                }
           }
         },
 
