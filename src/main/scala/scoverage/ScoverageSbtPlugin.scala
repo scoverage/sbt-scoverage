@@ -4,6 +4,8 @@ import sbt._
 import sbt.Keys._
 import scoverage.report._
 
+import scala.collection.mutable.ListBuffer
+
 object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
 class ScoverageSbtPlugin extends sbt.Plugin {
@@ -81,18 +83,13 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           scoverageDeps.find(_.getAbsolutePath.contains(ScalacArtifact)) match {
             case None => throw new Exception(s"Fatal: $ScalacArtifact not in libraryDependencies")
             case Some(classpath) =>
-              Seq(
-                s"-Xplugin:${classpath.getAbsolutePath}",
-                s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"
-              ) ++
-                Option(excludedPackages.value.trim).map{
-                  case "" => ""
-                  case v => s"-P:scoverage:excludedPackages:$v"
-                } ++
-                Option(scoverageExcludedFiles.value.trim).map{
-                  case "" => ""
-                  case v => s"-P:scoverage:excludedFiles:$v"
-                }
+              val options = new ListBuffer[String]
+              options append s"-Xplugin:${classpath.getAbsolutePath}"
+              options append s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"
+              for ( v <- Option(excludedPackages.value.trim).filter(_.nonEmpty) )
+                options append s"-P:scoverage:excludedPackages:$v"
+              for ( v <- Option(scoverageExcludedFiles.value.trim).filter(_.nonEmpty) )
+                options append s"-P:scoverage:excludedFiles:$v"
           }
         },
 
