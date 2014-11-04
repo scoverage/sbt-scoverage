@@ -15,7 +15,7 @@ Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.7.1")
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.10.1")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
@@ -79,10 +79,8 @@ ScoverageKeys.failOnMinimumCoverage := true
 
 ## Highlighting
 
-By default, statement highlighting in the HTML reports is disabled. This is because there is a compiler bug when 
-using range positioning, and until that is fixed it can break code that uses certain constructs. You can enable it to
- see if your code is not affected by adding this to your build file:
- 
+If you are using Scala 2.11.1 or less, then highlighting will not work (due to this bug which was fixed in 2.11.2 https://github.com/scala/scala/pull/3799). In that case you must disable highlighting by adding the following to your build:
+
 ```scala
 ScoverageKeys.highlighting := true
 ```
