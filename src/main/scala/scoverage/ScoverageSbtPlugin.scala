@@ -1,10 +1,8 @@
 package scoverage
 
-import sbt._
 import sbt.Keys._
+import sbt._
 import scoverage.report._
-
-import scala.collection.mutable.ListBuffer
 
 object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
