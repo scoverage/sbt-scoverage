@@ -36,7 +36,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       Seq(
         ivyConfigurations ++= Seq(Scoverage.hide, ScoverageTest.hide),
         libraryDependencies += {
-          OrgScoverage % (ScalacArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "compile"
+          OrgScoverage % (ScalacArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
         },
         // Source paths
         sourceDirectory in Scoverage <<= (sourceDirectory in Compile),
@@ -79,7 +79,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         scoverageOutputCobertua := true,
 
         scalacOptions in Scoverage ++= {
-          val scoverageDeps = update.value matching configurationFilter(Compile.name)
+          val scoverageDeps = update.value matching configurationFilter("provided")
           scoverageDeps.find(_.getAbsolutePath.contains(ScalacArtifact)) match {
             case None => throw new Exception(s"Fatal: $ScalacArtifact not in libraryDependencies")
             case Some(classpath) =>
