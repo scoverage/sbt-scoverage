@@ -83,14 +83,12 @@ class ScoverageSbtPlugin extends sbt.Plugin {
           scoverageDeps.find(_.getAbsolutePath.contains(ScalacArtifact)) match {
             case None => throw new Exception(s"Fatal: $ScalacArtifact not in libraryDependencies")
             case Some(classpath) =>
-              val options = new ListBuffer[String]
-              options append s"-Xplugin:${classpath.getAbsolutePath}"
-              options append s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"
-              for ( v <- Option(excludedPackages.value.trim).filter(_.nonEmpty) )
-                options append s"-P:scoverage:excludedPackages:$v"
-              for ( v <- Option(scoverageExcludedFiles.value.trim).filter(_.nonEmpty) )
-                options append s"-P:scoverage:excludedFiles:$v"
-              options.toSeq
+              Seq(
+                Some(s"-Xplugin:${classpath.getAbsolutePath}"),
+                Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
+                Option(excludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
+                Option(scoverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
+              ).flatten
           }
         },
 
