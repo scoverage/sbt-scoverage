@@ -15,7 +15,7 @@ Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.10.1")
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.10.2")
 ```
 
 Add the plugin settings to your project somewhere in build.sbt:
@@ -50,7 +50,7 @@ regular expressions.
 
 Example:
 ```scala
-ScoverageKeys.excludedPackages in ScoverageCompile := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
+ScoverageKeys.excludedPackages := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
 ```
 
 The regular expressions are matched against the fully qualified class name, and must match the entire string to take effect.
