@@ -90,6 +90,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
                 options append s"-P:scoverage:excludedPackages:$v"
               for ( v <- Option(scoverageExcludedFiles.value.trim).filter(_.nonEmpty) )
                 options append s"-P:scoverage:excludedFiles:$v"
+              options.toSeq
           }
         },
 
