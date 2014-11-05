@@ -92,6 +92,9 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
         scalacOptions in Scoverage ++= (if (highlighting.value) List("-Yrangepos") else Nil),
 
+        // disable parallel execution only for scoverage testing
+        parallelExecution in ScoverageTest := false,
+
         // Source paths
         sourceDirectory in ScoverageTest <<= (sourceDirectory in Test),
         sourceManaged in ScoverageTest <<= (sourceManaged in Test),
