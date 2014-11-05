@@ -10,7 +10,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   val OrgScoverage = "org.scoverage"
   val ScalacArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "0.99.10"
+  val ScoverageVersion = "0.99.11"
 
   object ScoverageKeys {
     val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
