@@ -8,16 +8,16 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
 class ScoverageSbtPlugin extends sbt.Plugin {
 
-  val OrgScoverage = "org.scoverage"
-  val ScalacArtifact = "scalac-scoverage-plugin"
+  val OrgScoverage = "org.scalacoverage"
+  val ScalacArtifact = "scalac-coverage-plugin"
   val ScoverageVersion = "1.0.0.BETA1"
 
   object ScoverageKeys {
-    val coverageExcludedPackages = SettingKey[String]("scoverage-excluded-packages")
+    val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
     val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
-    val coverageMinimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
-    val coverageFailOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
-    val coverageHighlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
+    val coverageMinimumCoverage = settingKey[Double]("scoverage-minimum-coverage")
+    val coverageFailOnMinimumCoverage = settingKey[Boolean]("scoverage-fail-on-minimum-coverage")
+    val coverageHighlighting = settingKey[Boolean]("enables range positioning for highlighting")
     val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
@@ -25,8 +25,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   import ScoverageKeys._
 
-  lazy val Scoverage: Configuration = config("scoverage")
-  lazy val ScoverageTest: Configuration = config("scoverage-test") extend Scoverage
+  lazy val Scoverage: Configuration = config("scalaCoverage")
+  lazy val ScoverageTest: Configuration = config("scalaCoverageTest") extend Scoverage
 
   lazy val instrumentSettings: Seq[Setting[_]] = {
     inConfig(Scoverage)(Defaults.compileSettings) ++
@@ -83,9 +83,9 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             case Some(classpath) =>
               Seq(
                 Some(s"-Xplugin:${classpath.getAbsolutePath}"),
-                Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
-                Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
-                Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
+                Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/coverage-data"),
+                Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:coverage:excludedPackages:$v"),
+                Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:coverage:excludedFiles:$v")
               ).flatten
           }
         },
@@ -174,47 +174,47 @@ class ScoverageSbtPlugin extends sbt.Plugin {
             val coverageFile = IOUtils.coverageFile(dataDir)
             val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
-            s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
+            s.log.info(s"[scala-coverage] Reading scoverage instrumentation [$coverageFile]")
 
             if (coverageFile.exists) {
-              s.log.info(s"[scoverage] Reading scoverage measurements...")
+              s.log.info(s"[scala-coverage] Reading scoverage measurements...")
               val coverage = IOUtils.deserialize(coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
               coverage.apply(measurements)
 
-              s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+              s.log.info(s"[scala-coverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
               new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
-              s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
+              s.log.info(s"[scala-coverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-              s.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
+              s.log.info(s"[scala-coverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
               new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
-              s.log.info("[scoverage] Reports completed")
+              s.log.info("[scala-coverage] Reports completed")
 
               // check for default minimum
               if (min > 0) {
                 def is100(d: Double) = Math.abs(100 - d) <= 0.00001
 
                 if (is100(min) && is100(coverage.statementCoveragePercent)) {
-                  s.log.info(s"[scoverage] 100% Coverage !")
+                  s.log.info(s"[scala-coverage] 100% Coverage !")
                 } else if (min > coverage.statementCoveragePercent) {
                   s
                     .log
-                    .error(s"[scoverage] Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
+                    .error(s"[scala-coverage] Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
                   if (failOnMin)
                     throw new RuntimeException("Coverage minimum was not reached")
                 } else {
-                  s.log.info(s"[scoverage] Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
+                  s.log.info(s"[scala-coverage] Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
                 }
               }
 
-              s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
+              s.log.info(s"[scala-coverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
               ()
             } else {
-              s.log.info(s"[scoverage] Scoverage data file does not exist. Skipping report generation")
+              s.log.info(s"[scala-coverage] Scoverage data file does not exist. Skipping report generation")
               ()
             }
         }
