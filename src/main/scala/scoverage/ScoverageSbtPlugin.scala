@@ -13,14 +13,14 @@ class ScoverageSbtPlugin extends sbt.Plugin {
   val ScoverageVersion = "1.0.0.BETA1"
 
   object ScoverageKeys {
-    val excludedPackages = SettingKey[String]("scoverage-excluded-packages")
-    val scoverageExcludedFiles = settingKey[String]("regex for excluded file paths")
-    val minimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
-    val failOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
-    val highlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
-    val scoverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
-    val scoverageOutputXML = settingKey[Boolean]("enables xml report generation")
-    val scoverageOutputHTML = settingKey[Boolean]("enables html report generation")
+    val coverageExcludedPackages = SettingKey[String]("scoverage-excluded-packages")
+    val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
+    val coverageMinimumCoverage = SettingKey[Double]("scoverage-minimum-coverage")
+    val coverageFailOnMinimumCoverage = SettingKey[Boolean]("scoverage-fail-on-minimum-coverage")
+    val coverageHighlighting = SettingKey[Boolean]("scoverage-highlighting", "enables range positioning for highlighting")
+    val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
+    val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
+    val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
   }
 
   import ScoverageKeys._
@@ -67,14 +67,14 @@ class ScoverageSbtPlugin extends sbt.Plugin {
         externalDependencyClasspath in Scoverage <<= (externalDependencyClasspath in Compile),
         dependencyClasspath in Scoverage <<= (dependencyClasspath in Compile),
 
-        excludedPackages := "",
-        scoverageExcludedFiles := "",
-        minimumCoverage := 0, // default is no minimum
-        failOnMinimumCoverage := false,
-        highlighting := false,
-        scoverageOutputXML := true,
-        scoverageOutputHTML := true,
-        scoverageOutputCobertua := true,
+        coverageExcludedPackages := "",
+        coverageExcludedFiles := "",
+        coverageMinimumCoverage := 0, // default is no minimum
+        coverageFailOnMinimumCoverage := false,
+        coverageHighlighting := false,
+        coverageOutputXML := true,
+        coverageOutputHTML := true,
+        coverageOutputCobertua := true,
 
         scalacOptions in Scoverage ++= {
           val scoverageDeps = update.value matching configurationFilter("provided")
@@ -84,13 +84,13 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               Seq(
                 Some(s"-Xplugin:${classpath.getAbsolutePath}"),
                 Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
-                Option(excludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
-                Option(scoverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
+                Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
+                Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
               ).flatten
           }
         },
 
-        scalacOptions in Scoverage ++= (if (highlighting.value) List("-Yrangepos") else Nil),
+        scalacOptions in Scoverage ++= (if (coverageHighlighting.value) List("-Yrangepos") else Nil),
 
         // disable parallel execution only for scoverage testing
         parallelExecution in ScoverageTest := false,
@@ -149,8 +149,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       baseDirectory in Compile,
       scalaSource in Compile,
       definedTests in ScoverageTest,
-      minimumCoverage in ScoverageTest,
-      failOnMinimumCoverage in ScoverageTest,
+      coverageMinimumCoverage in ScoverageTest,
+      coverageFailOnMinimumCoverage in ScoverageTest,
       streams in Global) map {
       (crossTarget,
        baseDirectory,
