@@ -174,7 +174,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
         Tests.Cleanup {
           () =>
             if (enabled) {
-              s.log.info(s"[scoverage] Waiting for measurement data to sync...")
+              s.log.info(s"[info] Waiting for measurement data to sync...")
               Thread.sleep(2000) // have noticed some delay in writing, hacky but works
               report(crossTarget, baseDirectory, compileSourceDirectory, s, min, failOnMin)
             } else {
