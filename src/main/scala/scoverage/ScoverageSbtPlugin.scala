@@ -14,6 +14,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val ScoverageVersion = "1.0.0.BETA1"
 
   object autoImport {
+    lazy val coverage = taskKey[Unit]("enable coverage")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
     val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
     val coverageMinimumCoverage = settingKey[Double]("scoverage-minimum-coverage")
@@ -25,10 +26,18 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageAggregateReport = settingKey[Boolean]("if true will generate aggregate parent report")
   }
 
+  var enabled = false
+
   import autoImport._
 
   override def trigger = allRequirements
   override def projectSettings = Seq(
+
+    coverage := {
+      println(enabled)
+      enabled = true
+      println(enabled)
+    },
 
     libraryDependencies ++= Seq(
       OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
@@ -50,15 +59,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
         case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
         case Some(classpath) =>
-          println("Classpath=" + classpath)
-          Seq(
-            Some(s"-Xplugin:${classpath.getAbsolutePath}"),
-            Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
-            Option(coverageExcludedPackages.value.trim)
-              .filter(_.nonEmpty)
-              .map(v => s"-P:scoverage:excludedPackages:$v"),
-            Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
-          ).flatten
+          println("Code coverage plugin is enabled")
+          scalaArgs(classpath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
       }
     },
 
@@ -71,8 +73,21 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     testOptions in Test <+= testsCleanup
   )
 
+  private def scalaArgs(pluginClass: File, target: File, excludedPackages: String, excludedFiles: String) = {
+    if (enabled) {
+      Seq(
+        Some(s"-Xplugin:${pluginClass.getAbsolutePath}"),
+        Some(s"-P:scoverage:dataDir:${target.getAbsolutePath}/scoverage-data"),
+        Option(excludedPackages.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
+        Option(excludedFiles.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
+      ).flatten
+    } else {
+      Nil
+    }
+  }
+
   /** Generate hook that is invoked after the tests have executed. */
-  def testsCleanup = {
+  private def testsCleanup = {
     (crossTarget in Test,
       baseDirectory in Compile,
       scalaSource in Compile,
@@ -89,60 +104,67 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
        s) =>
         Tests.Cleanup {
           () =>
+            if (enabled) {
+              s.log.info(s"[scoverage] Waiting for measurement data to sync...")
+              Thread.sleep(2000) // have noticed some delay in writing, hacky but works
 
-            s.log.info(s"[scoverage] Waiting for measurement data to sync...")
-            Thread.sleep(2000) // have noticed some delay in writing, hacky but works
+              val dataDir = crossTarget / "/scoverage-data"
+              val reportDir = crossTarget / "scoverage-report"
+              val coberturaDir = crossTarget / "coverage-report"
+              coberturaDir.mkdirs()
+              reportDir.mkdirs()
 
-            val dataDir = crossTarget / "/scoverage-data"
-            val reportDir = crossTarget / "scoverage-report"
-            val coberturaDir = crossTarget / "coverage-report"
-            coberturaDir.mkdirs()
-            reportDir.mkdirs()
+              val coverageFile = IOUtils.coverageFile(dataDir)
+              val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
-            val coverageFile = IOUtils.coverageFile(dataDir)
-            val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
+              s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
 
-            s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
+              if (coverageFile.exists) {
 
-            if (coverageFile.exists) {
+                s.log.info(s"[scoverage] Reading scoverage measurements...")
+                val coverage = IOUtils.deserialize(coverageFile)
+                val measurements = IOUtils.invoked(measurementFiles)
+                coverage.apply(measurements)
 
-              s.log.info(s"[scoverage] Reading scoverage measurements...")
-              val coverage = IOUtils.deserialize(coverageFile)
-              val measurements = IOUtils.invoked(measurementFiles)
-              coverage.apply(measurements)
+                s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+                new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
-              s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
-              new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
+                s.log.info(s"Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
+                new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
+                new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-              s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
-              new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
-              new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+                s.log.info(s"Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
+                new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
-              s.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
-              new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
+                s.log.info("[scoverage] Reports completed")
 
-              s.log.info("[scoverage] Reports completed")
+                val cper = coverage.statementCoveragePercent
+                val cfmt = coverage.statementCoverageFormatted
 
-              // check for default minimum
-              if (min > 0) {
-                def is100(d: Double) = Math.abs(100 - d) <= 0.00001
 
-                if (is100(min) && is100(coverage.statementCoveragePercent)) {
-                  s.log.info(s"[scoverage] 100% Coverage !")
-                } else if (min > coverage.statementCoveragePercent) {
-                  s.log.error(s"[scoverage] Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
-                  if (failOnMin)
-                    throw new RuntimeException("Coverage minimum was not reached")
-                } else {
-                  s.log.info(s"[scoverage] Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
+                // check for default minimum
+                if (min > 0) {
+                  def is100(d: Double) = Math.abs(100 - d) <= 0.00001
+
+                  if (is100(min) && is100(cper)) {
+                    s.log.info(s"[scoverage] 100% Coverage !")
+                  } else if (min > cper) {
+                    s.log.error(s"Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
+                    if (failOnMin)
+                      throw new RuntimeException("Coverage minimum was not reached")
+                  } else {
+                    s.log.info(s"[scoverage] Coverage is above minimum [$cfmt% > $min%]")
+                  }
                 }
+
+                s.log.info(s"[scoverage] All done. Coverage was [$cfmt%]")
+                ()
+
+              } else {
+                s.log.info(s"[scoverage] Scoverage data file does not exist. Skipping report generation")
+                ()
               }
-
-              s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
-              ()
-
             } else {
-              s.log.info(s"[scoverage] Scoverage data file does not exist. Skipping report generation")
               ()
             }
         }
