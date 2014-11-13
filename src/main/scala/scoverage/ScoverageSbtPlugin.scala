@@ -15,6 +15,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   object autoImport {
     lazy val coverage = taskKey[Unit]("enable coverage")
+    lazy val coverageReport = taskKey[Unit]("run report generation")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
     val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
     val coverageMinimumCoverage = settingKey[Double]("scoverage-minimum-coverage")
@@ -24,7 +25,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
     val coverageAggregateReport = settingKey[Boolean]("if true will generate aggregate parent report")
-    lazy val coverageReport = taskKey[Unit]("run report generation")
   }
 
   var enabled = false
@@ -41,6 +41,10 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     },
 
     coverageReport := {
+
+      s.log.info(s"[info] Waiting for measurement data to sync...")
+      Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
+
       report((crossTarget in Test).value,
         (baseDirectory in Compile).value,
         (scalaSource in Compile).value,
@@ -73,13 +77,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       }
     },
 
-    // rangepos is broken in some releases of scala
+    // rangepos is broken in some releases of scala so option to turn it off
     scalacOptions in(Compile, compile) ++= (if (enabled && coverageHighlighting.value) List("-Yrangepos") else Nil),
 
     // disable parallel execution to work around "classes.bak" bug in SBT
-    parallelExecution in Test := false,
-
-    testOptions in Test <+= testsCleanup
+    parallelExecution in Test := false
   )
 
   private def scalaArgs(pluginClass: File, target: File, excludedPackages: String, excludedFiles: String) = {
@@ -102,6 +104,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                      s: TaskStreams,
                      min: Double,
                      failOnMin: Boolean): Unit = {
+
     val dataDir = crossTarget / "/scoverage-data"
     val reportDir = crossTarget / "scoverage-report"
     val coberturaDir = crossTarget / "coverage-report"
@@ -154,33 +157,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       s.log.info(s"[info] All done. Coverage was [$cfmt%]")
     } else {
       s.log.info(s"[info] Scoverage data file does not exist. Skipping report generation")
-    }
-  }
-
-  /** Generate hook that is invoked after the tests have executed. */
-  private def testsCleanup = {
-    (crossTarget in Test,
-      baseDirectory in Compile,
-      scalaSource in Compile,
-      coverageMinimumCoverage in Test,
-      coverageFailOnMinimumCoverage in Test,
-      streams in Global) map {
-      (crossTarget,
-       baseDirectory,
-       compileSourceDirectory,
-       min,
-       failOnMin,
-       s) =>
-        Tests.Cleanup {
-          () =>
-            if (enabled) {
-              s.log.info(s"[info] Waiting for measurement data to sync...")
-              Thread.sleep(2000) // have noticed some delay in writing, hacky but works
-              report(crossTarget, baseDirectory, compileSourceDirectory, s, min, failOnMin)
-            } else {
-              ()
-            }
-        }
     }
   }
 }
