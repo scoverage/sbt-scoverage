@@ -8,8 +8,8 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
 class ScoverageSbtPlugin extends sbt.Plugin {
 
-  val OrgScoverage = "org.scalacoverage"
-  val ScalacArtifact = "scalac-coverage-plugin"
+  val OrgScoverage = "org.scoverage"
+  val ScalacArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.0.0.BETA1"
 
   object ScoverageKeys {
@@ -25,8 +25,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
   import ScoverageKeys._
 
-  lazy val Scoverage: Configuration = config("scalaCoverage")
-  lazy val ScoverageTest: Configuration = config("scalaCoverageTest") extend Scoverage
+  lazy val Scoverage: Configuration = config("scoverage")
+  lazy val ScoverageTest: Configuration = config("scoverageTest") extend Scoverage
 
   lazy val instrumentSettings: Seq[Setting[_]] = {
     inConfig(Scoverage)(Defaults.compileSettings) ++
@@ -84,8 +84,8 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               Seq(
                 Some(s"-Xplugin:${classpath.getAbsolutePath}"),
                 Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/coverage-data"),
-                Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:coverage:excludedPackages:$v"),
-                Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:coverage:excludedFiles:$v")
+                Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
+                Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
               ).flatten
           }
         },
@@ -185,14 +185,14 @@ class ScoverageSbtPlugin extends sbt.Plugin {
               s.log.info(s"[scala-coverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
               new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
-              s.log.info(s"[scala-coverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
+              s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
               new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-              s.log.info(s"[scala-coverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
+              s.log.info(s"[scoverage] Generating HTML report [${reportDir.getAbsolutePath}/index.html]")
               new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
-              s.log.info("[scala-coverage] Reports completed")
+              s.log.info("[scoverage] Reports completed")
 
               // check for default minimum
               if (min > 0) {
