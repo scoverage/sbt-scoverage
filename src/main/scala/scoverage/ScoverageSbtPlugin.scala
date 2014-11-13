@@ -17,7 +17,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
     val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
     val coverageMinimumCoverage = settingKey[Double]("scoverage-minimum-coverage")
-    val coverageFailOnMinimumCoverage = settingKey[Boolean]("scoverage-fail-on-minimum-coverage")
+    val coverageFailOnMinimumCoverage = settingKey[Boolean]("if coverage is less than this value then fail build")
     val coverageHighlighting = settingKey[Boolean]("enables range positioning for highlighting")
     val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
@@ -38,7 +38,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageExcludedFiles := "",
     coverageMinimumCoverage := 0, // default is no minimum
     coverageFailOnMinimumCoverage := false,
-    coverageHighlighting := false,
+    coverageHighlighting := true,
     coverageOutputXML := true,
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
@@ -64,7 +64,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     // rangepos is broken in some releases of scala
     scalacOptions in(Compile, compile) ++= (if (coverageHighlighting.value) List("-Yrangepos") else Nil),
 
-    // disable parallel execution for testing
+    // disable parallel execution to work around "classes.bak" bug in SBT
     parallelExecution in Test := false,
 
     testOptions in Test <+= testsCleanup
