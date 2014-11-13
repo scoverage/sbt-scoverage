@@ -22,6 +22,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
+    val coverageAggregateReport = settingKey[Boolean]("if true will generate aggregate parent report")
   }
 
   import autoImport._
@@ -42,6 +43,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputXML := true,
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
+    coverageAggregateReport := true
 
     scalacOptions in(Compile, compile) ++= {
       val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
@@ -101,17 +103,17 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
             val coverageFile = IOUtils.coverageFile(dataDir)
             val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
-            s.log.info(s"[scala-coverage] Reading scoverage instrumentation [$coverageFile]")
+            s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
 
             if (coverageFile.exists) {
-              s.log.info(s"[scala-coverage] Reading scoverage measurements...")
+              s.log.info(s"[scoverage] Reading scoverage measurements...")
               val coverage = IOUtils.deserialize(coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
               coverage.apply(measurements)
 
               s
                 .log
-                .info(s"[scala-coverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+                .info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
               new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
               s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
@@ -128,11 +130,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                 def is100(d: Double) = Math.abs(100 - d) <= 0.00001
 
                 if (is100(min) && is100(coverage.statementCoveragePercent)) {
-                  s.log.info(s"[scala-coverage] 100% Coverage !")
+                  s.log.info(s"[scoverage] 100% Coverage !")
                 } else if (min > coverage.statementCoveragePercent) {
                   s
                     .log
-                    .error(s"[scala-coverage] Coverage is below minimum [${
+                    .error(s"[scoverage] Coverage is below minimum [${
                     coverage
                       .statementCoverageFormatted
                   }% < $min%]")
@@ -141,17 +143,17 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                 } else {
                   s
                     .log
-                    .info(s"[scala-coverage] Coverage is above minimum [${
+                    .info(s"[scoverage] Coverage is above minimum [${
                     coverage
                       .statementCoverageFormatted
                   }% > $min%]")
                 }
               }
 
-              s.log.info(s"[scala-coverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
+              s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
               ()
             } else {
-              s.log.info(s"[scala-coverage] Scoverage data file does not exist. Skipping report generation")
+              s.log.info(s"[scoverage] Scoverage data file does not exist. Skipping report generation")
               ()
             }
         }
