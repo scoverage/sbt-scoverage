@@ -59,13 +59,13 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
         case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
         case Some(classpath) =>
-          println("Code coverage plugin is enabled")
+          println("[info] Code coverage plugin is enabled")
           scalaArgs(classpath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
       }
     },
 
     // rangepos is broken in some releases of scala
-    scalacOptions in(Compile, compile) ++= (if (coverageHighlighting.value) List("-Yrangepos") else Nil),
+    scalacOptions in(Compile, compile) ++= (if (enabled && coverageHighlighting.value) List("-Yrangepos") else Nil),
 
     // disable parallel execution to work around "classes.bak" bug in SBT
     parallelExecution in Test := false,
@@ -117,26 +117,26 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
               val coverageFile = IOUtils.coverageFile(dataDir)
               val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
-              s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
+              s.log.info(s"[[info] ] Reading scoverage instrumentation [$coverageFile]")
 
               if (coverageFile.exists) {
 
-                s.log.info(s"[scoverage] Reading scoverage measurements...")
+                s.log.info(s"[[info] ] Reading scoverage measurements...")
                 val coverage = IOUtils.deserialize(coverageFile)
                 val measurements = IOUtils.invoked(measurementFiles)
                 coverage.apply(measurements)
 
-                s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+                s.log.info(s"[info] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
                 new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
-                s.log.info(s"Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
+                s.log.info(s"[info] Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
                 new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
                 new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-                s.log.info(s"Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
+                s.log.info(s"[info] Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
                 new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
-                s.log.info("[scoverage] Reports completed")
+                s.log.info("[info] Coverage reports completed")
 
                 val cper = coverage.statementCoveragePercent
                 val cfmt = coverage.statementCoverageFormatted
@@ -147,21 +147,21 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                   def is100(d: Double) = Math.abs(100 - d) <= 0.00001
 
                   if (is100(min) && is100(cper)) {
-                    s.log.info(s"[scoverage] 100% Coverage !")
+                    s.log.info(s"[info] 100% Coverage !")
                   } else if (min > cper) {
-                    s.log.error(s"Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
+                    s.log.error(s"[info] Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
                     if (failOnMin)
                       throw new RuntimeException("Coverage minimum was not reached")
                   } else {
-                    s.log.info(s"[scoverage] Coverage is above minimum [$cfmt% > $min%]")
+                    s.log.info(s"[info] Coverage is above minimum [$cfmt% > $min%]")
                   }
                 }
 
-                s.log.info(s"[scoverage] All done. Coverage was [$cfmt%]")
+                s.log.info(s"[info] All done. Coverage was [$cfmt%]")
                 ()
 
               } else {
-                s.log.info(s"[scoverage] Scoverage data file does not exist. Skipping report generation")
+                s.log.info(s"[info] Scoverage data file does not exist. Skipping report generation")
                 ()
               }
             } else {
