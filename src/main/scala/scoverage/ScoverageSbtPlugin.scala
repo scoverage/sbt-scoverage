@@ -9,10 +9,11 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 class ScoverageSbtPlugin extends sbt.Plugin {
 
   val OrgScoverage = "org.scoverage"
-  val ScalacArtifact = "scalac-scoverage-plugin"
+  val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
+  val ScalacPluginArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.0.0.BETA1"
 
-  object ScoverageKeys {
+  object autoImport {
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
     val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
     val coverageMinimumCoverage = settingKey[Double]("scoverage-minimum-coverage")
@@ -23,7 +24,7 @@ class ScoverageSbtPlugin extends sbt.Plugin {
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
   }
 
-  import ScoverageKeys._
+  import autoImport._
 
   lazy val Scoverage: Configuration = config("scoverage")
   lazy val ScoverageTest: Configuration = config("scoverageTest") extend Scoverage
@@ -33,9 +34,10 @@ class ScoverageSbtPlugin extends sbt.Plugin {
       inConfig(ScoverageTest)(Defaults.testSettings) ++
       Seq(
         ivyConfigurations ++= Seq(Scoverage.hide, ScoverageTest.hide),
-        libraryDependencies += {
-          OrgScoverage % (ScalacArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
-        },
+        libraryDependencies ++= Seq(
+          OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
+          OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
+        ),
         // Source paths
         sourceDirectory in Scoverage <<= (sourceDirectory in Compile),
         sourceManaged in Scoverage <<= (sourceManaged in Compile),
@@ -78,12 +80,13 @@ class ScoverageSbtPlugin extends sbt.Plugin {
 
         scalacOptions in Scoverage ++= {
           val scoverageDeps = update.value matching configurationFilter("provided")
-          scoverageDeps.find(_.getAbsolutePath.contains(ScalacArtifact)) match {
-            case None => throw new Exception(s"Fatal: $ScalacArtifact not in libraryDependencies")
+          scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
+            case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
             case Some(classpath) =>
+              println("Classpath=" + classpath)
               Seq(
                 Some(s"-Xplugin:${classpath.getAbsolutePath}"),
-                Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/coverage-data"),
+                Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
                 Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
                 Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
               ).flatten
