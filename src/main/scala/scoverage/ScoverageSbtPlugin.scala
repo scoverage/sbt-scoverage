@@ -43,11 +43,10 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputXML := true,
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
-    coverageAggregateReport := true
+    coverageAggregateReport := true,
 
     scalacOptions in(Compile, compile) ++= {
       val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
-      println(scoverageDeps)
       scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
         case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
         case Some(classpath) =>
@@ -95,8 +94,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
             Thread.sleep(2000) // have noticed some delay in writing, hacky but works
 
             val dataDir = crossTarget / "/scoverage-data"
-            val coberturaDir = crossTarget / "coverage-report"
             val reportDir = crossTarget / "scoverage-report"
+            val coberturaDir = crossTarget / "coverage-report"
             coberturaDir.mkdirs()
             reportDir.mkdirs()
 
@@ -106,14 +105,13 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
             s.log.info(s"[scoverage] Reading scoverage instrumentation [$coverageFile]")
 
             if (coverageFile.exists) {
+
               s.log.info(s"[scoverage] Reading scoverage measurements...")
               val coverage = IOUtils.deserialize(coverageFile)
               val measurements = IOUtils.invoked(measurementFiles)
               coverage.apply(measurements)
 
-              s
-                .log
-                .info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+              s.log.info(s"[scoverage] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
               new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
               s.log.info(s"[scoverage] Generating XML report [${reportDir.getAbsolutePath}/scoverage.xml]")
@@ -132,26 +130,17 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                 if (is100(min) && is100(coverage.statementCoveragePercent)) {
                   s.log.info(s"[scoverage] 100% Coverage !")
                 } else if (min > coverage.statementCoveragePercent) {
-                  s
-                    .log
-                    .error(s"[scoverage] Coverage is below minimum [${
-                    coverage
-                      .statementCoverageFormatted
-                  }% < $min%]")
+                  s.log.error(s"[scoverage] Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
                   if (failOnMin)
                     throw new RuntimeException("Coverage minimum was not reached")
                 } else {
-                  s
-                    .log
-                    .info(s"[scoverage] Coverage is above minimum [${
-                    coverage
-                      .statementCoverageFormatted
-                  }% > $min%]")
+                  s.log.info(s"[scoverage] Coverage is above minimum [${coverage.statementCoverageFormatted}% > $min%]")
                 }
               }
 
               s.log.info(s"[scoverage] All done. Coverage was [${coverage.statementCoverageFormatted}%]")
               ()
+
             } else {
               s.log.info(s"[scoverage] Scoverage data file does not exist. Skipping report generation")
               ()
