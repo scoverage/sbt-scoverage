@@ -11,7 +11,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "1.0.0.BETA1"
+  val ScoverageVersion = "1.0.0.BETA2"
 
   object autoImport {
     lazy val coverage = taskKey[Unit]("enable coverage")
@@ -42,7 +42,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
     coverageReport := {
 
-      s.log.info(s"[info] Waiting for measurement data to sync...")
+      streams.value.log.info(s"[info] Waiting for measurement data to sync...")
       Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
       report((crossTarget in Test).value,
@@ -114,11 +114,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageFile = IOUtils.coverageFile(dataDir)
     val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
-    s.log.info(s"[[info] ] Reading scoverage instrumentation [$coverageFile]")
+    s.log.info(s"[info] Reading scoverage instrumentation [$coverageFile]")
 
     if (coverageFile.exists) {
 
-      s.log.info(s"[[info] ] Reading scoverage measurements...")
+      s.log.info(s"[info] Reading scoverage measurements...")
       val coverage = IOUtils.deserialize(coverageFile)
       val measurements = IOUtils.invoked(measurementFiles)
       coverage.apply(measurements)
