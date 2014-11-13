@@ -2,7 +2,7 @@ package scoverage
 
 import sbt.Keys._
 import sbt._
-import scoverage.report._
+import scoverage.report.{ScoverageHtmlWriter, ScoverageXmlWriter, CoberturaXmlWriter}
 
 object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
@@ -26,49 +26,49 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   import autoImport._
 
-  lazy val projectSettings: Seq[Setting[_]] = {
+  override def trigger = allRequirements
+  override def projectSettings = Seq(
 
-    Seq(
-      libraryDependencies ++= Seq(
-        OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
-        OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
-      ),
+    libraryDependencies ++= Seq(
+      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
+      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
+    ),
 
-      coverageExcludedPackages := "",
-      coverageExcludedFiles := "",
-      coverageMinimumCoverage := 0, // default is no minimum
-      coverageFailOnMinimumCoverage := false,
-      coverageHighlighting := false,
-      coverageOutputXML := true,
-      coverageOutputHTML := true,
-      coverageOutputCobertua := true,
+    coverageExcludedPackages := "",
+    coverageExcludedFiles := "",
+    coverageMinimumCoverage := 0, // default is no minimum
+    coverageFailOnMinimumCoverage := false,
+    coverageHighlighting := false,
+    coverageOutputXML := true,
+    coverageOutputHTML := true,
+    coverageOutputCobertua := true,
 
-      scalacOptions in Compile ++= {
-        val scoverageDeps = update.value matching configurationFilter("provided")
-        scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-          case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
-          case Some(classpath) =>
-            println("Classpath=" + classpath)
-            Seq(
-              Some(s"-Xplugin:${classpath.getAbsolutePath}"),
-              Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
-              Option(coverageExcludedPackages.value.trim)
-                .filter(_.nonEmpty)
-                .map(v => s"-P:scoverage:excludedPackages:$v"),
-              Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
-            ).flatten
-        }
-      },
+    scalacOptions in(Compile, compile) ++= {
+      val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
+      println(scoverageDeps)
+      scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
+        case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+        case Some(classpath) =>
+          println("Classpath=" + classpath)
+          Seq(
+            Some(s"-Xplugin:${classpath.getAbsolutePath}"),
+            Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
+            Option(coverageExcludedPackages.value.trim)
+              .filter(_.nonEmpty)
+              .map(v => s"-P:scoverage:excludedPackages:$v"),
+            Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
+          ).flatten
+      }
+    },
 
-      // rangepos is broken in some releases of scala
-      scalacOptions in Compile ++= (if (coverageHighlighting.value) List("-Yrangepos") else Nil),
+    // rangepos is broken in some releases of scala
+    scalacOptions in(Compile, compile) ++= (if (coverageHighlighting.value) List("-Yrangepos") else Nil),
 
-      // disable parallel execution for testing
-      parallelExecution in Test := false,
+    // disable parallel execution for testing
+    parallelExecution in Test := false,
 
-      testOptions in Test <+= testsCleanup
-    )
-  }
+    testOptions in Test <+= testsCleanup
+  )
 
   /** Generate hook that is invoked after the tests have executed. */
   def testsCleanup = {
