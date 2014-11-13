@@ -35,9 +35,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   override def projectSettings = Seq(
 
     coverage := {
-      println(enabled)
       enabled = true
-      println(enabled)
     },
 
     coverageReport := {
@@ -137,7 +135,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
       val cper = coverage.statementCoveragePercent
       val cfmt = coverage.statementCoverageFormatted
-
 
       // check for default minimum
       if (min > 0) {
