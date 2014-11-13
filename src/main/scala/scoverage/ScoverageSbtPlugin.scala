@@ -26,7 +26,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   import autoImport._
 
-  lazy val instrumentSettings: Seq[Setting[_]] = {
+  lazy val projectSettings: Seq[Setting[_]] = {
 
     Seq(
       libraryDependencies ++= Seq(
