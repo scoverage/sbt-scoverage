@@ -2,7 +2,7 @@ package scoverage
 
 import sbt.Keys._
 import sbt._
-import scoverage.report.{ScoverageHtmlWriter, ScoverageXmlWriter, CoberturaXmlWriter}
+import scoverage.report.{CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
 
 object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
@@ -41,7 +41,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
     coverageReport := {
 
-      streams.value.log.info(s"[info] Waiting for measurement data to sync...")
+      streams.value.log.info(s"Waiting for measurement data to sync...")
       Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
       report((crossTarget in Test).value,
@@ -53,8 +53,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     },
 
     coverageAggregate := {
-      streams.value.log.info(s"[info] Aggregating subprojects..." + crossTarget.value)
-      val file = IOUtils.measurementFileSearch(crossTarget.value)
+      streams.value.log.info(s"Aggregating coverage from subprojects..." + crossTarget.value)
+      IOUtils.aggregator(crossTarget.value)
     },
 
     libraryDependencies ++= Seq(
@@ -115,29 +115,29 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coberturaDir.mkdirs()
     reportDir.mkdirs()
 
-    val coverageFile = IOUtils.coverageFile(dataDir)
+    val coverageFile = Serializer.coverageFile(dataDir)
     val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
-    s.log.info(s"[info] Reading scoverage instrumentation [$coverageFile]")
+    s.log.info(s"Reading scoverage instrumentation [$coverageFile]")
 
     if (coverageFile.exists) {
 
-      s.log.info(s"[info] Reading scoverage measurements...")
-      val coverage = IOUtils.deserialize(coverageFile)
+      s.log.info(s"Reading scoverage measurements...")
+      val coverage = Serializer.deserialize(coverageFile)
       val measurements = IOUtils.invoked(measurementFiles)
       coverage.apply(measurements)
 
-      s.log.info(s"[info] Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+      s.log.info(s"Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
       new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
 
-      s.log.info(s"[info] Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
+      s.log.info(s"Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
       new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
       new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
 
-      s.log.info(s"[info] Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
+      s.log.info(s"Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
       new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
 
-      s.log.info("[info] Coverage reports completed")
+      s.log.info("Coverage reports completed")
 
       val cper = coverage.statementCoveragePercent
       val cfmt = coverage.statementCoverageFormatted
@@ -147,19 +147,19 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
         def is100(d: Double) = Math.abs(100 - d) <= 0.00001
 
         if (is100(min) && is100(cper)) {
-          s.log.info(s"[info] 100% Coverage !")
+          s.log.info(s"100% Coverage !")
         } else if (min > cper) {
-          s.log.error(s"[info] Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
+          s.log.error(s"Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
           if (failOnMin)
             throw new RuntimeException("Coverage minimum was not reached")
         } else {
-          s.log.info(s"[info] Coverage is above minimum [$cfmt% > $min%]")
+          s.log.info(s"Coverage is above minimum [$cfmt% > $min%]")
         }
       }
 
-      s.log.info(s"[info] All done. Coverage was [$cfmt%]")
+      s.log.info(s"All done. Coverage was [$cfmt%]")
     } else {
-      s.log.info(s"[info] Scoverage data file does not exist. Skipping report generation")
+      s.log.info(s"Scoverage data file does not exist. Skipping report generation")
     }
   }
 }
