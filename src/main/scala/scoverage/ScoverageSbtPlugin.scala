@@ -11,11 +11,12 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "1.0.0.BETA2"
+  val ScoverageVersion = "1.0.0.BETA3"
 
   object autoImport {
     lazy val coverage = taskKey[Unit]("enable coverage")
     lazy val coverageReport = taskKey[Unit]("run report generation")
+    lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
     val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
     val coverageMinimumCoverage = settingKey[Double]("scoverage-minimum-coverage")
@@ -24,7 +25,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
-    val coverageAggregateReport = settingKey[Boolean]("if true will generate aggregate parent report")
+    val coverageAggregateReport = settingKey[Boolean]("if true will generate aggregate parent report automatically")
   }
 
   var enabled = false
@@ -49,6 +50,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
         (streams in Global).value,
         coverageMinimumCoverage.value,
         coverageFailOnMinimumCoverage.value)
+    },
+
+    coverageAggregate := {
+      streams.value.log.info(s"[info] Aggregating subprojects..." + crossTarget.value)
+      val file = IOUtils.measurementFileSearch(crossTarget.value)
     },
 
     libraryDependencies ++= Seq(
