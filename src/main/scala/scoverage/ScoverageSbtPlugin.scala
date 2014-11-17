@@ -14,9 +14,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val ScoverageVersion = "1.0.0.BETA3"
 
   object autoImport {
-    lazy val coverageCompile = taskKey[sbt.inc.Analysis]("compile code with instrumentation")
-    lazy val coverageTest = taskKey[Unit]("run coverage on tests")
-    lazy val coverageIntegrationTest = taskKey[Unit]("run coverage on integration tests")
+    lazy val coverageOn = taskKey[Unit]("enable compiled code with instrumentation")
     lazy val coverageReport = taskKey[Unit]("run report generation")
     lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
@@ -37,19 +35,9 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   override def trigger = allRequirements
   override def projectSettings = Seq(
 
-    coverageCompile := {
+    coverageOn := {
       enabled = true
-      (compile in Compile).value
-    },
-
-    coverageTest := {
-      enabled = true
-      (test in Test).value
-    },
-
-    coverageIntegrationTest := {
-      enabled = true
-      (test in IntegrationTest).value
+      println("[info] Scoverage code coverage is enabled")
     },
 
     coverageReport := {
@@ -70,6 +58,15 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       IOUtils.aggregator(crossTarget.value)
     },
 
+    scalacOptions in(Compile, compile) ++= {
+      val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
+      scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
+        case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+        case Some(classpath) =>
+          scalaArgs(classpath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
+      }
+    },
+
     libraryDependencies ++= Seq(
       OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
       OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
@@ -85,15 +82,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputCobertua := true,
     coverageAggregateReport := true,
 
-    scalacOptions in(Compile, compile) ++= {
-      val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
-      scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-        case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
-        case Some(classpath) =>
-          scalaArgs(classpath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
-      }
-    },
-
     // rangepos is broken in some releases of scala so option to turn it off
     scalacOptions in(Compile, compile) ++= (if (enabled && coverageHighlighting.value) List("-Yrangepos") else Nil),
 
@@ -103,7 +91,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   private def scalaArgs(pluginClass: File, target: File, excludedPackages: String, excludedFiles: String) = {
     if (enabled) {
-      println("[info] Scoverage code coverage is enabled")
       Seq(
         Some(s"-Xplugin:${pluginClass.getAbsolutePath}"),
         Some(s"-P:scoverage:dataDir:${target.getAbsolutePath}/scoverage-data"),
