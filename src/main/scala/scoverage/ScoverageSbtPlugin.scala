@@ -15,6 +15,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   object autoImport {
     lazy val coverageOn = taskKey[Unit]("enable compiled code with instrumentation")
+    lazy val coverageTest = taskKey[Unit]("asdasdasd")
     lazy val coverageReport = taskKey[Unit]("run report generation")
     lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
@@ -25,7 +26,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
-    val coverageAggregateReport = settingKey[Boolean]("if true will generate aggregate parent report automatically")
   }
 
   var enabled = false
@@ -52,6 +52,10 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
         coverageMinimumCoverage.value,
         coverageFailOnMinimumCoverage.value)
     },
+
+    testOptions in Test <+= postTestReport,
+
+    testOptions in IntegrationTest <+= postTestReport,
 
     coverageAggregate := {
       streams.value.log.info(s"Aggregating coverage from subprojects..." + crossTarget.value)
@@ -80,7 +84,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputXML := true,
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
-    coverageAggregateReport := true,
 
     // rangepos is broken in some releases of scala so option to turn it off
     scalacOptions in(Compile, compile) ++= (if (enabled && coverageHighlighting.value) List("-Yrangepos") else Nil),
@@ -88,6 +91,15 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     // disable parallel execution to work around "classes.bak" bug in SBT
     parallelExecution in Test := false
   )
+
+  private def postTestReport = {
+    (crossTarget in Test, baseDirectory in Compile, scalaSource in Compile, coverageMinimumCoverage, coverageFailOnMinimumCoverage, streams in Global) map {
+      (target, baseDirectory, compileSource, min, failOnMin, streams) =>
+        Tests.Cleanup {
+          () => if (enabled) report(target, baseDirectory, compileSource, streams, min, failOnMin)
+        }
+    }
+  }
 
   private def scalaArgs(pluginClass: File, target: File, excludedPackages: String, excludedFiles: String) = {
     if (enabled) {
@@ -108,6 +120,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                      s: TaskStreams,
                      min: Double,
                      failOnMin: Boolean): Unit = {
+    s.log.info(s"Generating scoverage reports")
 
     val dataDir = crossTarget / "/scoverage-data"
     val reportDir = crossTarget / "scoverage-report"
