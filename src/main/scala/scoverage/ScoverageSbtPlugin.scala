@@ -14,7 +14,9 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val ScoverageVersion = "1.0.0.BETA3"
 
   object autoImport {
-    lazy val coverage = taskKey[Unit]("enable coverage")
+    lazy val coverageCompile = taskKey[sbt.inc.Analysis]("compile code with instrumentation")
+    lazy val coverageTest = taskKey[Unit]("run coverage on tests")
+    lazy val coverageIntegrationTest = taskKey[Unit]("run coverage on integration tests")
     lazy val coverageReport = taskKey[Unit]("run report generation")
     lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
@@ -35,8 +37,19 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   override def trigger = allRequirements
   override def projectSettings = Seq(
 
-    coverage := {
+    coverageCompile := {
       enabled = true
+      (compile in Compile).value
+    },
+
+    coverageTest := {
+      enabled = true
+      (test in Test).value
+    },
+
+    coverageIntegrationTest := {
+      enabled = true
+      (test in IntegrationTest).value
     },
 
     coverageReport := {
