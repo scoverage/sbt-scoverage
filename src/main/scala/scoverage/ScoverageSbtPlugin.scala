@@ -58,8 +58,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     testOptions in IntegrationTest <+= postTestReport,
 
     coverageAggregate := {
-      streams.value.log.info(s"Aggregating coverage from subprojects..." + crossTarget.value)
-      IOUtils.aggregator(crossTarget.value)
+      streams.value.log.info(s"Aggregating coverage from subprojects..." + baseDirectory.value)
+      IOUtils.aggregator(baseDirectory.value)
     },
 
     scalacOptions in(Compile, compile) ++= {
