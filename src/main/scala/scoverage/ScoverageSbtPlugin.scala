@@ -10,7 +10,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
-  val ScalacPluginArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.0.0.BETA4"
 
   object ScoverageKeys {
@@ -63,16 +62,16 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
     scalacOptions in(Compile, compile) ++= {
       val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
-      scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-        case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+      scoverageDeps.find(_.getAbsolutePath.contains(ScalacRuntimeArtifact)) match {
+        case None => throw new Exception(s"Fatal: $ScalacRuntimeArtifact not in libraryDependencies")
         case Some(classpath) =>
           scalaArgs(classpath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
       }
     },
 
+    // the actual code we are instrumenting only needs the runtime dep
     libraryDependencies ++= Seq(
-      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
-      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
+      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
     ),
 
     coverageExcludedPackages := "",
