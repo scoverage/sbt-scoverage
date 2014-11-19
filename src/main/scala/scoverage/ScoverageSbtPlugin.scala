@@ -10,6 +10,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
+  val ScalacPluginArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.0.0.BETA4"
 
   object ScoverageKeys {
@@ -60,19 +61,19 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       IOUtils.aggregator(baseDirectory.value, new File(crossTarget.value, "/scoverage-report"))
     },
 
+    libraryDependencies ++= Seq(
+      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
+      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
+    ),
+
     scalacOptions in(Compile, compile) ++= {
       val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
-      scoverageDeps.find(_.getAbsolutePath.contains(ScalacRuntimeArtifact)) match {
-        case None => throw new Exception(s"Fatal: $ScalacRuntimeArtifact not in libraryDependencies")
-        case Some(classpath) =>
-          scalaArgs(classpath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
+      scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
+        case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+        case Some(pluginPath) =>
+          scalaArgs(pluginPath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
       }
     },
-
-    // the actual code we are instrumenting only needs the runtime dep
-    libraryDependencies ++= Seq(
-      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
-    ),
 
     coverageExcludedPackages := "",
     coverageExcludedFiles := "",
@@ -99,10 +100,10 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     }
   }
 
-  private def scalaArgs(pluginClass: File, target: File, excludedPackages: String, excludedFiles: String) = {
+  private def scalaArgs(pluginPath: File, target: File, excludedPackages: String, excludedFiles: String) = {
     if (enabled) {
       Seq(
-        Some(s"-Xplugin:${pluginClass.getAbsolutePath}"),
+        Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
         Some(s"-P:scoverage:dataDir:${target.getAbsolutePath}/scoverage-data"),
         Option(excludedPackages.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
         Option(excludedFiles.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
