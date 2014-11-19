@@ -33,7 +33,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   import autoImport._
 
   override def trigger = allRequirements
-  override def projectSettings = Seq(
+  override lazy val projectSettings = Seq(
 
     coverage := {
       enabled = true
