@@ -11,28 +11,22 @@ discussion on scoverage.
 
 ## How to use
 
+Sbt-scoverage is an SBT auto plugin. This means it will only work with 0.13.5 and higher.
+
 Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.11")
-```
-
-Add the plugin settings to your project somewhere in build.sbt:
-```scala
-instrumentSettings
-```
-
-Or if you are using Build.scala:
-```scala
-import scoverage.ScoverageSbtPlugin._
-...
-.settings(instrumentSettings: _*)
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.0.0.BETA3")
 ```
 
 Then run the your tests with coverage enabled by entering:
 ```
-$ sbt clean scoverage:test
+$ sbt clean coverage test
+```
+or
+```
+$ sbt clean coverage it:test
 ```
 
 After the tests have finished you should find the coverage reports inside `target/scoverage-report`.
