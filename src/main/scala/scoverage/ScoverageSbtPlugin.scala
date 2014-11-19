@@ -15,7 +15,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   object ScoverageKeys {
     lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
-    lazy val coverageTest = taskKey[Unit]("asdasdasd")
     lazy val coverageReport = taskKey[Unit]("run report generation")
     lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
@@ -58,8 +57,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     testOptions in IntegrationTest <+= postTestReport,
 
     coverageAggregate := {
-      streams.value.log.info(s"Aggregating coverage from subprojects..." + baseDirectory.value)
-      IOUtils.aggregator(baseDirectory.value)
+      streams.value.log.info(s"Aggregating coverage from subprojects...")
+      IOUtils.aggregator(baseDirectory.value, new File(crossTarget.value, "/scoverage-report"))
     },
 
     scalacOptions in(Compile, compile) ++= {
