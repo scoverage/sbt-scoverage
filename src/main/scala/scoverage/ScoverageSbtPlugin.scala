@@ -71,7 +71,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
         case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
         case Some(pluginPath) =>
-          scalaArgs(pluginPath, crossTarget.value, coverageExcludedPackages.value, coverageExcludedFiles.value)
+          scalaArgs(pluginPath,
+            crossTarget.value,
+            coverageExcludedPackages.value,
+            coverageExcludedFiles.value,
+            coverageHighlighting.value)
       }
     },
 
@@ -83,9 +87,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputXML := true,
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
-
-    // rangepos is broken in some releases of scala so option to turn it off
-    scalacOptions in(Compile, compile) ++= (if (enabled && coverageHighlighting.value) List("-Yrangepos") else Nil),
 
     // disable parallel execution to work around "classes.bak" bug in SBT
     parallelExecution in Test := false
@@ -100,13 +101,19 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     }
   }
 
-  private def scalaArgs(pluginPath: File, target: File, excludedPackages: String, excludedFiles: String) = {
+  private def scalaArgs(pluginPath: File,
+                        target: File,
+                        excludedPackages: String,
+                        excludedFiles: String,
+                        coverageHighlighting: Boolean) = {
     if (enabled) {
       Seq(
         Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
         Some(s"-P:scoverage:dataDir:${target.getAbsolutePath}/scoverage-data"),
         Option(excludedPackages.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
-        Option(excludedFiles.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v")
+        Option(excludedFiles.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v"),
+        // rangepos is broken in some releases of scala so option to turn it off
+        if (coverageHighlighting) Some("-Yrangepos") else None
       ).flatten
     } else {
       Nil
