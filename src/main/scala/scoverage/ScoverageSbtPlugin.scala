@@ -13,7 +13,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.0.0.BETA3"
 
-  object autoImport {
+  object ScoverageKeys {
     lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
     lazy val coverageTest = taskKey[Unit]("asdasdasd")
     lazy val coverageReport = taskKey[Unit]("run report generation")
@@ -30,7 +30,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   var enabled = false
 
-  import autoImport._
+  import ScoverageKeys._
 
   override def trigger = allRequirements
   override lazy val projectSettings = Seq(
