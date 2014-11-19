@@ -40,7 +40,7 @@ regular expressions.
 
 Example:
 ```scala
-ScoverageKeys.excludedPackages := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
+coverageExcludedPackages := "<empty>;Reverse.*;.*AuthService.*;models\.data\..*"
 ```
 
 The regular expressions are matched against the fully qualified class name, and must match the entire string to take effect.
@@ -62,9 +62,9 @@ Any code between two such comments will not be instrumented or included in the c
 You can use the following two keys to set the minimum coverage, and if you want to fail the build if the coverage is less than the minimum.
 
 ```scala
-ScoverageKeys.minimumCoverage := 80
+coverageMinimumCoverage := 80
 
-ScoverageKeys.failOnMinimumCoverage := true
+coverageFailOnMinimumCoverage := true
 ```
 
 ## Highlighting
@@ -72,7 +72,7 @@ ScoverageKeys.failOnMinimumCoverage := true
 If you are using Scala 2.11.1 or less, then highlighting will not work (due to this bug which was fixed in 2.11.2 https://github.com/scala/scala/pull/3799). In that case you must disable highlighting by adding the following to your build:
 
 ```scala
-ScoverageKeys.highlighting := true
+coverageHighlighting := false
 ```
 
 ## Failing tests
@@ -86,7 +86,7 @@ writing behind the scenes in order to track which statements have been executed,
 It is possible to disable the parallel execution for tests:
 
 ```scala
-parallelExecution in ScoverageTest := false,
+parallelExecution in Test := false,
 ```
 
 ## Coveralls
