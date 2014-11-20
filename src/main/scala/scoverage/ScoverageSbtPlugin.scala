@@ -40,11 +40,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     },
 
     coverageReport := {
-      streams.value.log.info(s"Waiting for measurement data to sync...")
-      Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
-
       val target = crossTarget.value
       val s = (streams in Global).value
+
+      streams.value.log.info(s"Waiting for measurement data to sync...")
+      Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
       loadCoverage(target, s) match {
         case Some(cov) => writeReports(target, baseDirectory.value, (scalaSource in Compile).value, cov, s)
@@ -61,7 +61,10 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       s.log.info(s"Aggregating coverage from subprojects...")
       val base = baseDirectory.value
       CoverageAggregator.aggregate(base) match {
-        case Some(cov) =>  writeReports(crossTarget.value, base, (scalaSource in Compile).value, cov, s)
+        case Some(cov) =>
+          writeReports(crossTarget.value, base, (scalaSource in Compile).value, cov, s)
+          val cfmt = cov.statementCoverageFormatted
+          s.log.info(s"Aggregation complete. Coverage was [$cfmt]")
         case None => s.log.warn("No subproject data to aggregate, skipping reports")
       }
     },
@@ -139,22 +142,28 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                            compileSourceDirectory: File,
                            coverage: Coverage,
                            s: TaskStreams): Unit = {
-    s.log.info(s"Generating scoverage reports")
+    s.log.info(s"Generating scoverage reports...")
 
     val coberturaDir = crossTarget / "coverage-report"
     val reportDir = crossTarget / "scoverage-report"
     coberturaDir.mkdirs()
     reportDir.mkdirs()
 
-    s.log.info(s"Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
-    new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
+    if (coverageOutputCobertua.value) {
+      s.log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+      new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
+    }
 
-    s.log.info(s"Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
-    new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
-    new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+    if (coverageOutputXML.value) {
+      s.log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
+      new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
+      new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+    }
 
-    s.log.info(s"Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
-    new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
+    if (coverageOutputHTML.value) {
+      s.log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
+      new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
+    }
 
     s.log.info("Coverage reports completed")
   }
