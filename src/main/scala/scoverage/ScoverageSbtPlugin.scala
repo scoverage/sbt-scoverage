@@ -119,8 +119,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   )
 
   private def postTestReport = {
-    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimum, coverageFailOnMinimum, streams in Global) map {
-      (target, baseDirectory, compileSource, min, failOnMin, streams) =>
+    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertua, coverageOutputXML, coverageOutputHTML, streams in Global) map {
+      (target, baseDirectory, compileSource, min, failOnMin, outputCobertua, outputXML, outputHTML, streams) =>
         Tests.Cleanup {
           () => if (enabled) {
             loadCoverage(target, streams) foreach {
@@ -129,9 +129,9 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                   baseDirectory,
                   compileSource,
                   c,
-                  coverageOutputCobertua.value,
-                  coverageOutputXML.value,
-                  coverageOutputHTML.value,
+                  outputCobertua,
+                  outputXML,
+                  outputHTML,
                   streams)
                 checkCoverage(c, streams, min, failOnMin)
             }
