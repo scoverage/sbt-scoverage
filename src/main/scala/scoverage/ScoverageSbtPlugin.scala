@@ -62,7 +62,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       val base = baseDirectory.value
       CoverageAggregator.aggregate(base) match {
         case Some(cov) =>  writeReports(crossTarget.value, base, (scalaSource in Compile).value, cov, s)
-        case None => s.log.warn("No coverage data, skipping reports")
+        case None => s.log.warn("No subproject data to aggregate, skipping reports")
       }
     },
 
