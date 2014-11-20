@@ -37,7 +37,7 @@ If you want to see a project that is already setup to use scoverage in both sbt 
 
 If you are upgrading from 0.99.x then you must remove the `instrumentSettings` from your build.sbt or Build.scala, as that is no longer needed.
 
-Next, the keys have been renamed slightly. The new names begin with coverageXXX, eg coverageExcludedPackages and some have have their full name changed. You can see a full list of keys by opening the object ScoverageKeys.
+Next, the keys have been renamed slightly. The new names begin with coverageXXX, eg coverageExcludedPackages and some have had their full name changed. You can see a full list of keys by opening the object ScoverageKeys.
 
 ## Multi project reports
 
