@@ -46,10 +46,9 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       val target = (crossTarget in Test).value
       val s = (streams in Global).value
 
-      loadCoverage(target, s) foreach {
-        _ =>
-          writeReports(target,       (baseDirectory in Compile).value, (scalaSource in Compile).value, _, s)
-          checkCoverage(_, s, coverageMinimumCoverage.value, coverageFailOnMinimumCoverage.value)
+      loadCoverage(target, s) match {
+        case Some(c) => writeReports(target, (baseDirectory in Compile).value, (scalaSource in Compile).value, c, s)
+        case None => s.log.warn("No coverage data, skipping reports")
       }
     },
 
@@ -62,6 +61,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       IOUtils.aggregator(baseDirectory.value, new File(crossTarget.value, "/scoverage-report"))
     },
 
+    aggregate in coverageAggregate := false,
 
     libraryDependencies ++= Seq(
       OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
@@ -100,10 +100,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
         Tests.Cleanup {
           () => if (enabled) {
             loadCoverage(target, streams) foreach {
-              _ =>
-                writeReports(target, baseDirectory, compileSource, _, streams)
-                checkCoverage(_, streams, min, failOnMin)
+              c =>
+                writeReports(target, baseDirectory, compileSource, c, streams)
+                checkCoverage(c, streams, min, failOnMin)
             }
+            ()
           }
         }
     }
