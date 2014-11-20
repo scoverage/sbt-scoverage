@@ -25,6 +25,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
+    val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
     val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
   }
 
@@ -55,6 +56,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
           coverageOutputCobertua.value,
           coverageOutputXML.value,
           coverageOutputHTML.value,
+          coverageOutputDebug.value,
           s)
         case None => s.log.warn("No coverage data, skipping reports")
       }
@@ -77,6 +79,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
             coverageOutputCobertua.value,
             coverageOutputXML.value,
             coverageOutputHTML.value,
+            coverageOutputDebug.value,
             s)
           val cfmt = cov.statementCoverageFormatted
           s.log.info(s"Aggregation complete. Coverage was [$cfmt]")
@@ -113,6 +116,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputXML := true,
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
+    coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true,
 
     // disable parallel execution to work around "classes.bak" bug in SBT
@@ -120,8 +124,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   )
 
   private def postTestReport = {
-    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertua, coverageOutputXML, coverageOutputHTML, streams in Global) map {
-      (target, baseDirectory, compileSource, min, failOnMin, outputCobertua, outputXML, outputHTML, streams) =>
+    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertua, coverageOutputXML, coverageOutputHTML, coverageOutputDebug, streams in Global) map {
+      (target, baseDirectory, compileSource, min, failOnMin, outputCobertua, outputXML, outputHTML, coverageDebug, streams) =>
         Tests.Cleanup {
           () => if (enabled) {
             loadCoverage(target, streams) foreach {
@@ -133,6 +137,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                   outputCobertua,
                   outputXML,
                   outputHTML,
+                  coverageDebug,
                   streams)
                 checkCoverage(c, streams, min, failOnMin)
             }
@@ -168,6 +173,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                            coverageOutputCobertua: Boolean,
                            coverageOutputXML: Boolean,
                            coverageOutputHTML: Boolean,
+                           coverageDebug: Boolean,
                            s: TaskStreams): Unit = {
     s.log.info(s"Generating scoverage reports...")
 
@@ -184,7 +190,9 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     if (coverageOutputXML) {
       s.log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
       new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
-      new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+      if (coverageDebug) {
+        new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+      }
     }
 
     if (coverageOutputHTML) {
