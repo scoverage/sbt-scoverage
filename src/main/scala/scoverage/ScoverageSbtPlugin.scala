@@ -44,12 +44,14 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       streams.value.log.info(s"Waiting for measurement data to sync...")
       Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
-      report((crossTarget in Test).value,
-        (baseDirectory in Compile).value,
-        (scalaSource in Compile).value,
-        (streams in Global).value,
-        coverageMinimumCoverage.value,
-        coverageFailOnMinimumCoverage.value)
+      val target = (crossTarget in Test).value
+      val s = (streams in Global).value
+
+      loadCoverage(target, s) foreach {
+        _ =>
+          writeReports(target,       (baseDirectory in Compile).value, (scalaSource in Compile).value, _, s)
+          checkCoverage(_, s, coverageMinimumCoverage.value, coverageFailOnMinimumCoverage.value)
+      }
     },
 
     testOptions in Test <+= postTestReport,
@@ -59,6 +61,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageAggregate := {
       streams.value.log.info(s"Aggregating coverage from subprojects...")
       IOUtils.aggregator(baseDirectory.value, new File(crossTarget.value, "/scoverage-report"))
+
     },
 
     libraryDependencies ++= Seq(
@@ -96,7 +99,13 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     (crossTarget in Test, baseDirectory in Compile, scalaSource in Compile, coverageMinimumCoverage, coverageFailOnMinimumCoverage, streams in Global) map {
       (target, baseDirectory, compileSource, min, failOnMin, streams) =>
         Tests.Cleanup {
-          () => if (enabled) report(target, baseDirectory, compileSource, streams, min, failOnMin)
+          () => if (enabled) {
+            loadCoverage(target, streams) foreach {
+              _ =>
+                writeReports(target, baseDirectory, compileSource, _, streams)
+                checkCoverage(_, streams, min, failOnMin)
+            }
+          }
         }
     }
   }
@@ -120,65 +129,76 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     }
   }
 
-  private def report(crossTarget: File,
-                     baseDirectory: File,
-                     compileSourceDirectory: File,
-                     s: TaskStreams,
-                     min: Double,
-                     failOnMin: Boolean): Unit = {
+  private def writeReports(crossTarget: File,
+                           baseDirectory: File,
+                           compileSourceDirectory: File,
+                           coverage: Coverage,
+                           s: TaskStreams): Unit = {
     s.log.info(s"Generating scoverage reports")
 
-    val dataDir = crossTarget / "/scoverage-data"
-    val reportDir = crossTarget / "scoverage-report"
     val coberturaDir = crossTarget / "coverage-report"
+    val reportDir = crossTarget / "scoverage-report"
     coberturaDir.mkdirs()
     reportDir.mkdirs()
 
+    s.log.info(s"Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+    new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
+
+    s.log.info(s"Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
+    new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
+    new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+
+    s.log.info(s"Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
+    new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
+
+    s.log.info("Coverage reports completed")
+  }
+
+  private def loadCoverage(crossTarget: File, s: TaskStreams): Option[Coverage] = {
+
+    val dataDir = crossTarget / "/scoverage-data"
     val coverageFile = Serializer.coverageFile(dataDir)
-    val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
 
     s.log.info(s"Reading scoverage instrumentation [$coverageFile]")
 
     if (coverageFile.exists) {
 
-      s.log.info(s"Reading scoverage measurements...")
       val coverage = Serializer.deserialize(coverageFile)
+
+      s.log.info(s"Reading scoverage measurements...")
+      val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
       val measurements = IOUtils.invoked(measurementFiles)
       coverage.apply(measurements)
+      Some(coverage)
 
-      s.log.info(s"Generating Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
-      new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
-
-      s.log.info(s"Generating XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
-      new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
-      new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
-
-      s.log.info(s"Generating HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
-      new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
-
-      s.log.info("Coverage reports completed")
-
-      val cper = coverage.statementCoveragePercent
-      val cfmt = coverage.statementCoverageFormatted
-
-      // check for default minimum
-      if (min > 0) {
-        def is100(d: Double) = Math.abs(100 - d) <= 0.00001
-
-        if (is100(min) && is100(cper)) {
-          s.log.info(s"100% Coverage !")
-        } else if (min > cper) {
-          s.log.error(s"Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
-          if (failOnMin)
-            throw new RuntimeException("Coverage minimum was not reached")
-        } else {
-          s.log.info(s"Coverage is above minimum [$cfmt% > $min%]")
-        }
-      }
-
-      s.log.info(s"All done. Coverage was [$cfmt%]")
     } else {
-      s.log.info(s"Scoverage data file does not exist. Skipping report generation")
+      None
     }
+  }
+
+  private def checkCoverage(coverage: Coverage,
+                            s: TaskStreams,
+                            min: Double,
+                            failOnMin: Boolean): Unit = {
+
+    val cper = coverage.statementCoveragePercent
+    val cfmt = coverage.statementCoverageFormatted
+
+    // check for default minimum
+    if (min > 0) {
+      def is100(d: Double) = Math.abs(100 - d) <= 0.00001
+
+      if (is100(min) && is100(cper)) {
+        s.log.info(s"100% Coverage !")
+      } else if (min > cper) {
+        s.log.error(s"Coverage is below minimum [$coverage.statementCoverageFormatted}% < $min%]")
+        if (failOnMin)
+          throw new RuntimeException("Coverage minimum was not reached")
+      } else {
+        s.log.info(s"Coverage is above minimum [$cfmt% > $min%]")
+      }
+    }
+
+    s.log.info(s"All done. Coverage was [$cfmt%]")
   }
 }
