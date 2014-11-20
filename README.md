@@ -11,27 +11,37 @@ discussion on scoverage.
 
 ## How to use
 
-Sbt-scoverage is an SBT auto plugin. This means it will only work with 0.13.5 and higher.
+Sbt-scoverage is an SBT auto plugin. This means it will only work with SBT 0.13.5 and higher.
 
 Add the plugin to your build with the following in project/build.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.0.0.BETA3")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.0")
 ```
 
 Then run the your tests with coverage enabled by entering:
 ```
 $ sbt clean coverage test
 ```
-or
+or if you have integration tests as well
 ```
 $ sbt clean coverage it:test
 ```
 
-After the tests have finished you should find the coverage reports inside `target/scoverage-report`.
+After the tests have finished you should find the coverage reports inside `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
+
+## Notes on upgrading to version 1.0.0
+
+If you are upgrading from 0.99.x then you must remove the instrumentSettings from your build.sbt or Build.scala, as that is no longer needed.
+
+Next, the keys have been renamed. The new names begin with coverageXXX, eg coverageExcludedPackages. You can see a full list of keys by opening the object ScoverageKeys.
+
+## Multi project reports
+
+By default, scoverage will generate reports for each project seperately. You can merge them into an aggregated report by invoking `sbt coverageAggregate`. Note, you must do this after all the coverage data is complete as a separate command, so you cannot do `sbt coverage test coverageAggregate` (at least until a way around this is found).
 
 ## Exclude classes and packages
 
@@ -62,9 +72,9 @@ Any code between two such comments will not be instrumented or included in the c
 You can use the following two keys to set the minimum coverage, and if you want to fail the build if the coverage is less than the minimum.
 
 ```scala
-coverageMinimumCoverage := 80
+coverageMinimum := 80
 
-coverageFailOnMinimumCoverage := true
+coverageFailOnMinimum := true
 ```
 
 ## Highlighting
@@ -79,15 +89,17 @@ coverageHighlighting := false
 
 If you are running into a scenario where your tests normally pass, but fail when scoverage is enabled, 
 then the most common culprit is timing issues on futures and other async operations. Scoverage does a lot of file 
-writing behind the scenes in order to track which statements have been executed, and this slows down tests, so try upping the timeouts by an order of magnitude.
+writing behind the scenes in order to track which statements have been executed, and this slows down tests slighly, so try upping the timeouts by an order of magnitude.
 
-## Disable parallel test execution
+## Parallel test execution
 
-It is possible to disable the parallel execution for tests:
+Due to a bug in SBT, parallel text execution is disabled. You can enable it again by 
 
 ```scala
-parallelExecution in Test := false,
+parallelExecution in Test := true,
 ```
+
+But if you run into an error like "cannot create classes.bak" note this is not an scoverage bug, but an SBT bug.
 
 ## Coveralls
 
