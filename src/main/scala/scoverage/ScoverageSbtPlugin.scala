@@ -19,12 +19,13 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
     val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
-    val coverageMinimumCoverage = settingKey[Double]("scoverage-minimum-coverage")
-    val coverageFailOnMinimumCoverage = settingKey[Boolean]("if coverage is less than this value then fail build")
+    val coverageMinimum = settingKey[Double]("scoverage-minimum-coverage")
+    val coverageFailOnMinimum = settingKey[Boolean]("if coverage is less than this value then fail build")
     val coverageHighlighting = settingKey[Boolean]("enables range positioning for highlighting")
     val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
+    val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
   }
 
   var enabled = false
@@ -47,7 +48,14 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
       loadCoverage(target, s) match {
-        case Some(cov) => writeReports(target, baseDirectory.value, (scalaSource in Compile).value, cov, s)
+        case Some(cov) => writeReports(target,
+          baseDirectory.value,
+          (scalaSource in Compile).value,
+          cov,
+          coverageOutputCobertua.value,
+          coverageOutputXML.value,
+          coverageOutputHTML.value,
+          s)
         case None => s.log.warn("No coverage data, skipping reports")
       }
     },
@@ -60,9 +68,16 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       val s = (streams in Global).value
       s.log.info(s"Aggregating coverage from subprojects...")
       val base = baseDirectory.value
-      CoverageAggregator.aggregate(base) match {
+      CoverageAggregator.aggregate(base, coverageCleanSubprojectFiles.value) match {
         case Some(cov) =>
-          writeReports(crossTarget.value, base, (scalaSource in Compile).value, cov, s)
+          writeReports(crossTarget.value,
+            base,
+            (scalaSource in Compile).value,
+            cov,
+            coverageOutputCobertua.value,
+            coverageOutputXML.value,
+            coverageOutputHTML.value,
+            s)
           val cfmt = cov.statementCoverageFormatted
           s.log.info(s"Aggregation complete. Coverage was [$cfmt]")
         case None => s.log.warn("No subproject data to aggregate, skipping reports")
@@ -91,25 +106,33 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
     coverageExcludedPackages := "",
     coverageExcludedFiles := "",
-    coverageMinimumCoverage := 0, // default is no minimum
-    coverageFailOnMinimumCoverage := false,
+    coverageMinimum := 0, // default is no minimum
+    coverageFailOnMinimum := false,
     coverageHighlighting := true,
     coverageOutputXML := true,
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
+    coverageCleanSubprojectFiles := true,
 
     // disable parallel execution to work around "classes.bak" bug in SBT
     parallelExecution in Test := false
   )
 
   private def postTestReport = {
-    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimumCoverage, coverageFailOnMinimumCoverage, streams in Global) map {
+    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimum, coverageFailOnMinimum, streams in Global) map {
       (target, baseDirectory, compileSource, min, failOnMin, streams) =>
         Tests.Cleanup {
           () => if (enabled) {
             loadCoverage(target, streams) foreach {
               c =>
-                writeReports(target, baseDirectory, compileSource, c, streams)
+                writeReports(target,
+                  baseDirectory,
+                  compileSource,
+                  c,
+                  coverageOutputCobertua.value,
+                  coverageOutputXML.value,
+                  coverageOutputHTML.value,
+                  streams)
                 checkCoverage(c, streams, min, failOnMin)
             }
             ()
@@ -141,6 +164,9 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                            baseDirectory: File,
                            compileSourceDirectory: File,
                            coverage: Coverage,
+                           coverageOutputCobertua: Boolean,
+                           coverageOutputXML: Boolean,
+                           coverageOutputHTML: Boolean,
                            s: TaskStreams): Unit = {
     s.log.info(s"Generating scoverage reports...")
 
@@ -149,18 +175,18 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coberturaDir.mkdirs()
     reportDir.mkdirs()
 
-    if (coverageOutputCobertua.value) {
+    if (coverageOutputCobertua) {
       s.log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
       new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
     }
 
-    if (coverageOutputXML.value) {
+    if (coverageOutputXML) {
       s.log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
       new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
       new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
     }
 
-    if (coverageOutputHTML.value) {
+    if (coverageOutputHTML) {
       s.log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
       new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
     }
