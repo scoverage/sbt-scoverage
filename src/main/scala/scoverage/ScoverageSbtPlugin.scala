@@ -11,7 +11,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "1.0.0.BETA4"
+  val ScoverageVersion = "1.0.0"
 
   object ScoverageKeys {
     lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
@@ -40,7 +40,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     },
 
     coverageReport := {
-
       streams.value.log.info(s"Waiting for measurement data to sync...")
       Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
@@ -61,8 +60,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageAggregate := {
       streams.value.log.info(s"Aggregating coverage from subprojects...")
       IOUtils.aggregator(baseDirectory.value, new File(crossTarget.value, "/scoverage-report"))
-
     },
+
 
     libraryDependencies ++= Seq(
       OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
