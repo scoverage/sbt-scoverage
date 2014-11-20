@@ -80,7 +80,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
             s)
           val cfmt = cov.statementCoverageFormatted
           s.log.info(s"Aggregation complete. Coverage was [$cfmt]")
-        case None => s.log.warn("No subproject data to aggregate, skipping reports")
+        case None =>
+          s.log.info("No subproject data to aggregate, skipping reports")
       }
     },
 
