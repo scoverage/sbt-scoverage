@@ -2,7 +2,7 @@ package scoverage
 
 import sbt.Keys._
 import sbt._
-import scoverage.report.{CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
+import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
 
 object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
@@ -43,11 +43,11 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       streams.value.log.info(s"Waiting for measurement data to sync...")
       Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
-      val target = (crossTarget in Test).value
+      val target = crossTarget.value
       val s = (streams in Global).value
 
       loadCoverage(target, s) match {
-        case Some(c) => writeReports(target, (baseDirectory in Compile).value, (scalaSource in Compile).value, c, s)
+        case Some(cov) => writeReports(target, baseDirectory.value, (scalaSource in Compile).value, cov, s)
         case None => s.log.warn("No coverage data, skipping reports")
       }
     },
@@ -57,8 +57,13 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     testOptions in IntegrationTest <+= postTestReport,
 
     coverageAggregate := {
-      streams.value.log.info(s"Aggregating coverage from subprojects...")
-      IOUtils.aggregator(baseDirectory.value, new File(crossTarget.value, "/scoverage-report"))
+      val s = (streams in Global).value
+      s.log.info(s"Aggregating coverage from subprojects...")
+      val base = baseDirectory.value
+      CoverageAggregator.aggregate(base) match {
+        case Some(cov) =>  writeReports(crossTarget.value, base, (scalaSource in Compile).value, cov, s)
+        case None => s.log.warn("No coverage data, skipping reports")
+      }
     },
 
     aggregate in coverageAggregate := false,
@@ -95,7 +100,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   )
 
   private def postTestReport = {
-    (crossTarget in Test, baseDirectory in Compile, scalaSource in Compile, coverageMinimumCoverage, coverageFailOnMinimumCoverage, streams in Global) map {
+    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimumCoverage, coverageFailOnMinimumCoverage, streams in Global) map {
       (target, baseDirectory, compileSource, min, failOnMin, streams) =>
         Tests.Cleanup {
           () => if (enabled) {
