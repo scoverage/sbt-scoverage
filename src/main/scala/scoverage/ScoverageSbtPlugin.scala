@@ -37,6 +37,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   override lazy val projectSettings = Seq(
 
     coverage := {
+      clean.value
       enabled = true
       println("[info] Scoverage code coverage is enabled")
     },
