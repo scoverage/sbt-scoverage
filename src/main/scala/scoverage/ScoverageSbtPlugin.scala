@@ -39,7 +39,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverage := {
       clean.value
       enabled = true
-      println("[info] Scoverage code coverage is enabled")
     },
 
     coverageReport := {
