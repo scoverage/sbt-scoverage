@@ -242,7 +242,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
       if (is100(min) && is100(cper)) {
         s.log.info(s"100% Coverage !")
       } else if (min > cper) {
-        s.log.error(s"Coverage is below minimum [${coverage.statementCoverageFormatted}% < $min%]")
+        s.log.error(s"Coverage is below minimum [$cfmt% < $min%]")
         if (failOnMin)
           throw new RuntimeException("Coverage minimum was not reached")
       } else {
