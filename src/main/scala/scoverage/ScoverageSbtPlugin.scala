@@ -8,10 +8,10 @@ object ScoverageSbtPlugin extends ScoverageSbtPlugin
 
 class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
-  val OrgScoverage = "org.scoverage"
+  val OrgScoverage = BuildInfo.organization
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "1.0.1"
+  val ScoverageVersion = BuildInfo.version
 
   object ScoverageKeys {
     lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
