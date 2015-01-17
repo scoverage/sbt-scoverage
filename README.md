@@ -29,7 +29,13 @@ or if you have integration tests as well
 $ sbt clean coverage it:test
 ```
 
-After the tests have finished you should find the coverage reports inside `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
+After the tests have finished you should then run
+
+```
+$ sbt coverageReport
+```
+
+to generate the reports. You will find the coverage reports inside `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
