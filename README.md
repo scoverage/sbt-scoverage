@@ -17,7 +17,7 @@ Add the plugin to your build with the following in project/plugins.sbt:
 ```scala
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.1")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.4")
 ```
 
 Then run the your tests with coverage enabled by entering:
