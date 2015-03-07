@@ -33,7 +33,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   import ScoverageKeys._
 
-  val aggregateFilter = ScopeFilter( inAnyProject, inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780) 
+  val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780) 
 
   override def trigger = allRequirements
   override lazy val projectSettings = Seq(
