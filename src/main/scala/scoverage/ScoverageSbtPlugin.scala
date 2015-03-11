@@ -11,7 +11,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "1.0.4"
+  val ScoverageVersion = "1.0.5-SNAPSHOT"
 
   object ScoverageKeys {
     lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
@@ -33,6 +33,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   import ScoverageKeys._
 
+  val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780) 
+
   override def trigger = allRequirements
   override lazy val projectSettings = Seq(
 
@@ -49,8 +51,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
       loadCoverage(target, s) match {
         case Some(cov) => writeReports(target,
-          baseDirectory.value,
-          (scalaSource in Compile).value,
+          (sourceDirectories in Compile).value,
           cov,
           coverageOutputCobertua.value,
           coverageOutputXML.value,
@@ -68,12 +69,12 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageAggregate := {
       val s = (streams in Global).value
       s.log.info(s"Aggregating coverage from subprojects...")
-      val base = baseDirectory.value
-      CoverageAggregator.aggregate(base, coverageCleanSubprojectFiles.value) match {
+
+      val xmlReportFiles = crossTarget.all(aggregateFilter).value map (_ / "scoverage-report" / Constants.XMLReportFilename) filter (_.isFile())
+      CoverageAggregator.aggregate(xmlReportFiles, coverageCleanSubprojectFiles.value) match {
         case Some(cov) =>
           writeReports(crossTarget.value,
-            base,
-            (scalaSource in Compile).value,
+            sourceDirectories.all(aggregateFilter).value.flatten,
             cov,
             coverageOutputCobertua.value,
             coverageOutputXML.value,
@@ -125,15 +126,14 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   )
 
   private def postTestReport = {
-    (crossTarget, baseDirectory, scalaSource in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertua, coverageOutputXML, coverageOutputHTML, coverageOutputDebug, streams in Global) map {
-      (target, baseDirectory, compileSource, min, failOnMin, outputCobertua, outputXML, outputHTML, coverageDebug, streams) =>
+    (crossTarget, sourceDirectories in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertua, coverageOutputXML, coverageOutputHTML, coverageOutputDebug, streams in Global) map {
+      (target, compileSources, min, failOnMin, outputCobertua, outputXML, outputHTML, coverageDebug, streams) =>
         Tests.Cleanup {
           () => if (enabled) {
             loadCoverage(target, streams) foreach {
               c =>
                 writeReports(target,
-                  baseDirectory,
-                  compileSource,
+                  compileSources,
                   c,
                   outputCobertua,
                   outputXML,
@@ -168,8 +168,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   }
 
   private def writeReports(crossTarget: File,
-                           baseDirectory: File,
-                           compileSourceDirectory: File,
+                           compileSourceDirectories: Seq[File],
                            coverage: Coverage,
                            coverageOutputCobertua: Boolean,
                            coverageOutputXML: Boolean,
@@ -185,20 +184,20 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
     if (coverageOutputCobertua) {
       s.log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
-      new CoberturaXmlWriter(baseDirectory, coberturaDir).write(coverage)
+      new CoberturaXmlWriter(compileSourceDirectories, coberturaDir).write(coverage)
     }
 
     if (coverageOutputXML) {
       s.log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
-      new ScoverageXmlWriter(compileSourceDirectory, reportDir, false).write(coverage)
+      new ScoverageXmlWriter(compileSourceDirectories, reportDir, false).write(coverage)
       if (coverageDebug) {
-        new ScoverageXmlWriter(compileSourceDirectory, reportDir, true).write(coverage)
+        new ScoverageXmlWriter(compileSourceDirectories, reportDir, true).write(coverage)
       }
     }
 
     if (coverageOutputHTML) {
       s.log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
-      new ScoverageHtmlWriter(compileSourceDirectory, reportDir).write(coverage)
+      new ScoverageHtmlWriter(compileSourceDirectories, reportDir).write(coverage)
     }
 
     s.log.info("Coverage reports completed")

@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-version := "1.0.4"
+version := "1.0.5-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
@@ -13,7 +13,7 @@ sbtPlugin := true
 resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
-  "org.scoverage" %% "scalac-scoverage-plugin" % "1.0.4"
+  "org.scoverage" %% "scalac-scoverage-plugin" % "1.0.5-SNAPSHOT"
 )
 
 publishTo := Some(Resolver.url("sbt-plugin-releases",
