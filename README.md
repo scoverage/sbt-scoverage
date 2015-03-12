@@ -92,10 +92,11 @@ ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := false
 ```
 
 ## Failing tests
+Scoverage does a lot of file writing behind the scenes in order to track which statements have been executed.
+If you are running into a scenario where your tests normally pass, but fail when scoverage is enabled, then the culprit can be one of the following:
 
-If you are running into a scenario where your tests normally pass, but fail when scoverage is enabled, 
-then the most common culprit is timing issues on futures and other async operations. Scoverage does a lot of file 
-writing behind the scenes in order to track which statements have been executed, and this slows down tests slighly, so try upping the timeouts by an order of magnitude.
+* timing issues on futures and other async operations, try upping the timeouts by an order of magnitude.
+* tests are run in a sandbox mode (such as with `java.security.PrivilegedAction<T>`), try running the tests outside of the sandbox.
 
 ## Parallel test execution
 
