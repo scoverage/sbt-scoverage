@@ -12,6 +12,8 @@ sbtPlugin := true
 
 resolvers += Resolver.mavenLocal
 
+resolvers += Resolver.sonatypeRepo("snapshots")
+
 libraryDependencies ++= Seq(
   "org.scoverage" %% "scalac-scoverage-plugin" % "1.0.5-SNAPSHOT"
 )
