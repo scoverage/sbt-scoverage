@@ -10,9 +10,12 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf
 
 sbtPlugin := true
 
-resolvers += Resolver.mavenLocal
-
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers <++= isSnapshot (
+  if (_)
+    Seq(Resolver.mavenLocal, Resolver.sonatypeRepo("snapshots"))
+  else
+    Seq()
+)
 
 libraryDependencies ++= Seq(
   "org.scoverage" %% "scalac-scoverage-plugin" % "1.0.5-SNAPSHOT"
