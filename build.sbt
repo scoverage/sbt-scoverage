@@ -21,8 +21,12 @@ libraryDependencies ++= Seq(
   "org.scoverage" %% "scalac-scoverage-plugin" % "1.0.5-SNAPSHOT"
 )
 
-publishTo := Some(Resolver.url("sbt-plugin-releases",
-  new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns))
+publishTo <<= isSnapshot {
+  if (_)
+    Some(Resolver.sbtPluginRepo("snapshots"))
+  else
+    Some(Resolver.sbtPluginRepo("releases"))
+}
 
 publishMavenStyle := false
 
