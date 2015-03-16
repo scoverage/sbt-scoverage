@@ -10,7 +10,7 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf
 
 sbtPlugin := true
 
-resolvers <++= isSnapshot (
+resolvers <++= isSnapshot(
   if (_)
     Seq(Resolver.mavenLocal, Resolver.sonatypeRepo("snapshots"))
   else
@@ -21,11 +21,12 @@ libraryDependencies ++= Seq(
   "org.scoverage" %% "scalac-scoverage-plugin" % "1.0.5-SNAPSHOT"
 )
 
-publishTo <<= isSnapshot {
-  if (_)
+publishTo := {
+  if (isSnapshot.value) {
     Some(Resolver.sbtPluginRepo("snapshots"))
-  else
+  } else {
     Some(Resolver.sbtPluginRepo("releases"))
+  }
 }
 
 publishMavenStyle := false
@@ -36,6 +37,7 @@ licenses +=("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")
 
 ScriptedPlugin.scriptedSettings
 
-scriptedLaunchOpts := { scriptedLaunchOpts.value ++
-  Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
+scriptedLaunchOpts := {
+  scriptedLaunchOpts.value ++
+    Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
 }
