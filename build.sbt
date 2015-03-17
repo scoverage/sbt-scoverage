@@ -2,8 +2,6 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-version := "1.0.5-SNAPSHOT"
-
 scalaVersion := "2.10.4"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
@@ -41,3 +39,7 @@ scriptedLaunchOpts := {
   scriptedLaunchOpts.value ++
     Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
 }
+
+releaseSettings
+
+ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
