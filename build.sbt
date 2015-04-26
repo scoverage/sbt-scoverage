@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.5"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 
@@ -16,7 +16,7 @@ resolvers <++= isSnapshot(
 )
 
 libraryDependencies ++= Seq(
-  "org.scoverage" %% "scalac-scoverage-plugin" % "1.0.5-SNAPSHOT"
+  "org.scoverage" %% "scalac-scoverage-plugin" % "1.1.0"
 )
 
 publishTo := {
