@@ -12,8 +12,6 @@ discussion on scoverage.
 
 ## How to use
 
-Sbt-scoverage is an SBT auto plugin. This means it will only work with SBT 0.13.5 and higher.
-
 Add the plugin to your build with the following in project/plugins.sbt:
 ```scala
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.1.0")
