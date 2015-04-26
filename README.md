@@ -16,7 +16,7 @@ Sbt-scoverage is an SBT auto plugin. This means it will only work with SBT 0.13.
 
 Add the plugin to your build with the following in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.4")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.1.0")
 ```
 
 Then run the your tests with coverage enabled by entering:
