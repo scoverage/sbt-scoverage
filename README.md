@@ -94,16 +94,6 @@ If you are running into a scenario where your tests normally pass, but fail when
 then the most common culprit is timing issues on futures and other async operations. Scoverage does a lot of file 
 writing behind the scenes in order to track which statements have been executed, and this slows down tests slighly, so try upping the timeouts by an order of magnitude.
 
-## Parallel test execution
-
-Due to a bug in SBT, parallel text execution is disabled. You can enable it again by 
-
-```scala
-parallelExecution in Test := true,
-```
-
-But if you run into an error like "cannot create classes.bak" note this is not an scoverage bug, but an SBT bug.
-
 ## Coveralls
 
 If you have an open source project then you can add code coverage metrics with the excellent website http://coveralls.io. Scoverage will integrate with coveralls using the [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) plugin.

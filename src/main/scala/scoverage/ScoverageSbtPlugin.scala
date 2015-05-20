@@ -117,12 +117,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
     coverageOutputDebug := false,
-    coverageCleanSubprojectFiles := true,
-
-    // disable parallel execution to work around "classes.bak" bug in SBT
-    parallelExecution in Test := false,
-
-    parallelExecution in IntegrationTest := false
+    coverageCleanSubprojectFiles := true
   )
 
   private def postTestReport = {
