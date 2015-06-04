@@ -91,8 +91,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     aggregate in coverageAggregate := false,
 
     libraryDependencies ++= Seq(
-      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
-      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
+      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided" intransitive(),
+      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided" intransitive()
     ),
 
     scalacOptions in(Compile, compile) ++= {
