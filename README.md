@@ -34,6 +34,10 @@ $ sbt coverageReport
 
 to generate the reports. You will find the coverage reports inside `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
 
+If you're running the coverage reports from within an sbt console session (as
+opposed to one command per sbt launch), then the `coverage` task is sticky. To
+turn it back off when you're done running reports, use the `coverageOff` task.
+
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
 ## Notes on upgrading to version 1.0.0
