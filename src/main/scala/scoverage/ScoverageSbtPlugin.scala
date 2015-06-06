@@ -91,8 +91,8 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     aggregate in coverageAggregate := false,
 
     libraryDependencies ++= Seq(
-      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided",
-      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided"
+      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided" intransitive(),
+      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided" intransitive()
     ),
 
     scalacOptions in(Compile, compile) ++= {
@@ -117,12 +117,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageOutputHTML := true,
     coverageOutputCobertua := true,
     coverageOutputDebug := false,
-    coverageCleanSubprojectFiles := true,
-
-    // disable parallel execution to work around "classes.bak" bug in SBT
-    parallelExecution in Test := false,
-
-    parallelExecution in IntegrationTest := false
+    coverageCleanSubprojectFiles := true
   )
 
   private def postTestReport = {

@@ -12,11 +12,9 @@ discussion on scoverage.
 
 ## How to use
 
-Sbt-scoverage is an SBT auto plugin. This means it will only work with SBT 0.13.5 and higher.
-
 Add the plugin to your build with the following in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.4")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.1.0")
 ```
 
 Then run the your tests with coverage enabled by entering:
@@ -95,16 +93,6 @@ ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := false
 If you are running into a scenario where your tests normally pass, but fail when scoverage is enabled, 
 then the most common culprit is timing issues on futures and other async operations. Scoverage does a lot of file 
 writing behind the scenes in order to track which statements have been executed, and this slows down tests slighly, so try upping the timeouts by an order of magnitude.
-
-## Parallel test execution
-
-Due to a bug in SBT, parallel text execution is disabled. You can enable it again by 
-
-```scala
-parallelExecution in Test := true,
-```
-
-But if you run into an error like "cannot create classes.bak" note this is not an scoverage bug, but an SBT bug.
 
 ## Coveralls
 
