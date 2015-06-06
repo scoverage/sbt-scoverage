@@ -4,8 +4,6 @@ scalaVersion := "2.10.4"
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.3.13" % "test"
 
-instrumentSettings
+ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 80
 
-ScoverageKeys.minimumCoverage := 80
-
-ScoverageKeys.failOnMinimumCoverage := true
+ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
