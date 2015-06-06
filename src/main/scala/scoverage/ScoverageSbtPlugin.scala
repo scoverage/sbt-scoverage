@@ -22,7 +22,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageMinimum = settingKey[Double]("scoverage-minimum-coverage")
     val coverageFailOnMinimum = settingKey[Boolean]("if coverage is less than this value then fail build")
     val coverageHighlighting = settingKey[Boolean]("enables range positioning for highlighting")
-    val coverageOutputCobertua = settingKey[Boolean]("enables cobertura XML report generation")
+    val coverageOutputCobertura = settingKey[Boolean]("enables cobertura XML report generation")
     val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
     val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
     val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
@@ -33,7 +33,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   import ScoverageKeys._
 
-  val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780) 
+  val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
   override def trigger = allRequirements
   override lazy val projectSettings = Seq(
@@ -53,7 +53,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
         case Some(cov) => writeReports(target,
           (sourceDirectories in Compile).value,
           cov,
-          coverageOutputCobertua.value,
+          coverageOutputCobertura.value,
           coverageOutputXML.value,
           coverageOutputHTML.value,
           coverageOutputDebug.value,
@@ -76,7 +76,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
           writeReports(crossTarget.value,
             sourceDirectories.all(aggregateFilter).value.flatten,
             cov,
-            coverageOutputCobertua.value,
+            coverageOutputCobertura.value,
             coverageOutputXML.value,
             coverageOutputHTML.value,
             coverageOutputDebug.value,
@@ -115,14 +115,14 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coverageHighlighting := true,
     coverageOutputXML := true,
     coverageOutputHTML := true,
-    coverageOutputCobertua := true,
+    coverageOutputCobertura := true,
     coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true
   )
 
   private def postTestReport = {
-    (crossTarget, sourceDirectories in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertua, coverageOutputXML, coverageOutputHTML, coverageOutputDebug, streams in Global) map {
-      (target, compileSources, min, failOnMin, outputCobertua, outputXML, outputHTML, coverageDebug, streams) =>
+    (crossTarget, sourceDirectories in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertura, coverageOutputXML, coverageOutputHTML, coverageOutputDebug, streams in Global) map {
+      (target, compileSources, min, failOnMin, outputCobertura, outputXML, outputHTML, coverageDebug, streams) =>
         Tests.Cleanup {
           () => if (enabled) {
             loadCoverage(target, streams) foreach {
@@ -130,7 +130,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
                 writeReports(target,
                   compileSources,
                   c,
-                  outputCobertua,
+                  outputCobertura,
                   outputXML,
                   outputHTML,
                   coverageDebug,
@@ -165,7 +165,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   private def writeReports(crossTarget: File,
                            compileSourceDirectories: Seq[File],
                            coverage: Coverage,
-                           coverageOutputCobertua: Boolean,
+                           coverageOutputCobertura: Boolean,
                            coverageOutputXML: Boolean,
                            coverageOutputHTML: Boolean,
                            coverageDebug: Boolean,
@@ -177,7 +177,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     coberturaDir.mkdirs()
     reportDir.mkdirs()
 
-    if (coverageOutputCobertua) {
+    if (coverageOutputCobertura) {
       s.log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
       new CoberturaXmlWriter(compileSourceDirectories, coberturaDir).write(coverage)
     }
