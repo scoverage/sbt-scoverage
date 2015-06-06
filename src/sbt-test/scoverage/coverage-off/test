@@ -1,0 +1,10 @@
+# run scoverage using the coverage task
+> clean
+> coverage
+> test
+# turn off coverage using the coverage-off task and recompile
+> clean
+> coverageOff
+> test
+# There should be no scoverage-data directory
+-$ exists target/scala-2.10/scoverage-data

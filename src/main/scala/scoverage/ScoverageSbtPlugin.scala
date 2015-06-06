@@ -15,6 +15,7 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
   object ScoverageKeys {
     lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
+    lazy val coverageOff = taskKey[Unit]("disable compiled code with instrumentation")
     lazy val coverageReport = taskKey[Unit]("run report generation")
     lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
     val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
@@ -40,6 +41,10 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
 
     coverage := {
       enabled = true
+    },
+
+    coverageOff := {
+      enabled = false
     },
 
     coverageReport := {
