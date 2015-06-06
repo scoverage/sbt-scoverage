@@ -1,5 +1,7 @@
 language: scala
 
+script: sbt ++$TRAVIS_SCALA_VERSION test scripted
+
 after_script:
   - if [[ $TRAVIS_TEST_RESULT == 0 && "$TRAVIS_BRANCH" == "master" ]]; then sbt "^publish"; fi
 
