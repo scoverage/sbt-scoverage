@@ -2,32 +2,21 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-scalaVersion := "2.10.5"
-
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 
 sbtPlugin := true
 
-resolvers <++= isSnapshot(
-  if (_)
-    Seq(Resolver.mavenLocal, Resolver.sonatypeRepo("snapshots"))
-  else
-    Seq()
-)
-
-libraryDependencies ++= Seq(
-  "org.scoverage" %% "scalac-scoverage-plugin" % "1.1.0"
-)
-
-publishTo := {
-  if (isSnapshot.value) {
-    Some(Resolver.sbtPluginRepo("snapshots"))
-  } else {
-    Some(Resolver.sbtPluginRepo("releases"))
-  }
+resolvers ++= {
+  if(isSnapshot.value) Seq(Resolver.mavenLocal, Resolver.sonatypeRepo("snapshots"))
+  else Seq.empty
 }
 
-publishMavenStyle := false
+libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.1.0"
+
+publishTo := Some(
+  if (isSnapshot.value) Resolver.sbtPluginRepo("snapshots")
+  else Resolver.sbtPluginRepo("releases")
+)
 
 publishArtifact in Test := false
 
@@ -35,10 +24,10 @@ licenses +=("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")
 
 ScriptedPlugin.scriptedSettings
 
-scriptedLaunchOpts := {
-  scriptedLaunchOpts.value ++
-    Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
-}
+scriptedLaunchOpts ++= Seq(
+  "-Xmx1024M", "-XX:MaxPermSize=256M",
+  "-Dplugin.version=" + version.value
+)
 
 releaseSettings
 
