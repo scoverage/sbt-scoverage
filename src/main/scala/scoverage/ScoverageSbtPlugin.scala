@@ -29,10 +29,12 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
     val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
     val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
   }
+  
+  val autoImport = ScoverageKeys
 
   var enabled = false
 
-  import ScoverageKeys._
+  import autoImport._
 
   val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
