@@ -17,7 +17,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
+  override def requires = plugins.JvmPlugin
   override def trigger = allRequirements
+
   override lazy val projectSettings = Seq(
 
     coverage := {
@@ -30,12 +32,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     coverageReport := {
       val target = crossTarget.value
-      val s = (streams in Global).value
+      val log = streams.value.log
 
-      streams.value.log.info(s"Waiting for measurement data to sync...")
+      log.info(s"Waiting for measurement data to sync...")
       Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
 
-      loadCoverage(target, s) match {
+      loadCoverage(target, log) match {
         case Some(cov) => writeReports(target,
           (sourceDirectories in Compile).value,
           cov,
@@ -43,18 +45,18 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputXML.value,
           coverageOutputHTML.value,
           coverageOutputDebug.value,
-          s)
-        case None => s.log.warn("No coverage data, skipping reports")
+          log)
+        case None => log.warn("No coverage data, skipping reports")
       }
     },
 
-    testOptions in Test <+= postTestReport,
+    testOptions in Test += postTestReport.value,
 
-    testOptions in IntegrationTest <+= postTestReport,
+    testOptions in IntegrationTest += postTestReport.value,
 
     coverageAggregate := {
-      val s = (streams in Global).value
-      s.log.info(s"Aggregating coverage from subprojects...")
+      val log = streams.value.log
+      log.info(s"Aggregating coverage from subprojects...")
 
       val xmlReportFiles = crossTarget.all(aggregateFilter).value map (_ / "scoverage-report" / Constants.XMLReportFilename) filter (_.isFile())
       CoverageAggregator.aggregate(xmlReportFiles, coverageCleanSubprojectFiles.value) match {
@@ -66,11 +68,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
             coverageOutputXML.value,
             coverageOutputHTML.value,
             coverageOutputDebug.value,
-            s)
+            log)
           val cfmt = cov.statementCoverageFormatted
-          s.log.info(s"Aggregation complete. Coverage was [$cfmt]")
+          log.info(s"Aggregation complete. Coverage was [$cfmt]")
         case None =>
-          s.log.info("No subproject data to aggregate, skipping reports")
+          log.info("No subproject data to aggregate, skipping reports")
       }
     },
 
@@ -106,26 +108,26 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageCleanSubprojectFiles := true
   )
 
-  private def postTestReport = {
-    (crossTarget, sourceDirectories in Compile, coverageMinimum, coverageFailOnMinimum, coverageOutputCobertura, coverageOutputXML, coverageOutputHTML, coverageOutputDebug, streams in Global) map {
-      (target, compileSources, min, failOnMin, outputCobertura, outputXML, outputHTML, coverageDebug, streams) =>
-        Tests.Cleanup {
-          () => if (enabled) {
-            loadCoverage(target, streams) foreach {
-              c =>
-                writeReports(target,
-                  compileSources,
-                  c,
-                  outputCobertura,
-                  outputXML,
-                  outputHTML,
-                  coverageDebug,
-                  streams)
-                checkCoverage(c, streams, min, failOnMin)
-            }
-            ()
-          }
+  private def postTestReport = Def.task {
+    val log = streams.value.log
+    val target = crossTarget.value
+    Tests.Cleanup {
+      () => if (enabled) {
+        loadCoverage(target, log) foreach { c =>
+          writeReports(
+            target,
+            (sourceDirectories in Compile).value,
+            c,
+            coverageOutputCobertura.value,
+            coverageOutputXML.value,
+            coverageOutputHTML.value,
+            coverageOutputDebug.value,
+            log
+          )
+          checkCoverage(c, log, coverageMinimum.value, coverageFailOnMinimum.value)
         }
+        ()
+      }
     }
   }
 
@@ -155,8 +157,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
                            coverageOutputXML: Boolean,
                            coverageOutputHTML: Boolean,
                            coverageDebug: Boolean,
-                           s: TaskStreams): Unit = {
-    s.log.info(s"Generating scoverage reports...")
+                           log: Logger): Unit = {
+    log.info(s"Generating scoverage reports...")
 
     val coberturaDir = crossTarget / "coverage-report"
     val reportDir = crossTarget / "scoverage-report"
@@ -164,12 +166,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
     reportDir.mkdirs()
 
     if (coverageOutputCobertura) {
-      s.log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+      log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
       new CoberturaXmlWriter(compileSourceDirectories, coberturaDir).write(coverage)
     }
 
     if (coverageOutputXML) {
-      s.log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
+      log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
       new ScoverageXmlWriter(compileSourceDirectories, reportDir, false).write(coverage)
       if (coverageDebug) {
         new ScoverageXmlWriter(compileSourceDirectories, reportDir, true).write(coverage)
@@ -177,25 +179,25 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
 
     if (coverageOutputHTML) {
-      s.log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
+      log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
       new ScoverageHtmlWriter(compileSourceDirectories, reportDir).write(coverage)
     }
 
-    s.log.info("Coverage reports completed")
+    log.info("Coverage reports completed")
   }
 
-  private def loadCoverage(crossTarget: File, s: TaskStreams): Option[Coverage] = {
+  private def loadCoverage(crossTarget: File, log: Logger): Option[Coverage] = {
 
     val dataDir = crossTarget / "/scoverage-data"
     val coverageFile = Serializer.coverageFile(dataDir)
 
-    s.log.info(s"Reading scoverage instrumentation [$coverageFile]")
+    log.info(s"Reading scoverage instrumentation [$coverageFile]")
 
     if (coverageFile.exists) {
 
       val coverage = Serializer.deserialize(coverageFile)
 
-      s.log.info(s"Reading scoverage measurements...")
+      log.info(s"Reading scoverage measurements...")
       val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
       val measurements = IOUtils.invoked(measurementFiles)
       coverage.apply(measurements)
@@ -207,7 +209,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private def checkCoverage(coverage: Coverage,
-                            s: TaskStreams,
+                            log: Logger,
                             min: Double,
                             failOnMin: Boolean): Unit = {
 
@@ -219,16 +221,16 @@ object ScoverageSbtPlugin extends AutoPlugin {
       def is100(d: Double) = Math.abs(100 - d) <= 0.00001
 
       if (is100(min) && is100(cper)) {
-        s.log.info(s"100% Coverage !")
+        log.info(s"100% Coverage !")
       } else if (min > cper) {
-        s.log.error(s"Coverage is below minimum [$cfmt% < $min%]")
+        log.error(s"Coverage is below minimum [$cfmt% < $min%]")
         if (failOnMin)
           throw new RuntimeException("Coverage minimum was not reached")
       } else {
-        s.log.info(s"Coverage is above minimum [$cfmt% > $min%]")
+        log.info(s"Coverage is above minimum [$cfmt% > $min%]")
       }
     }
 
-    s.log.info(s"All done. Coverage was [$cfmt%]")
+    log.info(s"All done. Coverage was [$cfmt%]")
   }
 }
