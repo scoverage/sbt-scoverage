@@ -4,18 +4,16 @@ import sbt.Keys._
 import sbt._
 import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
 
-object ScoverageSbtPlugin extends ScoverageSbtPlugin
-
-class ScoverageSbtPlugin extends sbt.AutoPlugin {
+object ScoverageSbtPlugin extends AutoPlugin {
 
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.1.0"
-
+  val autoImport = ScoverageKeys
   var enabled = false
 
-  import ScoverageKeys._
+  import autoImport._
 
   val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
