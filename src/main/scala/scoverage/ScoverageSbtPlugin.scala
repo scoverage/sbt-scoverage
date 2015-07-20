@@ -13,23 +13,6 @@ class ScoverageSbtPlugin extends sbt.AutoPlugin {
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.1.0"
 
-  object ScoverageKeys {
-    lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
-    lazy val coverageOff = taskKey[Unit]("disable compiled code with instrumentation")
-    lazy val coverageReport = taskKey[Unit]("run report generation")
-    lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
-    val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
-    val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
-    val coverageMinimum = settingKey[Double]("scoverage-minimum-coverage")
-    val coverageFailOnMinimum = settingKey[Boolean]("if coverage is less than this value then fail build")
-    val coverageHighlighting = settingKey[Boolean]("enables range positioning for highlighting")
-    val coverageOutputCobertura = settingKey[Boolean]("enables cobertura XML report generation")
-    val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
-    val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
-    val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
-    val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
-  }
-
   var enabled = false
 
   import ScoverageKeys._
