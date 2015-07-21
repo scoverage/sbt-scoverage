@@ -3,8 +3,7 @@ package scoverage
 import sbt._
 
 object ScoverageKeys {
-  lazy val coverage = taskKey[Unit]("enable compiled code with instrumentation")
-  lazy val coverageOff = taskKey[Unit]("disable compiled code with instrumentation")
+  lazy val coverageEnabled = settingKey[Boolean]("controls whether code instrumentation is enabled or not")
   lazy val coverageReport = taskKey[Unit]("run report generation")
   lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
   lazy val coverageExcludedPackages = settingKey[String]("regex for excluded packages")

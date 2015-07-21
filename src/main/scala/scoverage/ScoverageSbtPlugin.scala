@@ -11,7 +11,6 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   val ScoverageVersion = "1.1.0"
   val autoImport = ScoverageKeys
-  private var enabled = false
 
   import autoImport._
 
@@ -21,12 +20,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   override lazy val projectSettings = Seq(
-    coverage := {
-      enabled = true
-    },
-    coverageOff := {
-      enabled = false
-    },
+    coverageEnabled := false,
+    commands += Command.command("coverage", "enable compiled code with instrumentation", "")(toggleCoverage(true)),
+    commands += Command.command("coverageOff", "disable compiled code with instrumentation", "")(toggleCoverage(false)),
     coverageReport <<= coverageReport0,
     testOptions in Test += postTestReport.value,
     testOptions in IntegrationTest += postTestReport.value,
@@ -48,6 +44,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true
   )
+
+  private def toggleCoverage(status:Boolean): State => State =
+    state => Project.extract(state).append(Seq(coverageEnabled := status), state)
 
   private lazy val coverageReport0 = Def.task {
     val target = crossTarget.value
@@ -96,7 +95,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
       case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
       case Some(pluginPath) =>
-        scalaArgs(pluginPath,
+        scalaArgs(coverageEnabled.value,
+          pluginPath,
           crossTarget.value,
           coverageExcludedPackages.value,
           coverageExcludedFiles.value,
@@ -108,7 +108,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val log = streams.value.log
     val target = crossTarget.value
     Tests.Cleanup {
-      () => if (enabled) {
+      () => if (coverageEnabled.value) {
         loadCoverage(target, log) foreach { c =>
           writeReports(
             target,
@@ -127,12 +127,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
   }
 
-  private def scalaArgs(pluginPath: File,
+  private def scalaArgs(coverageEnabled: Boolean,
+                        pluginPath: File,
                         target: File,
                         excludedPackages: String,
                         excludedFiles: String,
                         coverageHighlighting: Boolean) = {
-    if (enabled) {
+    if (coverageEnabled) {
       Seq(
         Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
         Some(s"-P:scoverage:dataDir:${target.getAbsolutePath}/scoverage-data"),
