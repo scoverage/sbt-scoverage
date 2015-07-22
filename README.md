@@ -14,7 +14,7 @@ discussion on scoverage.
 
 Add the plugin to your build with the following in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.1.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.0")
 ```
 
 Then run the your tests with coverage enabled by entering:
@@ -26,6 +26,11 @@ or if you have integration tests as well
 $ sbt clean coverage it:test
 ```
 
+You can also enable coverage directly in your build:
+```
+coverageEnabled := true
+```
+
 After the tests have finished you should then run
 
 ```
@@ -35,8 +40,8 @@ $ sbt coverageReport
 to generate the reports. You will find the coverage reports inside `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
 
 If you're running the coverage reports from within an sbt console session (as
-opposed to one command per sbt launch), then the `coverage` task is sticky. To
-turn it back off when you're done running reports, use the `coverageOff` task.
+opposed to one command per sbt launch), then the `coverage` command is sticky. To
+turn it back off when you're done running reports, use the `coverageOff` command or reset `coverageEnabled` with `set coverageEnabled := false`.
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
@@ -57,7 +62,7 @@ regular expressions.
 
 Example:
 ```scala
-ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;.*AuthService.*;models\\.data\\..*"
+coverageExcludedPackages := "<empty>;Reverse.*;.*AuthService.*;models\\.data\\..*"
 ```
 
 The regular expressions are matched against the fully qualified class name, and must match the entire string to take effect.
@@ -79,9 +84,9 @@ Any code between two such comments will not be instrumented or included in the c
 You can use the following two keys to set the minimum coverage, and if you want to fail the build if the coverage is less than the minimum.
 
 ```scala
-ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 80
+coverageMinimum := 80
 
-ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
+coverageFailOnMinimum := true
 ```
 
 ## Highlighting
@@ -89,7 +94,7 @@ ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
 If you are using Scala 2.11.1 or less, then highlighting will not work (due to this bug which was fixed in 2.11.2 https://github.com/scala/scala/pull/3799). In that case you must disable highlighting by adding the following to your build:
 
 ```scala
-ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := false
+coverageHighlighting := false
 ```
 
 ## Failing tests
