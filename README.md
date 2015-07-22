@@ -45,6 +45,10 @@ turn it back off when you're done running reports, use the `coverageOff` command
 
 If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
+## Notes on upgrading to version 1.3.0
+
+The object containing the keys has changed from nested to top level so you might need to adjust the import. It's also an auto plugin now, so you might not need the import at all.
+
 ## Notes on upgrading to version 1.0.0
 
 If you are upgrading from 0.99.x then you must remove the `instrumentSettings` from your build.sbt or Build.scala, as that is no longer needed.
