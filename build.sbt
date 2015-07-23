@@ -1,10 +1,8 @@
 name := "sbt-scoverage"
-
 organization := "org.scoverage"
+sbtPlugin := true
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
-
-sbtPlugin := true
 
 resolvers ++= {
   if(isSnapshot.value) Seq(Resolver.mavenLocal, Resolver.sonatypeRepo("snapshots"))
@@ -13,11 +11,7 @@ resolvers ++= {
 
 libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.1.1"
 
-publishTo := Some(
-  if (isSnapshot.value) Resolver.sbtPluginRepo("snapshots")
-  else Resolver.sbtPluginRepo("releases")
-)
-
+publishMavenStyle := false
 publishArtifact in Test := false
 
 licenses +=("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -31,4 +25,6 @@ scriptedLaunchOpts ++= Seq(
 
 releaseSettings
 
-ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
+bintrayOrganization := None
+bintrayRepository := "sbt-plugins"
+
