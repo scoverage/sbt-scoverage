@@ -14,7 +14,7 @@ discussion on scoverage.
 
 Add the plugin to your build with the following in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.1")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.2")
 ```
 
 Then run the your tests with coverage enabled by entering:
@@ -58,7 +58,11 @@ Next, the keys have been renamed slightly. The new names begin with coverageXXX,
 
 ## Multi project reports
 
-By default, scoverage will generate reports for each project seperately. You can merge them into an aggregated report by invoking `sbt coverageAggregate`. Note, you must do this after all the coverage data is complete as a separate command, so you cannot do `sbt coverage test coverageAggregate` (at least until a way around this is found).
+By default, scoverage will generate reports for each project seperately. You can merge them into an aggregated report by invoking `sbt coverageAggregate`.
+
+(Note, you must do this after all the coverage data is complete as a separate command, so you cannot do `sbt coverage test coverageAggregate` (at least until a way around this is found).)
+
+(You must have first run `sbt coverageReport` for `coverageAggregate` to work. It aggregates over the sub-projects' report xml rather than over the coverage data directly.)
 
 ## Exclude classes and packages
 
@@ -93,6 +97,9 @@ coverageMinimum := 80
 
 coverageFailOnMinimum := true
 ```
+
+These settings will be enforced when the reports are generated.
+If you generate an aggregate report using `coverageAggregate` then these settings will apply to that report.
 
 ## Highlighting
 
