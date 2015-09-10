@@ -14,7 +14,7 @@ discussion on scoverage.
 
 Add the plugin to your build with the following in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.1")
 ```
 
 Then run the your tests with coverage enabled by entering:
@@ -47,7 +47,8 @@ If you want to see a project that is already setup to use scoverage in both sbt 
 
 ## Notes on upgrading to version 1.3.0
 
-The object containing the keys has changed from nested to top level so you might need to adjust the import. It's also an auto plugin now, so you might not need the import at all.
+* The object containing the keys has changed from nested to top level so you might need to adjust the import. It's also an auto plugin now, so you might not need the import at all.
+* There is an issue syncing the binary with the sbt-plugin-releases repo, so in the meantime add `resolvers += Resolver.url("scoverage-bintray", url("https://dl.bintray.com/sksamuel/sbt-plugins/"))(Resolver.ivyStylePatterns)` to your build.
 
 ## Notes on upgrading to version 1.0.0
 

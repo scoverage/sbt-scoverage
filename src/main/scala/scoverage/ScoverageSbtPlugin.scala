@@ -45,8 +45,17 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageCleanSubprojectFiles := true
   )
 
-  private def toggleCoverage(status:Boolean): State => State =
-    state => Project.extract(state).append(Seq(coverageEnabled := status), state)
+  /**
+   * The "coverage" command enables or disables instrumentation for all projects
+   * in the build.
+   */
+  private def toggleCoverage(status:Boolean): State => State = { state =>
+    val extracted = Project.extract(state)
+    val newSettings = extracted.structure.allProjectRefs map { proj =>
+      coverageEnabled in proj := status
+    }
+    extracted.append(newSettings, state)
+  }
 
   private lazy val coverageReport0 = Def.task {
     val target = crossTarget.value
