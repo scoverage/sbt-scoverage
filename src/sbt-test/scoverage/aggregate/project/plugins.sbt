@@ -1,6 +1,15 @@
-/*
- * ScoveragePlugin is constructed from the sources in the parent directory
- */
-lazy val root = (project in file(".")).dependsOn(scoveragePlugin)
+// The Typesafe repository
+resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-lazy val scoveragePlugin = file("../../../..").getAbsoluteFile.toURI
+//scoverage needs this
+resolvers += Classpaths.sbtPluginReleases
+
+{
+  val pluginVersion = System.getProperty("plugin.version")
+  if(pluginVersion == null)
+    throw new RuntimeException("""|The system property 'plugin.version' is not defined.
+                                 |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
+  else addSbtPlugin("org.scoverage" %% "sbt-scoverage" % pluginVersion)
+}
+
+
