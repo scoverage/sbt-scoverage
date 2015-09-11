@@ -13,7 +13,7 @@ resolvers ++= {
 
 libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.1.1"
 
-publishMavenStyle := false
+publishMavenStyle := true
 
 publishArtifact in Test := false
 
