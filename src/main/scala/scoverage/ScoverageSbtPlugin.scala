@@ -210,15 +210,16 @@ object ScoverageSbtPlugin extends AutoPlugin {
                                crossTarget: File,
                                log: Logger) {
 
-    // Teamcity only have a definition of line/method and class coverage
 
-    // Log branch coverage as line coverage
-    log.info(s"##teamcity[buildStatisticValue key='CodeCoverageAbsMCovered' value='${coverage.invokedStatementCount}']")
-    log.info(s"##teamcity[buildStatisticValue key='CodeCoverageAbsMTotal' value='${coverage.statementCount}']")
+    def statsKeyValue(key: String, value: Int): String =
+      s"##teamcity[buildStatisticValue key='${key}' value='${value}']"
 
-    // Log statement coverage as method coverage
-    log.info(s"##teamcity[buildStatisticValue key='CodeCoverageAbsLCovered' value='${coverage.invokedBranchesCount}']")
-    log.info(s"##teamcity[buildStatisticValue key='CodeCoverageAbsLTotal' value='${coverage.branchCount}']")
+    // Log statement coverage as per: https://devnet.jetbrains.com/message/5467985
+    log.info(statsKeyValue("CodeCoverageAbsSCovered", coverage.invokedStatementCount))
+    log.info(statsKeyValue("CodeCoverageAbsSTotal", coverage.statementCount))
+
+    // Log branch coverage as a custom metrics (in percent)
+    log.info(statsKeyValue("CodeCoverageBranch", "%.0f".format(coverage.branchCoveragePercent).toInt))
 
     // Create the coverage report for teamcity (HTML files)
     if (createCoverageZip)
