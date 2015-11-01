@@ -200,7 +200,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
 
     log.info(s"Statement coverage.: ${coverage.statementCoverageFormatted}%")
-    log.info(s"Branch coverage....: ${coverage.branchCoverageFormatted}}%")
+    log.info(s"Branch coverage....: ${coverage.branchCoverageFormatted}%")
     log.info("Coverage reports completed")
   }
 
