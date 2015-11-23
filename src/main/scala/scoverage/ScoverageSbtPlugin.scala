@@ -2,6 +2,7 @@ package scoverage
 
 import sbt.Keys._
 import sbt._
+import scoverage.ScoverageKeys._
 import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
 
 object ScoverageSbtPlugin extends AutoPlugin {
@@ -40,7 +41,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputHTML := true,
     coverageOutputCobertura := true,
     coverageOutputDebug := false,
-    coverageCleanSubprojectFiles := true
+    coverageCleanSubprojectFiles := true,
+    coverageOutputTeamCity := false
   )
 
   /**
@@ -72,6 +74,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputXML.value,
           coverageOutputHTML.value,
           coverageOutputDebug.value,
+          coverageOutputTeamCity.value,
           log)
 
         checkCoverage(cov, log, coverageMinimum.value, coverageFailOnMinimum.value)
@@ -94,6 +97,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputXML.value,
           coverageOutputHTML.value,
           coverageOutputDebug.value,
+          coverageOutputTeamCity.value,
           log)
         val cfmt = cov.statementCoverageFormatted
         log.info(s"Aggregation complete. Coverage was [$cfmt]")
@@ -145,6 +149,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
                            coverageOutputXML: Boolean,
                            coverageOutputHTML: Boolean,
                            coverageDebug: Boolean,
+                           coverageOutputTeamCity: Boolean,
                            log: Logger): Unit = {
     log.info(s"Generating scoverage reports...")
 
@@ -170,8 +175,36 @@ object ScoverageSbtPlugin extends AutoPlugin {
       log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
       new ScoverageHtmlWriter(compileSourceDirectories, reportDir).write(coverage)
     }
+    if (coverageOutputTeamCity) {
+      log.info("Writing coverage report to teamcity")
+      reportToTeamcity(coverage, coverageOutputHTML, reportDir, crossTarget, log)
+    }
 
+    log.info(s"Statement coverage.: ${coverage.statementCoverageFormatted}%")
+    log.info(s"Branch coverage....: ${coverage.branchCoverageFormatted}%")
     log.info("Coverage reports completed")
+  }
+
+  private def reportToTeamcity(coverage: Coverage,
+                               createCoverageZip: Boolean,
+                               reportDir: File,
+                               crossTarget: File,
+                               log: Logger) {
+
+
+    def statsKeyValue(key: String, value: Int): String =
+      s"##teamcity[buildStatisticValue key='${key}' value='${value}']"
+
+    // Log statement coverage as per: https://devnet.jetbrains.com/message/5467985
+    log.info(statsKeyValue("CodeCoverageAbsSCovered", coverage.invokedStatementCount))
+    log.info(statsKeyValue("CodeCoverageAbsSTotal", coverage.statementCount))
+
+    // Log branch coverage as a custom metrics (in percent)
+    log.info(statsKeyValue("CodeCoverageBranch", "%.0f".format(coverage.branchCoveragePercent).toInt))
+
+    // Create the coverage report for teamcity (HTML files)
+    if (createCoverageZip)
+      IO.zip(Path.allSubpaths(reportDir), crossTarget / "coverage.zip")
   }
 
   private def loadCoverage(crossTarget: File, log: Logger): Option[Coverage] = {
