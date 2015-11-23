@@ -1,8 +1,6 @@
 /*
   The projects test aggregation of coverage reports from two sub-projects.
-  The sub-projects are in the irectories partA and partB.
-  The tests are against the sources of ScoverageSbtPlugin in the parent directory.
-  It might be possible to test other versions of ScoverageSbtPlugin.
+  The sub-projects are in the directories partA and partB.
 */
 
 lazy val commonSettings = Seq(
@@ -35,6 +33,3 @@ lazy val root = (project in file("."))
     partA,
     partB
   )
-
-
-

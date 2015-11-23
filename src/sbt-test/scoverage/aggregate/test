@@ -1,2 +1,10 @@
-#this file is necessary for scripted plugin. See http://eed3si9n.com/testing-sbt-plugins
-#it is empty for now
+# run scoverage using the coverage task
+> clean
+> coverage
+> test
+# There should be scoverage-data directory
+$ exists partA/target/scala-2.10/scoverage-data
+$ exists partB/target/scala-2.10/scoverage-data
+> coverageAggregate
+# There should be scoverage-data directory
+$ exists target/scala-2.10/scoverage-report
