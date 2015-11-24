@@ -12,12 +12,12 @@ discussion on scoverage.
 
 ## How to use
 
-Add the plugin to your build with the following in project/plugins.sbt:
+Add the plugin in project/plugins.sbt:
 ```scala
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.3")
 ```
 
-Then run the your tests with coverage enabled by entering:
+Run the tests with enabled coverage:
 ```
 $ sbt clean coverage test
 ```
@@ -26,24 +26,23 @@ or if you have integration tests as well
 $ sbt clean coverage it:test
 ```
 
-You can also enable coverage directly in your build:
+To enable coverage directly in your build, use:
 ```
 coverageEnabled := true
 ```
 
-After the tests have finished you should then run
-
+To generate the coverage reports run
 ```
 $ sbt coverageReport
 ```
 
-to generate the reports. You will find the coverage reports inside `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
+Coverage reports will be in `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
 
 If you're running the coverage reports from within an sbt console session (as
 opposed to one command per sbt launch), then the `coverage` command is sticky. To
 turn it back off when you're done running reports, use the `coverageOff` command or reset `coverageEnabled` with `set coverageEnabled := false`.
 
-If you want to see a project that is already setup to use scoverage in both sbt and maven, then clone [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
+Sample project with scoverage in both sbt and maven - [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
 
 ## Notes on upgrading to version 1.3.0
 
@@ -86,11 +85,10 @@ Any code between two such comments will not be instrumented or included in the c
 
 ## Minimum coverage
 
-You can use the following two keys to set the minimum coverage, and if you want to fail the build if the coverage is less than the minimum.
+Based on minimum coverage, you can fail the build with the following keys
 
 ```scala
 coverageMinimum := 80
-
 coverageFailOnMinimum := true
 ```
 
