@@ -11,7 +11,7 @@ resolvers ++= {
   else Seq.empty
 }
 
-libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.2.0"
+libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.1.1"
 
 publishMavenStyle := true
 
