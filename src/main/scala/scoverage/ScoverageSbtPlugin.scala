@@ -2,7 +2,6 @@ package scoverage
 
 import sbt.Keys._
 import sbt._
-import scoverage.ScoverageKeys._
 import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
 
 object ScoverageSbtPlugin extends AutoPlugin {
@@ -10,12 +9,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val OrgScoverage = "org.scoverage"
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  val ScoverageVersion = "1.2.0"
+  // this should match the version defined in build.sbt
+  val DefaultScoverageVersion = "1.1.1"
   val autoImport = ScoverageKeys
 
   import autoImport._
 
-  val aggregateFilter = ScopeFilter( inAggregates(ThisProject), inConfigurations(Compile) ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
+  val aggregateFilter = ScopeFilter(inAggregates(ThisProject),
+    inConfigurations(Compile)) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
   override def requires = plugins.JvmPlugin
   override def trigger = allRequirements
@@ -27,8 +28,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageReport <<= coverageReport0,
     coverageAggregate <<= coverageAggregate0,
     libraryDependencies ++= Seq(
-      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided" intransitive(),
-      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % ScoverageVersion % "provided" intransitive()
+      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive(),
+      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive()
     ),
     scalacOptions in(Compile, compile) ++= scoverageScalacOptions.value,
     aggregate in coverageAggregate := false,
@@ -46,10 +47,10 @@ object ScoverageSbtPlugin extends AutoPlugin {
   )
 
   /**
-   * The "coverage" command enables or disables instrumentation for all projects
-   * in the build.
-   */
-  private def toggleCoverage(status:Boolean): State => State = { state =>
+    * The "coverage" command enables or disables instrumentation for all projects
+    * in the build.
+    */
+  private def toggleCoverage(status: Boolean): State => State = { state =>
     val extracted = Project.extract(state)
     val newSettings = extracted.structure.allProjectRefs map { proj =>
       coverageEnabled in proj := status
@@ -86,7 +87,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val log = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
-    val xmlReportFiles = crossTarget.all(aggregateFilter).value map (_ / "scoverage-report" / Constants.XMLReportFilename) filter (_.isFile())
+    val xmlReportFiles = crossTarget.all(aggregateFilter).value map (_ / "scoverage-report" / Constants
+      .XMLReportFilename) filter (_.isFile())
     CoverageAggregator.aggregate(xmlReportFiles, coverageCleanSubprojectFiles.value) match {
       case Some(cov) =>
         writeReports(
@@ -191,9 +193,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
                                crossTarget: File,
                                log: Logger) {
 
-
-    def statsKeyValue(key: String, value: Int): String =
-      s"##teamcity[buildStatisticValue key='${key}' value='${value}']"
+    def statsKeyValue(key: String, value: Int): String = s"##teamcity[buildStatisticValue key='$key' value='$value']"
 
     // Log statement coverage as per: https://devnet.jetbrains.com/message/5467985
     log.info(statsKeyValue("CodeCoverageAbsSCovered", coverage.invokedStatementCount))
