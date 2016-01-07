@@ -1,6 +1,6 @@
 language: scala
 
-script: sbt ++$TRAVIS_SCALA_VERSION test scripted
+script: sbt ++$TRAVIS_SCALA_VERSION test
 
 after_script:
   - if [[ $TRAVIS_TEST_RESULT == 0 && 
@@ -8,4 +8,4 @@ after_script:
           "$TRAVIS_BRANCH" == "master" ]]; then sbt "^publish"; fi
 
 scala:
-  - "2.10.4"
+  - "2.10.5"
