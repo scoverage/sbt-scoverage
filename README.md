@@ -14,7 +14,7 @@ discussion on scoverage.
 
 Add the plugin in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.4")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.5")
 ```
 
 Run the tests with enabled coverage:
