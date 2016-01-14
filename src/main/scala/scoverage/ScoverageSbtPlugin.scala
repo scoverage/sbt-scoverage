@@ -2,6 +2,7 @@ package scoverage
 
 import sbt.Keys._
 import sbt._
+import sbt.plugins.JvmPlugin
 import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
 
 object ScoverageSbtPlugin extends AutoPlugin {
@@ -18,8 +19,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val aggregateFilter = ScopeFilter(inAggregates(ThisProject),
     inConfigurations(Compile)) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
-  override def requires = plugins.JvmPlugin
-  override def trigger = allRequirements
+  override def requires: JvmPlugin.type = plugins.JvmPlugin
+  override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings = Seq(
     coverageEnabled := false,
@@ -27,10 +28,6 @@ object ScoverageSbtPlugin extends AutoPlugin {
     commands += Command.command("coverageOff", "disable compiled code with instrumentation", "")(toggleCoverage(false)),
     coverageReport <<= coverageReport0,
     coverageAggregate <<= coverageAggregate0,
-    libraryDependencies ++= Seq(
-      OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive(),
-      OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive()
-    ),
     scalacOptions in(Compile, compile) ++= scoverageScalacOptions.value,
     aggregate in coverageAggregate := false,
     coverageExcludedPackages := "",
@@ -52,8 +49,16 @@ object ScoverageSbtPlugin extends AutoPlugin {
     */
   private def toggleCoverage(status: Boolean): State => State = { state =>
     val extracted = Project.extract(state)
-    val newSettings = extracted.structure.allProjectRefs map { proj =>
-      coverageEnabled in proj := status
+    val newSettings = extracted.structure.allProjectRefs flatMap { proj =>
+      Seq(
+        coverageEnabled in proj := status,
+        libraryDependencies in proj ++= {
+          if (status) Seq(
+            OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive(),
+            OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive()
+          ) else Nil
+        }
+      )
     }
     extracted.append(newSettings, state)
   }
