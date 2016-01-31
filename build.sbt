@@ -24,9 +24,9 @@ scriptedLaunchOpts ++= Seq(
   "-Dplugin.version=" + version.value
 )
 
-sbtrelease.ReleasePlugin.autoImport.releasePublishArtifactsAction := PgpKeys.publishSigned.value
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
-sbtrelease.ReleasePlugin.autoImport.releaseCrossBuild := false
+releaseCrossBuild := false
 
 publishTo <<= version {
   (v: String) =>
