@@ -11,7 +11,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   // this should match the version defined in build.sbt
-  val DefaultScoverageVersion = "1.1.1"
+  val DefaultScoverageVersion = "1.2.0-SNAPSHOT"
   val autoImport = ScoverageKeys
 
   import autoImport._
