@@ -81,6 +81,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputHTML.value,
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
+          sourceEncoding((scalacOptions in (Compile)).value),
           log)
 
         checkCoverage(cov, log, coverageMinimum.value, coverageFailOnMinimum.value)
@@ -105,6 +106,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputHTML.value,
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
+          sourceEncoding((scalacOptions in (Compile)).value),
           log)
         val cfmt = cov.statementCoverageFormatted
         log.info(s"Aggregation complete. Coverage was [$cfmt]")
@@ -157,6 +159,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
                            coverageOutputHTML: Boolean,
                            coverageDebug: Boolean,
                            coverageOutputTeamCity: Boolean,
+                           coverageSourceEncoding: Option[String],
                            log: Logger): Unit = {
     log.info(s"Generating scoverage reports...")
 
@@ -180,7 +183,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     if (coverageOutputHTML) {
       log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
-      new ScoverageHtmlWriter(compileSourceDirectories, reportDir).write(coverage)
+      new ScoverageHtmlWriter(compileSourceDirectories, reportDir, coverageSourceEncoding).write(coverage)
     }
     if (coverageOutputTeamCity) {
       log.info("Writing coverage report to teamcity")
@@ -259,4 +262,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     log.info(s"All done. Coverage was [$cfmt%]")
   }
+
+  private def sourceEncoding(scalacOptions: Seq[String]): Option[String] =
+    scalacOptions.sliding(2).collectFirst { case Seq("-encoding", encoding) => encoding }
+
 }
