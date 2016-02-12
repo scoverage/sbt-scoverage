@@ -263,7 +263,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
     log.info(s"All done. Coverage was [$cfmt%]")
   }
 
-  private def sourceEncoding(scalacOptions: Seq[String]): Option[String] =
-    scalacOptions.sliding(2).collectFirst { case Seq("-encoding", encoding) => encoding }
+  private def sourceEncoding(scalacOptions: Seq[String]): Option[String] = {
+    val i = scalacOptions.indexOf("-encoding") + 1
+    if (i > 0 && i < scalacOptions.length) Some(scalacOptions(i)) else None
+  }
 
 }
