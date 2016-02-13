@@ -42,7 +42,7 @@ If you're running the coverage reports from within an sbt console session (as
 opposed to one command per sbt launch), then the `coverage` command is sticky. To
 turn it back off when you're done running reports, use the `coverageOff` command or reset `coverageEnabled` with `set coverageEnabled := false`.
 
-Sample project with scoverage in both sbt and maven - [the scoverage samples project](https://github.com/scoverage/scoverage-samples).
+Sample project with scoverage in both sbt and maven - [the scoverage samples project](https://github.com/scoverage/sbt-scoverage-samples).
 
 ## Notes on upgrading to version 1.3.0
 
@@ -116,7 +116,7 @@ If you are running into a scenario where your tests normally pass, but fail when
 
 ## Coveralls
 
-If you have an open source project then you can add code coverage metrics with the excellent website http://coveralls.io. Scoverage will integrate with coveralls using the [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) plugin.
+If you have an open source project then you can add code coverage metrics with the excellent website https://coveralls.io/ Scoverage will integrate with coveralls using the [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) plugin.
 
 ## Plugin for SonarQube
 
