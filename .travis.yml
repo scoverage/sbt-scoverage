@@ -8,4 +8,4 @@ after_script:
           "$TRAVIS_BRANCH" == "master" ]]; then sbt "^publish"; fi
 
 scala:
-  - "2.10.5"
+  - "2.10.6"
