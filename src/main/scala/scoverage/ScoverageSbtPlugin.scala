@@ -30,10 +30,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageReport <<= coverageReport0,
     coverageAggregate <<= coverageAggregate0,
     ivyConfigurations := ivyConfigurations.value :+ ScoveragePluginConfig,
+    coverageScalacPluginVersion := DefaultScoverageVersion,
     libraryDependencies ++= {
       if (coverageEnabled.value) Seq(
-        OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion,
-        OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "scoveragePlugin->default(compile)"
+        OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % coverageScalacPluginVersion.value,
+        OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % coverageScalacPluginVersion.value % "scoveragePlugin->default(compile)"
       ) else Nil
     },
     scalacOptions in(Compile, compile) ++= scoverageScalacOptions.value,
