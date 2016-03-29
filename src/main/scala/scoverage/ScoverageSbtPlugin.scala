@@ -45,8 +45,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     libraryDependencies <<= (libraryDependencies, coverageEnabled, scalaBinaryVersion, coveragePluginVersion) {
       (deps, enabled, binaryVersion, pluginVersion) =>
         if (enabled) deps ++ Seq(
-          OrgScoverage % (ScalacRuntimeArtifact + "_" + binaryVersion) % pluginVersion % "provided" intransitive(),
-          OrgScoverage % (ScalacPluginArtifact + "_" + binaryVersion % pluginVersion % "compile" intransitive()
+          OrgScoverage % (ScalacRuntimeArtifact + runtimeClassifier(deps, binaryVersion)) % pluginVersion % "provided" intransitive(),
+          OrgScoverage % (ScalacPluginArtifact + "_" + binaryVersion) % pluginVersion % "compile" intransitive()
         ) else deps
     }
   )
@@ -63,6 +63,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
       )
     }
     extracted.append(newSettings, state)
+  }
+
+  private def runtimeClassifier(deps: Seq[ModuleID], binaryVersion:String): String = {
+    val sjsClassifier = deps.collectFirst{
+      case ModuleID("org.scala-js", "scalajs-library", v, _, _, _, _, _, _, _, _) => v
+    }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion + "_" + binaryVersion)
+
+    sjsClassifier getOrElse "_" + binaryVersion
   }
 
   private lazy val coverageReport0 = Def.task {
@@ -134,7 +142,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
             coverageHighlighting.value)
       }
     } else {
-      Seq()
+      Nil
     }
   }
 
