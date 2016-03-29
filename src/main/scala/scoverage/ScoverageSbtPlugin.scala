@@ -40,7 +40,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputCobertura := true,
     coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true,
-    coverageOutputTeamCity := false
+    coverageOutputTeamCity := false,
+    coveragePluginVersion := DefaultScoverageVersion
   )
 
   /**
