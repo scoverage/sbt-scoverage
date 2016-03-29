@@ -12,4 +12,4 @@ resolvers += Classpaths.sbtPluginReleases
   else addSbtPlugin("org.scoverage" %% "sbt-scoverage" % pluginVersion)
 }
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.8")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.12")

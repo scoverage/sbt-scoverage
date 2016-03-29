@@ -33,8 +33,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageScalacPluginVersion := DefaultScoverageVersion,
     libraryDependencies ++= {
       if (coverageEnabled.value) Seq(
-        OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % coverageScalacPluginVersion.value,
-        OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % coverageScalacPluginVersion.value % "scoveragePlugin->default(compile)"
+        OrgScoverage %% (ScalacRuntimeArtifact + optionalScalaJsSuffix(libraryDependencies.value)) % coverageScalacPluginVersion.value,
+        OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % "scoveragePlugin->default(compile)"
       ) else Nil
     },
     scalacOptions in(Compile, compile) ++= scoverageScalacOptions.value,
@@ -61,6 +61,15 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val newSettings = extracted.structure.allProjectRefs.flatMap(proj =>
       Seq(coverageEnabled in proj := status))
     extracted.append(newSettings, state)
+  }
+
+  // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
+  private def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
+    val sjsClassifier = deps.collectFirst{
+      case ModuleID("org.scala-js", "scalajs-library", v, _, _, _, _, _, _, _, _) => v
+    }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion)
+
+    sjsClassifier getOrElse ""
   }
 
   private lazy val coverageReport0 = Def.task {
