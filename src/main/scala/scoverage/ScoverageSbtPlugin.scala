@@ -41,7 +41,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true,
     coverageOutputTeamCity := false,
-    coveragePluginVersion := DefaultScoverageVersion
+    coveragePluginVersion := DefaultScoverageVersion,
+    libraryDependencies <<= (libraryDependencies, coverageEnabled, scalaBinaryVersion, coveragePluginVersion) {
+      (deps, enabled, binaryVersion, pluginVersion) =>
+        if (enabled) deps ++ Seq(
+          OrgScoverage % (ScalacRuntimeArtifact + "_" + binaryVersion) % pluginVersion % "provided" intransitive(),
+          OrgScoverage % (ScalacPluginArtifact + "_" + binaryVersion) % pluginVersion % "provided" intransitive()
+        ) else deps
+    }
   )
 
   /**
@@ -52,13 +59,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val extracted = Project.extract(state)
     val newSettings = extracted.structure.allProjectRefs flatMap { proj =>
       Seq(
-        coverageEnabled in proj := status,
-        libraryDependencies in proj ++= {
-          if (status) Seq(
-            OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive(),
-            OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive()
-          ) else Nil
-        }
+        coverageEnabled in proj := status
       )
     }
     extracted.append(newSettings, state)
