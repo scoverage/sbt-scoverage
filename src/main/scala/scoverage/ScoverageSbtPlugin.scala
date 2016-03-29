@@ -120,16 +120,21 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private lazy val scoverageScalacOptions = Def.task {
-    val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
-    scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-      case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
-      case Some(pluginPath) =>
-        scalaArgs(coverageEnabled.value,
-          pluginPath,
-          crossTarget.value,
-          coverageExcludedPackages.value,
-          coverageExcludedFiles.value,
-          coverageHighlighting.value)
+    val isEnabled = coverageEnabled.value
+    if (isEnabled) {
+      val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
+      scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
+        case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+        case Some(pluginPath) =>
+          scalaArgs(coverageEnabled.value,
+            pluginPath,
+            crossTarget.value,
+            coverageExcludedPackages.value,
+            coverageExcludedFiles.value,
+            coverageHighlighting.value)
+      }
+    } else {
+      Seq()
     }
   }
 
