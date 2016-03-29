@@ -46,7 +46,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
       (deps, enabled, binaryVersion, pluginVersion) =>
         if (enabled) deps ++ Seq(
           OrgScoverage % (ScalacRuntimeArtifact + "_" + binaryVersion) % pluginVersion % "provided" intransitive(),
-          OrgScoverage % (ScalacPluginArtifact + "_" + binaryVersion) % pluginVersion % "provided" intransitive()
+          OrgScoverage % (ScalacPluginArtifact + "_" + binaryVersion % pluginVersion % "compile" intransitive()
         ) else deps
     }
   )
@@ -122,7 +122,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   private lazy val scoverageScalacOptions = Def.task {
     val isEnabled = coverageEnabled.value
     if (isEnabled) {
-      val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
+      val scoverageDeps: Seq[File] = update.value matching configurationFilter("compile")
       scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
         case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
         case Some(pluginPath) =>
