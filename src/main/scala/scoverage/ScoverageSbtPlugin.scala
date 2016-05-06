@@ -43,6 +43,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputTeamCity := false
   )
 
+  private val coverageDeps = Seq(
+    OrgScoverage %% ScalacRuntimeArtifact % DefaultScoverageVersion % "provided" intransitive(),
+    OrgScoverage %% ScalacPluginArtifact % DefaultScoverageVersion % "provided" intransitive()
+  )
+
   /**
     * The "coverage" command enables or disables instrumentation for all projects
     * in the build.
@@ -52,12 +57,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val newSettings = extracted.structure.allProjectRefs flatMap { proj =>
       Seq(
         coverageEnabled in proj := status,
-        libraryDependencies in proj ++= {
-          if (status) Seq(
-            OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive(),
-            OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive()
-          ) else Nil
-        }
+        libraryDependencies in proj ++= if (status) coverageDeps else Nil
+        libraryDependencies in proj --= if (!status) coverageDeps else Nil
       )
     }
     extracted.append(newSettings, state)
