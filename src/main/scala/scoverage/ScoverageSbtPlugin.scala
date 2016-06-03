@@ -40,7 +40,15 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputCobertura := true,
     coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true,
-    coverageOutputTeamCity := false
+    coverageOutputTeamCity := false,
+    coveragePluginVersion := DefaultScoverageVersion,
+    libraryDependencies <<= (libraryDependencies, coverageEnabled, scalaBinaryVersion, coveragePluginVersion) {
+      (deps, enabled, binaryVersion, pluginVersion) =>
+        if (enabled) deps ++ Seq(
+          OrgScoverage % (ScalacRuntimeArtifact + runtimeClassifier(deps, binaryVersion)) % pluginVersion % "provided" intransitive(),
+          OrgScoverage % (ScalacPluginArtifact + "_" + binaryVersion) % pluginVersion % "compile" intransitive()
+        ) else deps
+    }
   )
 
   /**
@@ -51,16 +59,18 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val extracted = Project.extract(state)
     val newSettings = extracted.structure.allProjectRefs flatMap { proj =>
       Seq(
-        coverageEnabled in proj := status,
-        libraryDependencies in proj ++= {
-          if (status) Seq(
-            OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive(),
-            OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive()
-          ) else Nil
-        }
+        coverageEnabled in proj := status
       )
     }
     extracted.append(newSettings, state)
+  }
+
+  private def runtimeClassifier(deps: Seq[ModuleID], binaryVersion:String): String = {
+    val sjsClassifier = deps.collectFirst{
+      case ModuleID("org.scala-js", "scalajs-library", v, _, _, _, _, _, _, _, _) => v
+    }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion + "_" + binaryVersion)
+
+    sjsClassifier getOrElse "_" + binaryVersion
   }
 
   private lazy val coverageReport0 = Def.task {
@@ -118,16 +128,21 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private lazy val scoverageScalacOptions = Def.task {
-    val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
-    scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-      case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
-      case Some(pluginPath) =>
-        scalaArgs(coverageEnabled.value,
-          pluginPath,
-          crossTarget.value,
-          coverageExcludedPackages.value,
-          coverageExcludedFiles.value,
-          coverageHighlighting.value)
+    val isEnabled = coverageEnabled.value
+    if (isEnabled) {
+      val scoverageDeps: Seq[File] = update.value matching configurationFilter("compile")
+      scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
+        case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+        case Some(pluginPath) =>
+          scalaArgs(coverageEnabled.value,
+            pluginPath,
+            crossTarget.value,
+            coverageExcludedPackages.value,
+            coverageExcludedFiles.value,
+            coverageHighlighting.value)
+      }
+    } else {
+      Nil
     }
   }
 
