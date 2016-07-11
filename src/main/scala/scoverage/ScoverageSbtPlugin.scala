@@ -49,6 +49,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     */
   private def toggleCoverage(status: Boolean): State => State = { state =>
     val extracted = Project.extract(state)
+    val currentProjRef = extracted.currentRef
     val newSettings = extracted.structure.allProjectRefs flatMap { proj =>
       Seq(
         coverageEnabled in proj := status,
@@ -60,7 +61,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
         }
       )
     }
-    extracted.append(newSettings, state)
+    val appendSettings = Load.transformSettings(Load.projectScope(currentProjRef), currentProjRef.build, extracted.rootProject, newSettings)
+    val newSessionSettings = extracted.session.appendRaw(appendSettings)
+    SessionSettings.reapply(newSessionSettings, state)
   }
 
   private lazy val coverageReport0 = Def.task {
