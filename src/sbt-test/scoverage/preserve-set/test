@@ -1,0 +1,11 @@
+# check scalaVersion setting
+> checkScalaVersion "2.10.4"
+# override scalaVersion setting
+> set scalaVersion := {"2.10.5"}
+> checkScalaVersion "2.10.5"
+# activate coverage - override should still be present
+> coverage
+> checkScalaVersion "2.10.5"
+# turn off coverage - override should still be present
+> coverageOff
+> checkScalaVersion "2.10.5"
