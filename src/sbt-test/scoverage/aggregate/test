@@ -5,6 +5,10 @@
 # There should be scoverage-data directory
 $ exists partA/target/scala-2.10/scoverage-data
 $ exists partB/target/scala-2.10/scoverage-data
+> coverageReport
+# There should be scoverage-report directory
+$ exists partA/target/scala-2.10/scoverage-report
+$ exists partB/target/scala-2.10/scoverage-report
 > coverageAggregate
-# There should be scoverage-data directory
+# There should be a root scoverage-report directory
 $ exists target/scala-2.10/scoverage-report
