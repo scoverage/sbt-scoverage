@@ -1,0 +1,2 @@
+# assert coverageScalacPluginVersion is taken into account when generating libraryDependencies
+> check
