@@ -3,7 +3,7 @@ lazy val root = (project in file(".")).aggregate(crossJS, crossJVM)
 lazy val cross = crossProject.in(file("sjstest")).settings(
     scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.0.0-M15" % "test"
+      "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
     )
   )
 
