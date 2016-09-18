@@ -33,3 +33,8 @@ lazy val root = (project in file("."))
     partA,
     partB
   )
+
+resolvers in ThisBuild ++= {
+  if (sys.props.get("plugin.version").map(_.endsWith("-SNAPSHOT")).getOrElse(false)) Seq(Resolver.sonatypeRepo("snapshots"))
+  else Seq.empty
+}
