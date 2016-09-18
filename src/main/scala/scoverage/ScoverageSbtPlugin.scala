@@ -34,7 +34,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     libraryDependencies ++= {
       if (coverageEnabled.value) Seq(
         OrgScoverage %% (ScalacRuntimeArtifact + optionalScalaJsSuffix(libraryDependencies.value)) % coverageScalacPluginVersion.value,
-        OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % "scoveragePlugin->default(compile)"
+        OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name
       ) else Nil
     },
     scalacOptions in(Compile, compile) ++= scoverageScalacOptions.value,
