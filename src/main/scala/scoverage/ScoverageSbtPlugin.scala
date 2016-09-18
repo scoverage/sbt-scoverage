@@ -13,6 +13,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   // this should match the version defined in build.sbt
   val DefaultScoverageVersion = "1.2.0-SNAPSHOT"
   val autoImport = ScoverageKeys
+  lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
 
   import autoImport._
 
@@ -28,6 +29,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
     commands += Command.command("coverageOff", "disable compiled code with instrumentation", "")(toggleCoverage(false)),
     coverageReport <<= coverageReport0,
     coverageAggregate <<= coverageAggregate0,
+    ivyConfigurations := ivyConfigurations.value :+ ScoveragePluginConfig,
+    libraryDependencies ++= {
+      if (coverageEnabled.value) Seq(
+        OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion,
+        OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "scoveragePlugin->default(compile)"
+      ) else Nil
+    },
     scalacOptions in(Compile, compile) ++= scoverageScalacOptions.value,
     aggregate in coverageAggregate := false,
     coverageExcludedPackages := "",
@@ -49,17 +57,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     */
   private def toggleCoverage(status: Boolean): State => State = { state =>
     val extracted = Project.extract(state)
-    val newSettings = extracted.structure.allProjectRefs flatMap { proj =>
-      Seq(
-        coverageEnabled in proj := status,
-        libraryDependencies in proj ++= {
-          if (status) Seq(
-            OrgScoverage % (ScalacRuntimeArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive(),
-            OrgScoverage % (ScalacPluginArtifact + "_" + scalaBinaryVersion.value) % DefaultScoverageVersion % "provided" intransitive()
-          ) else Nil
-        }
-      )
-    }
+    val newSettings = extracted.structure.allProjectRefs.flatMap(proj =>
+      Seq(coverageEnabled in proj := status))
     extracted.append(newSettings, state)
   }
 
@@ -118,17 +117,16 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private lazy val scoverageScalacOptions = Def.task {
-    val scoverageDeps: Seq[File] = update.value matching configurationFilter("provided")
-    scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-      case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
-      case Some(pluginPath) =>
+    update.value
+      .matching(configurationFilter(ScoveragePluginConfig.name))
+      .find(_.getAbsolutePath.contains(ScalacPluginArtifact))
+      .fold[Seq[String]](Nil)(pluginPath =>
         scalaArgs(coverageEnabled.value,
           pluginPath,
           crossTarget.value,
           coverageExcludedPackages.value,
           coverageExcludedFiles.value,
-          coverageHighlighting.value)
-    }
+          coverageHighlighting.value))
   }
 
   private def scalaArgs(coverageEnabled: Boolean,

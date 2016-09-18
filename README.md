@@ -45,6 +45,14 @@ turn it back off when you're done running reports, use the `coverageOff` command
 
 Sample project with scoverage in both sbt and maven - [the scoverage samples project](https://github.com/scoverage/sbt-scoverage-samples).
 
+### Disabling recording of coverage data at run-time
+
+Coverage instrumentation assumes the code will be run on the same machine
+where it was compiled: absolute destination directories are compiled into the class files. 
+To run the code on a file system where those directories do not exist, for example when
+testing in a VM, you may either recompile without coverage or disable the recording by
+setting the JVM property `scoverage.recording.enabled` to `false`.
+
 ## Notes on upgrading to version 1.3.0
 
 * The object containing the keys has changed from nested to top level so you might need to adjust the import. It's also an auto plugin now, so you might not need the import at all.
