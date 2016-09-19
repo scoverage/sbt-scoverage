@@ -1,6 +1,6 @@
 language: scala
 
-script: sbt ++$TRAVIS_SCALA_VERSION test
+script: sbt ++$TRAVIS_SCALA_VERSION scripted
 
 after_script:
   - if [[ $TRAVIS_TEST_RESULT == 0 && 

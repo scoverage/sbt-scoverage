@@ -7,3 +7,8 @@ libraryDependencies += "org.specs2" %% "specs2" % "2.3.13" % "test"
 coverageMinimum := 80
 
 coverageFailOnMinimum := true
+
+resolvers ++= {
+  if (sys.props.get("plugin.version").map(_.endsWith("-SNAPSHOT")).getOrElse(false)) Seq(Resolver.sonatypeRepo("snapshots"))
+  else Seq.empty
+}
