@@ -1,0 +1,11 @@
+# check scalaVersion setting
+> checkScalaVersion "2.10.4"
+> coverage
+> test
+$ exists target/scala-2.10/scoverage-data
+> set scalaVersion := {"2.12.0-M5"}
+> checkScalaVersion "2.12.0-M5"
+> coverage
+> test
+$ exists target/scala-2.10/scoverage-data
+$ absent target/scala-2.12.0-M5/scoverage-data
