@@ -58,9 +58,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
     */
   private def toggleCoverage(status: Boolean): State => State = { state =>
     val extracted = Project.extract(state)
+    val currentProjRef = extracted.currentRef
     val newSettings = extracted.structure.allProjectRefs.flatMap(proj =>
-      Seq(coverageEnabled in proj := status))
-    extracted.append(newSettings, state)
+      Seq(coverageEnabled in proj := status)
+    )
+    val appendSettings = Load.transformSettings(Load.projectScope(currentProjRef), currentProjRef.build, extracted.rootProject, newSettings)
+    val newSessionSettings = extracted.session.appendRaw(appendSettings)
+    SessionSettings.reapply(newSessionSettings, state)
   }
 
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
