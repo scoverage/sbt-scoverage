@@ -1,9 +1,3 @@
-// The Typesafe repository
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-
-//scoverage needs this
-resolvers += Classpaths.sbtPluginReleases
-
 val pluginVersion = sys.props.getOrElse(
   "plugin.version",
   throw new RuntimeException(

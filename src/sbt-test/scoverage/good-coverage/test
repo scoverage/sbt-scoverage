@@ -2,3 +2,4 @@
 > clean
 > coverage
 > test
+> coverageReport

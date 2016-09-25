@@ -1,7 +1,7 @@
 lazy val root = (project in file(".")).settings(
-  coverageEnabled := true,
   coverageScalacPluginVersion := "1.1.0"
 )
+
 TaskKey[Unit]("check") := {
   assert(
     libraryDependencies.value
