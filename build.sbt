@@ -10,7 +10,7 @@ resolvers ++= {
   if (isSnapshot.value) Seq(Resolver.sonatypeRepo("snapshots")) else Nil
 }
 
-libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.2.0"
+libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.3.0-SNAPSHOT"
 
 publishMavenStyle := true
 
