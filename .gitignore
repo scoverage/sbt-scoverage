@@ -1,5 +1,17 @@
-target
+*.log
+
+# SBT specific
+target/
+
+# Eclipse specific
+.classpath
+.project
+.settings/
+
+# Scala-IDE specific
+.cache-main
+.cache-tests
+
+# IntelliJ IDEA specific
 .idea
 *.iml
-.credentials
-credentials.sbt
