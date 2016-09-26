@@ -4,6 +4,8 @@ script: sbt ++$TRAVIS_SCALA_VERSION scripted
 
 scala:
   - "2.10.6"
+jdk:
+  - oraclejdk8
 
 before_cache:
   - find $HOME/.sbt -name "*.lock" | xargs rm

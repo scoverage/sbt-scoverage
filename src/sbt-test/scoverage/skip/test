@@ -1,0 +1,14 @@
+# run scoverage using the coverage task
+> clean
+> coverage
+> test
+# There should be scoverage-data directory
+$ exists partA/target/scala-2.10/scoverage-data
+$ absent partB/target/scala-2.10/scoverage-data
+> coverageReport
+# There should be scoverage-report directory
+$ exists partA/target/scala-2.10/scoverage-report
+$ absent partB/target/scala-2.10/scoverage-report
+> coverageAggregate
+# There should be a root scoverage-report directory
+$ exists target/scala-2.10/scoverage-report

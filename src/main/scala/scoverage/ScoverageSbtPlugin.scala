@@ -25,6 +25,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   override lazy val projectSettings = Seq(
     coverageEnabled := false,
+    coverageSkip := false,
     commands += Command.command("coverage", "enable compiled code with instrumentation", "")(toggleCoverage(true)),
     commands += Command.command("coverageOff", "disable compiled code with instrumentation", "")(toggleCoverage(false)),
     coverageReport <<= coverageReport0,
@@ -60,7 +61,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val extracted = Project.extract(state)
     val currentProjRef = extracted.currentRef
     val newSettings = extracted.structure.allProjectRefs.flatMap(proj =>
-      Seq(coverageEnabled in proj := status)
+      Seq(coverageEnabled in proj := status && !(coverageSkip in proj).value )
     )
     val appendSettings = Load.transformSettings(Load.projectScope(currentProjRef), currentProjRef.build, extracted.rootProject, newSettings)
     val newSessionSettings = extracted.session.appendRaw(appendSettings)
