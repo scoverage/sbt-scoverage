@@ -17,5 +17,6 @@ object ScoverageKeys {
   lazy val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
   lazy val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
   lazy val coverageOutputTeamCity = settingKey[Boolean]("turn on teamcity reporting")
+  lazy val coverageAllowInstrumentedPublish = settingKey[Boolean]("Allow publishing of instrumented code")
   lazy val coverageScalacPluginVersion = settingKey[String]("version of scalac-scoverage-plugin to use")
 }

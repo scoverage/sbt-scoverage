@@ -25,6 +25,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   override def globalSettings: Seq[Def.Setting[_]] = super.globalSettings ++ Seq(
     coverageEnabled := false,
+    coverageAllowInstrumentedPublish := false,
     coverageExcludedPackages := "",
     coverageExcludedFiles := "",
     coverageMinimum := 0, // default is no minimum
@@ -47,8 +48,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] = Seq(
     ivyConfigurations += ScoveragePluginConfig,
     coverageReport <<= coverageReport0,
-    coverageAggregate <<= coverageAggregate0
+    coverageAggregate <<= coverageAggregate0,
+    (packageBin in Compile) <<= (packageBin in Compile) dependsOn checkAllowInstrumentedPublish
   ) ++ coverageSettings ++ scalacSettings
+
+  private lazy val checkAllowInstrumentedPublish = Def.task {
+    if (coverageAllowInstrumentedPublish.value == false && coverageEnabled.value == true  )
+       throw new Exception(s"""Fatal: Publishing instrumented is not permitted. Please use "coverageAllowInstrumentedPublish"" to override""")
+  }
 
   private lazy val coverageSettings = Seq(
     libraryDependencies  ++= {
