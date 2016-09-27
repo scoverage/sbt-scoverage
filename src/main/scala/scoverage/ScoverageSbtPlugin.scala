@@ -23,22 +23,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
   override def requires: JvmPlugin.type = plugins.JvmPlugin
   override def trigger: PluginTrigger = allRequirements
 
-  override lazy val projectSettings = Seq(
+  override def globalSettings: Seq[Def.Setting[_]] = super.globalSettings ++ Seq(
     coverageEnabled := false,
-    commands += Command.command("coverage", "enable compiled code with instrumentation", "")(toggleCoverage(true)),
-    commands += Command.command("coverageOff", "disable compiled code with instrumentation", "")(toggleCoverage(false)),
-    coverageReport <<= coverageReport0,
-    coverageAggregate <<= coverageAggregate0,
-    ivyConfigurations := ivyConfigurations.value :+ ScoveragePluginConfig,
-    coverageScalacPluginVersion := DefaultScoverageVersion,
-    libraryDependencies ++= {
-      if (coverageEnabled.value) Seq(
-        OrgScoverage %% (ScalacRuntimeArtifact + optionalScalaJsSuffix(libraryDependencies.value)) % coverageScalacPluginVersion.value,
-        OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name
-      ) else Nil
-    },
-    scalacOptions in(Compile, compile) ++= scoverageScalacOptions.value,
-    aggregate in coverageAggregate := false,
     coverageExcludedPackages := "",
     coverageExcludedFiles := "",
     coverageMinimum := 0, // default is no minimum
@@ -49,22 +35,60 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputCobertura := true,
     coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true,
-    coverageOutputTeamCity := false
+    coverageOutputTeamCity := false,
+    coverageScalacPluginVersion := DefaultScoverageVersion
   )
 
-  /**
-    * The "coverage" command enables or disables instrumentation for all projects
-    * in the build.
-    */
-  private def toggleCoverage(status: Boolean): State => State = { state =>
-    val extracted = Project.extract(state)
-    val currentProjRef = extracted.currentRef
-    val newSettings = extracted.structure.allProjectRefs.flatMap(proj =>
-      Seq(coverageEnabled in proj := status)
-    )
-    val appendSettings = Load.transformSettings(Load.projectScope(currentProjRef), currentProjRef.build, extracted.rootProject, newSettings)
-    val newSessionSettings = extracted.session.appendRaw(appendSettings)
-    SessionSettings.reapply(newSessionSettings, state)
+  override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
+    addCommandAlias("coverage", ";set coverageEnabled in ThisBuild := true") ++
+    addCommandAlias("coverageOn", ";set coverageEnabled in ThisBuild := true") ++
+    addCommandAlias("coverageOff", ";set coverageEnabled in ThisBuild := false")
+
+  override def projectSettings: Seq[Setting[_]] = Seq(
+    ivyConfigurations += ScoveragePluginConfig,
+    coverageReport <<= coverageReport0,
+    coverageAggregate <<= coverageAggregate0
+  ) ++ coverageSettings ++ scalacSettings
+
+  private lazy val coverageSettings = Seq(
+    libraryDependencies  ++= {
+      if (coverageEnabled.value)
+        Seq(
+          // We only add for "compile"" because of macros. This setting could be optimed to just "test" if the handling
+          // of macro coverage was improved.
+          OrgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value,
+          // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
+          OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name
+        )
+      else
+        Nil
+    }
+  )
+
+  private lazy val scalacSettings = Seq(
+    scalacOptions in(Compile, compile) ++= {
+      if (coverageEnabled.value) {
+        val scoverageDeps: Seq[File] = update.value matching configurationFilter(ScoveragePluginConfig.name)
+        val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
+          case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+          case Some(pluginPath) => pluginPath
+        }
+        Seq(
+          Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
+          Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
+          Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
+          Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v"),
+          // rangepos is broken in some releases of scala so option to turn it off
+          if (coverageHighlighting.value) Some("-Yrangepos") else None
+        ).flatten
+      } else {
+        Nil
+      }
+    }
+  )
+
+  private def scalacRuntime(deps: Seq[ModuleID]): String = {
+    ScalacRuntimeArtifact + optionalScalaJsSuffix(deps)
   }
 
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
@@ -127,39 +151,6 @@ object ScoverageSbtPlugin extends AutoPlugin {
         checkCoverage(cov, log, coverageMinimum.value, coverageFailOnMinimum.value)
       case None =>
         log.info("No subproject data to aggregate, skipping reports")
-    }
-  }
-
-  private lazy val scoverageScalacOptions = Def.task {
-    update.value
-      .matching(configurationFilter(ScoveragePluginConfig.name))
-      .find(_.getAbsolutePath.contains(ScalacPluginArtifact))
-      .fold[Seq[String]](Nil)(pluginPath =>
-        scalaArgs(coverageEnabled.value,
-          pluginPath,
-          crossTarget.value,
-          coverageExcludedPackages.value,
-          coverageExcludedFiles.value,
-          coverageHighlighting.value))
-  }
-
-  private def scalaArgs(coverageEnabled: Boolean,
-                        pluginPath: File,
-                        target: File,
-                        excludedPackages: String,
-                        excludedFiles: String,
-                        coverageHighlighting: Boolean) = {
-    if (coverageEnabled) {
-      Seq(
-        Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
-        Some(s"-P:scoverage:dataDir:${target.getAbsolutePath}/scoverage-data"),
-        Option(excludedPackages.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
-        Option(excludedFiles.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v"),
-        // rangepos is broken in some releases of scala so option to turn it off
-        if (coverageHighlighting) Some("-Yrangepos") else None
-      ).flatten
-    } else {
-      Nil
     }
   }
 
