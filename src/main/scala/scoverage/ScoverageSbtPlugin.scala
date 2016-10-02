@@ -7,11 +7,8 @@ import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWr
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
-  val OrgScoverage = "org.scoverage"
-  val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
-  val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  // this should match the version defined in build.sbt
-  val DefaultScoverageVersion = "1.3.0-SNAPSHOT"
+  private final val DefaultScoverageVersion = "1.3.0-RC2" // this should match the version defined in build.sbt
+
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
 
@@ -36,7 +33,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputDebug := false,
     coverageCleanSubprojectFiles := true,
     coverageOutputTeamCity := false,
-    coverageScalacPluginVersion := DefaultScoverageVersion
+    coverageScalacPluginOrg := "org.scoverage",
+    coverageScalacPluginArtifact := "scalac-scoverage-plugin",
+    coverageScalacPluginVersion := DefaultScoverageVersion,
+    coverageScalacRuntimeOrg := coverageScalacPluginOrg.value,
+    coverageScalacRuntimeArtifact := "scalac-scoverage-runtime",
+    coverageScalacRuntimeVersion := coverageScalacPluginVersion.value,
+    coverageLibraryDependencies := Seq()
   )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
@@ -54,13 +57,16 @@ object ScoverageSbtPlugin extends AutoPlugin {
   private lazy val coverageSettings = Seq(
     libraryDependencies  ++= {
       if (coverageEnabled.value)
-        Seq(
-          // We only add for "compile"" because of macros. This setting could be optimed to just "test" if the handling
-          // of macro coverage was improved.
-          OrgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value,
-          // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
-          OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name
-        )
+        if (coverageLibraryDependencies.value.isEmpty)
+          Seq(
+            // We only add for "compile"" because of macros. This setting could be optimed to just "test" if the handling
+            // of macro coverage was improved.
+            coverageScalacRuntimeOrg.value %% (coverageScalacRuntimeArtifact.value + optionalScalaJsSuffix(libraryDependencies.value)) % coverageScalacRuntimeVersion.value,
+            // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
+            coverageScalacPluginOrg.value %% coverageScalacPluginArtifact.value % coverageScalacPluginVersion.value % ScoveragePluginConfig.name
+          )
+        else
+          coverageLibraryDependencies.value
       else
         Nil
     }
@@ -70,8 +76,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     scalacOptions in(Compile, compile) ++= {
       if (coverageEnabled.value) {
         val scoverageDeps: Seq[File] = update.value matching configurationFilter(ScoveragePluginConfig.name)
-        val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-          case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+        val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(coverageScalacPluginArtifact.value)) match {
+          case None => throw new Exception(s"Fatal: ${coverageScalacPluginArtifact.value} not in libraryDependencies")
           case Some(pluginPath) => pluginPath
         }
         Seq(
@@ -88,12 +94,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
   )
 
-  private def scalacRuntime(deps: Seq[ModuleID]): String = {
-    ScalacRuntimeArtifact + optionalScalaJsSuffix(deps)
-  }
-
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
-  private def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
+  def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
     val sjsClassifier = deps.collectFirst{
       case ModuleID("org.scala-js", "scalajs-library", v, _, _, _, _, _, _, _, _) => v
     }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion)
