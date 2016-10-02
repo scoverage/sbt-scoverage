@@ -17,5 +17,16 @@ object ScoverageKeys {
   lazy val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
   lazy val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
   lazy val coverageOutputTeamCity = settingKey[Boolean]("turn on teamcity reporting")
+
+  // Artifact settings allow the override of default settings for custom applications.
+  // The use of these settings is not advised for regular applications, and most definitely "breaks all warranties"
+  lazy val coverageScalacPluginOrg = settingKey[String]("organisation name of scalac-scoverage-plugin to use")
+  lazy val coverageScalacPluginArtifact = settingKey[String]("artifact name of scalac-scoverage-plugin to use")
   lazy val coverageScalacPluginVersion = settingKey[String]("version of scalac-scoverage-plugin to use")
+  lazy val coverageScalacRuntimeOrg = settingKey[String]("organisation name of scalac-scoverage-runtime to use")
+  lazy val coverageScalacRuntimeArtifact = settingKey[String]("artifact name of scalac-scoverage-runtime to use")
+  lazy val coverageScalacRuntimeVersion = settingKey[String]("version of scalac-scoverage-runtime to use")
+
+  //Use this to completely overide the library settings: This is the last resort option: use this, on you're on your own.
+  lazy val coverageLibraryDependencies = settingKey[Seq[ModuleID]]("Use these library dependencies if coverage is enabled")
 }
