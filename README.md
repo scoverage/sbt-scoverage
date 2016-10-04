@@ -27,11 +27,6 @@ or if you have integration tests as well
 $ sbt clean coverage it:test
 ```
 
-To enable coverage directly in your build, use:
-```
-coverageEnabled := true
-```
-
 To generate the coverage reports run
 ```
 $ sbt coverageReport
