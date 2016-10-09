@@ -3,11 +3,11 @@ package scoverage
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
+import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, Deserializer, ScoverageHtmlWriter, ScoverageXmlWriter}
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
-  private final val DefaultScoverageVersion = "1.3.0-RC2" // this should match the version defined in build.sbt
+  private final val DefaultScoverageVersion = "2.0.0-M0" // this should match the version defined in build.sbt
 
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
@@ -63,7 +63,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
             // of macro coverage was improved.
             coverageScalacRuntimeOrg.value %% (coverageScalacRuntimeArtifact.value + optionalScalaJsSuffix(libraryDependencies.value)) % coverageScalacRuntimeVersion.value,
             // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
-            coverageScalacPluginOrg.value %% coverageScalacPluginArtifact.value % coverageScalacPluginVersion.value % ScoveragePluginConfig.name
+            coverageScalacPluginOrg.value %% coverageScalacPluginArtifact.value % coverageScalacPluginVersion.value % ScoveragePluginConfig.name  cross CrossVersion.full
           )
         else
           coverageLibraryDependencies.value
@@ -230,7 +230,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     if (coverageFile.exists) {
 
-      val coverage = Serializer.deserialize(coverageFile)
+      val coverage = Deserializer.deserialize(coverageFile)
 
       log.info(s"Reading scoverage measurements...")
       val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
