@@ -47,7 +47,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] = Seq(
     ivyConfigurations += ScoveragePluginConfig,
     coverageReport <<= coverageReport0,
-    coverageAggregate <<= coverageAggregate0
+    coverageAggregate <<= coverageAggregate0,
+    aggregate in coverageAggregate := false
   ) ++ coverageSettings ++ scalacSettings
 
   private lazy val coverageSettings = Seq(
