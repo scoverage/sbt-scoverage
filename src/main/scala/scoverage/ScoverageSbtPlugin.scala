@@ -7,7 +7,8 @@ import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, Deserializer, S
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
-  private final val DefaultScoverageVersion = "2.0.0-M0" // this should match the version defined in build.sbt
+  // this should match the version defined in build.sbt
+  private final val DefaultScoverageVersion = "2.0.0-M0"
 
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
@@ -18,12 +19,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
     inConfigurations(Compile)) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
   override def requires: JvmPlugin.type = plugins.JvmPlugin
+
   override def trigger: PluginTrigger = allRequirements
 
   override def globalSettings: Seq[Def.Setting[_]] = super.globalSettings ++ Seq(
     coverageEnabled := false,
     coverageExcludedPackages := "",
     coverageExcludedFiles := "",
+    coverageExcludedSymbols := "",
     coverageMinimum := 0, // default is no minimum
     coverageFailOnMinimum := false,
     coverageHighlighting := true,
@@ -37,9 +40,10 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageScalacPluginArtifact := "scalac-scoverage-plugin",
     coverageScalacPluginVersion := DefaultScoverageVersion,
     coverageScalacRuntimeOrg := coverageScalacPluginOrg.value,
-    coverageScalacRuntimeArtifact := "scalac-scoverage-runtime",
+    coverageScalacRuntimeArtifact := "scalac-scoverage-runtime-scala",
     coverageScalacRuntimeVersion := coverageScalacPluginVersion.value,
-    coverageLibraryDependencies := Seq()
+    coverageLibraryDependencies := Seq(),
+    coverageIsCompilerPlugin := false
   )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
@@ -52,18 +56,24 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageReport <<= coverageReport0,
     coverageAggregate <<= coverageAggregate0,
     aggregate in coverageAggregate := false
+<<<<<<< HEAD
   ) ++ coverageSettings ++ scalacSettings
+=======
+  ) ++ coverageSettings ++ scalacSettings ++ coverageCompilerPluginpSettings
+>>>>>>> v2.0.0-M0 changes
 
   private lazy val coverageSettings = Seq(
-    libraryDependencies  ++= {
+    libraryDependencies ++= {
       if (coverageEnabled.value)
         if (coverageLibraryDependencies.value.isEmpty)
           Seq(
             // We only add for "compile"" because of macros. This setting could be optimed to just "test" if the handling
             // of macro coverage was improved.
             coverageScalacRuntimeOrg.value %% (coverageScalacRuntimeArtifact.value + optionalScalaJsSuffix(libraryDependencies.value)) % coverageScalacRuntimeVersion.value,
+            //coverageScalacRuntimeOrg.value %% coverageScalacRuntimeArtifact.value  % coverageScalacRuntimeVersion.value cross CrossVersion.full,
+
             // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
-            coverageScalacPluginOrg.value %% coverageScalacPluginArtifact.value % coverageScalacPluginVersion.value % ScoveragePluginConfig.name  cross CrossVersion.full
+            coverageScalacPluginOrg.value %% coverageScalacPluginArtifact.value % coverageScalacPluginVersion.value % ScoveragePluginConfig.name cross CrossVersion.full
           )
         else
           coverageLibraryDependencies.value
@@ -72,11 +82,61 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
   )
 
+  // I've not endeavoured to factor out the SBT repeated code
+  // as we don't know yet that this approach will be adopted. Let's wait for that first
+  // Also, this has been tested on single compiler plugin projects and seems to work.
+  // I have no idea how well it will scala, but if nothing else highlights the problem with on solution.
+  //
+  // The problem is that the scoverage plugin modifies compiled code to call Invoker.invoked,
+  // and hence a library implementing that must be available at the runtime of instrumented code.
+  // In the normal case, this is just a case of adding a runtime library to the test code.
+  //
+  // But, a compiler plugin wil not pick up that library, unless it has a custom loader to do so.
+  // So what I do here is, if coverageIsCompilerPlugin is true, add the Invoker code itself to the
+  // user plugin - that way it most definitely has an invoker to call.
+  //
+  // I think this, if nothing else, makes the problem easier to see.
+  // FTR, similar issues exist with macros and especially macros in scala.js cross compiled
+  // code as actually different invokers are required - a jvm only for runtime and a js one for
+  // runtime. This is another reason why I have excluded scala.js for now, as in the short term
+  // it will just confues issues. Adding it back later is trivial.
+  private lazy val coverageCompilerPluginpSettings = Seq(
+    unmanagedSources in Compile ++= {
+      if (coverageEnabled.value && coverageIsCompilerPlugin.value)
+        mkCpUnmanagedSources(crossTarget.value.toString)
+      else
+        Nil
+    },
+    coverageExcludedPackages := coverageExcludedPackages.value + {
+      if (coverageEnabled.value && coverageIsCompilerPlugin.value) ";scoverage\\..*"
+      else ""
+    },
+    coverageScalacRuntimeArtifact := {
+      if (coverageEnabled.value && coverageIsCompilerPlugin.value) "scalac-scoverage-runtime-java"
+      else coverageScalacRuntimeArtifact.value
+    }
+  )
+
+  private def mkCpUnmanagedSources(target: String) = {
+    import java.nio.file.Files
+
+    val scoverageDir = s"$target/scoverage-data"
+    val invokerFile = "Invoker.scala"
+    val embeddedInvoker = file(s"$scoverageDir/$invokerFile")
+
+    if (!embeddedInvoker.exists()) {
+      val invoker = getClass.getClassLoader.getResourceAsStream(invokerFile)
+      Files.createDirectories(file(s"$scoverageDir").toPath)
+      Files.copy(invoker, embeddedInvoker.toPath)
+    }
+    Seq(embeddedInvoker)
+  }
+
   private lazy val scalacSettings = Seq(
     scalacOptions in(Compile, compile) ++= {
       if (coverageEnabled.value) {
         val scoverageDeps: Seq[File] = update.value matching configurationFilter(ScoveragePluginConfig.name)
-        val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(coverageScalacPluginArtifact.value)) match {
+        val pluginPath: File = scoverageDeps.find(_.getAbsolutePath.contains(coverageScalacPluginArtifact.value)) match {
           case None => throw new Exception(s"Fatal: ${coverageScalacPluginArtifact.value} not in libraryDependencies")
           case Some(pluginPath) => pluginPath
         }
@@ -85,6 +145,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
           Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
           Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v"),
+          Option(coverageExcludedSymbols.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedSymbols:$v"),
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
         ).flatten
@@ -94,9 +155,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
   )
 
+  def isScalaJsProject(deps: Seq[ModuleID]): Boolean =
+    !optionalScalaJsSuffix(deps).isEmpty
+
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
   def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
-    val sjsClassifier = deps.collectFirst{
+    val sjsClassifier = deps.collectFirst {
       case ModuleID("org.scala-js", "scalajs-library", v, _, _, _, _, _, _, _, _) => v
     }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion)
 
@@ -273,5 +337,4 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val i = scalacOptions.indexOf("-encoding") + 1
     if (i > 0 && i < scalacOptions.length) Some(scalacOptions(i)) else None
   }
-
 }

@@ -1,0 +1,69 @@
+diff --git a/build.sbt b/build.sbt
+index c0fa477..e045c79 100644
+--- a/build.sbt
++++ b/build.sbt
+@@ -6,8 +6,8 @@ import ReleaseKeys._
+ organization := "com.github.mpilquist"
+ name := "local-implicits"
+ 
+-scalaVersion := "2.11.5"
+-crossScalaVersions := Seq("2.10.5", "2.11.5")
++scalaVersion := "2.11.8"
++crossScalaVersions := Seq("2.10.6", "2.11.8")
+ crossBuild := true
+ 
+ libraryDependencies ++= Seq(
+@@ -23,6 +23,7 @@ scalacOptions in Test <+= (packageBin in Compile) map {
+   pluginJar => "-Xplugin:" + pluginJar
+ }
+ 
++coverageIsCompilerPlugin := true
+ licenses += ("Three-clause BSD-style", url("https://github.com/mpilquist/local-implicits/blob/master/LICENSE"))
+ publishTo <<= version { v: String =>
+   val nexus = "https://oss.sonatype.org/"
+@@ -58,6 +59,7 @@ pomPostProcess := { (node) =>
+   val stripTestScope = stripIf { n => n.label == "dependency" && (n \ "scope").text == "test" }
+   new RuleTransformer(stripTestScope).transform(node)(0)
+ }
++/*
+ releaseSettings
+ releaseProcess := Seq[ReleaseStep](
+   checkSnapshotDependencies,
+@@ -71,4 +73,4 @@ releaseProcess := Seq[ReleaseStep](
+   commitNextVersion,
+   pushChanges
+ )
+-
++ */
+diff --git a/project/Build.scala b/project/Build.scala
+index 1f08023..b4f5ee2 100644
+--- a/project/Build.scala
++++ b/project/Build.scala
+@@ -5,14 +5,15 @@ import ReleaseStateTransformations._
+ import ReleasePlugin._
+ import ReleaseKeys._
+ import Utilities._
+-import com.typesafe.sbt.SbtPgp.PgpKeys._
++//import com.typesafe.sbt.SbtPgp.PgpKeys._
+ 
+ object ProjectBuild extends Build {
+-
++/*
+   lazy val publishSignedAction = { st: State =>
+     val extracted = st.extract
+     val ref = extracted.get(thisProjectRef)
+     extracted.runAggregated(publishSigned in Global in ref, st)
+   }
++ */
+ }
+ 
+diff --git a/project/plugins.sbt b/project/plugins.sbt
+index 8075941..91ec738 100644
+--- a/project/plugins.sbt
++++ b/project/plugins.sbt
+@@ -1,3 +1,4 @@
+ addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8.5")
+-addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
++//addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
+ 
++addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.0-M0")

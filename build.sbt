@@ -10,8 +10,7 @@ resolvers ++= {
   if (isSnapshot.value) Seq(Resolver.sonatypeRepo("snapshots")) else Nil
 }
 
-libraryDependencies += "org.scoverage" % "scalac-scoverage-reporting" % "2.0.0-M0"  cross CrossVersion.binary
-libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" %  "2.0.0-M0" cross CrossVersion.full
+libraryDependencies += "org.scoverage" % "scalac-scoverage-reporting" % "2.0.0-M0" cross CrossVersion.binary
 
 publishMavenStyle := true
 
