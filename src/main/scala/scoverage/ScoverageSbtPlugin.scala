@@ -173,25 +173,25 @@ object ScoverageSbtPlugin extends AutoPlugin {
     reportDir.mkdirs()
 
     if (coverageOutputCobertura) {
-      log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
       new CoberturaXmlWriter(compileSourceDirectories, coberturaDir).write(coverage)
+      log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
     }
 
     if (coverageOutputXML) {
-      log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
       new ScoverageXmlWriter(compileSourceDirectories, reportDir, false).write(coverage)
       if (coverageDebug) {
         new ScoverageXmlWriter(compileSourceDirectories, reportDir, true).write(coverage)
       }
+      log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
     }
 
     if (coverageOutputHTML) {
-      log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
       new ScoverageHtmlWriter(compileSourceDirectories, reportDir, coverageSourceEncoding).write(coverage)
+      log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
     }
     if (coverageOutputTeamCity) {
-      log.info("Writing coverage report to teamcity")
       reportToTeamcity(coverage, coverageOutputHTML, reportDir, crossTarget, log)
+      log.info("Written coverage report to TeamCity")
     }
 
     log.info(s"Statement coverage.: ${coverage.statementCoverageFormatted}%")
