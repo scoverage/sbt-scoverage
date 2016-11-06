@@ -15,7 +15,7 @@ discussion on scoverage.
 
 Add the plugin in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.4.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
 ```
 
 Run the tests with enabled coverage:
@@ -130,7 +130,7 @@ team's continuous integration process and a required quality standard.
 ```
 This software is licensed under the Apache 2 license, quoted below.
 
-Copyright 2013-2014 Stephen Samuel and contributors
+Copyright 2013-2016 Stephen Samuel and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
