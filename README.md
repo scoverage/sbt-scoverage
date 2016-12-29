@@ -27,21 +27,16 @@ or if you have integration tests as well
 $ sbt clean coverage it:test
 ```
 
-To enable coverage directly in your build, use:
-```
-coverageEnabled := true
-```
-
 To generate the coverage reports run
 ```
 $ sbt coverageReport
 ```
 
+By default, coverage is enabled for all modules. This is because the plugin sets a flag, called `coverageEnabled` to true. In order to disable coverage for some modules, you can add `coverageEnabled := false` to the settings for whichever module(s) you wish.
+
 Coverage reports will be in `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
 
-If you're running the coverage reports from within an sbt console session (as
-opposed to one command per sbt launch), then the `coverage` command is sticky. To
-turn it back off when you're done running reports, use the `coverageOff` command or reset `coverageEnabled` with `set coverageEnabled := false`.
+If you're running the coverage reports from within an sbt console session (as opposed to one command per sbt launch), then the `coverage` command is 'sticky'. This is because `coverage` is actually just an alias to set `coverageEnabled` to true in the session. This means once you have executed `sbt coverage test` then further invocations of just `sbt test` will also have coverage enabled, which will seem surprising if you are not expecting it. To disable coverage when you are finished running reports, use the `coverageOff` command or reset `coverageEnabled` with `set coverageEnabled in ThisBuild := false`.
 
 Sample project with scoverage in both sbt and maven - [the scoverage samples project](https://github.com/scoverage/sbt-scoverage-samples).
 
