@@ -1,0 +1,6 @@
+# run scoverage
+> clean
+> coverage
+> test
+# should fail with the the minimum coverage if the exclude does not work
+> coverageReport

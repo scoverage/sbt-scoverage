@@ -8,6 +8,7 @@ object ScoverageKeys {
   lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
   lazy val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
   lazy val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
+  lazy val coverageExcludedSymbols = settingKey[String]("regex for excluded symbols")
   lazy val coverageMinimum = settingKey[Double]("scoverage-minimum-coverage")
   lazy val coverageFailOnMinimum = settingKey[Boolean]("if coverage is less than this value then fail build")
   lazy val coverageHighlighting = settingKey[Boolean]("enables range positioning for highlighting")

@@ -27,6 +27,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageEnabled := false,
     coverageExcludedPackages := "",
     coverageExcludedFiles := "",
+    coverageExcludedSymbols := "",
     coverageMinimum := 0, // default is no minimum
     coverageFailOnMinimum := false,
     coverageHighlighting := true,
@@ -79,6 +80,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
           Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
           Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v"),
+          Option(coverageExcludedSymbols.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedSymbols:$v"),
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
         ).flatten
