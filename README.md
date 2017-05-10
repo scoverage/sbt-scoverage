@@ -13,6 +13,11 @@ discussion on scoverage.
 
 ## How to use
 
+Make sure your sbt version in project/build.properties:
+```
+sbt.version = 0.13.13
+```
+
 Add the plugin in project/plugins.sbt:
 ```scala
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
