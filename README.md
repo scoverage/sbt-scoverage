@@ -120,11 +120,17 @@ If you are running into a scenario where your tests normally pass, but fail when
 * timing issues on futures and other async operations, try upping the timeouts by an order of magnitude.
 * tests are run in a sandbox mode (such as with `java.security.PrivilegedAction<T>`), try running the tests outside of the sandbox.
 
-## Coveralls
+## Integrations
+
+### Codacy
+
+[Codacy](https://www.codacy.com) integrates with your favorite coverage tool to provide an in-depth overlook of your project status. Scoverage information can be integrated into Codacy through the [sbt-codacy-coverage plugin](https://github.com/codacy/sbt-codacy-coverage).
+
+### Coveralls
 
 If you have an open source project then you can add code coverage metrics with the excellent website https://coveralls.io/ Scoverage will integrate with coveralls using the [sbt-coveralls](https://github.com/scoverage/sbt-coveralls) plugin.
 
-## Plugin for SonarQube
+### Plugin for SonarQube
 
 If you want to visually browse statement coverage reports then use this [plugin for SonarQube](https://github.com/RadoBuransky/sonar-scoverage-plugin).
 It allows you to review overall project statement coverage as well as dig deeper into sub-modules, directories and
