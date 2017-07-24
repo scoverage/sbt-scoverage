@@ -96,7 +96,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
   private def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
     val sjsClassifier = deps.collectFirst {
-      case moduleId if moduleId.name == "org.scala-js" && moduleId.organization == "scalajs-library" => moduleId.revision
+      case moduleId if moduleId.organization == "org.scala-js" && moduleId.name == "scalajs-library" => moduleId.revision
     }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion)
 
     sjsClassifier getOrElse ""
