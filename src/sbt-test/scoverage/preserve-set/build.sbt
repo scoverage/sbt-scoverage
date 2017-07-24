@@ -11,14 +11,14 @@ libraryDependencies += "org.specs2" %% "specs2" % "2.3.13" % "test"
 val checkScalaVersion = inputKey[Unit]("Input task to compare the value of scalaVersion setting with a given input.")
 checkScalaVersion := {
   val arg: String = (Space ~> StringBasic).parsed
-  if (scalaVersion.value != arg) error(s"scalaVersion [${scalaVersion.value}] not equal to expected [$arg]")
+  if (scalaVersion.value != arg) sys.error(s"scalaVersion [${scalaVersion.value}] not equal to expected [$arg]")
   ()
 }
 
 val checkScoverageEnabled = inputKey[Unit]("Input task to compare the value of coverageEnabled setting with a given input.")
 checkScoverageEnabled := {
   val arg: String = (Space ~> StringBasic).parsed
-  if (coverageEnabled.value.toString != arg) error(s"coverageEnabled [${coverageEnabled.value}] not equal to expected [$arg]")
+  if (coverageEnabled.value.toString != arg) sys.error(s"coverageEnabled [${coverageEnabled.value}] not equal to expected [$arg]")
   ()
 }
 
