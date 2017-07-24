@@ -55,3 +55,5 @@ pomExtra := {
       </developer>
     </developers>
 }
+
+crossSbtVersions := Vector("0.13.15", "1.0.0-RC2")

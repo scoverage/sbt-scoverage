@@ -68,8 +68,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   private lazy val scalacSettings = Seq(
     scalacOptions in(Compile, compile) ++= {
+      val updateReport = update.value
       if (coverageEnabled.value) {
-        val scoverageDeps: Seq[File] = update.value matching configurationFilter(ScoveragePluginConfig.name)
+        val scoverageDeps: Seq[File] = Deps.scoverageDeps(updateReport, ScoveragePluginConfig.name)
         val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
           case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
           case Some(pluginPath) => pluginPath
@@ -94,8 +95,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
   private def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
-    val sjsClassifier = deps.collectFirst{
-      case ModuleID("org.scala-js", "scalajs-library", v, _, _, _, _, _, _, _, _) => v
+    val sjsClassifier = deps.collectFirst {
+      case moduleId if moduleId.name == "org.scala-js" && moduleId.organization == "scalajs-library" => moduleId.revision
     }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion)
 
     sjsClassifier getOrElse ""
