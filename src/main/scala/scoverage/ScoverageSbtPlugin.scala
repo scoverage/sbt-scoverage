@@ -70,7 +70,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     scalacOptions in(Compile, compile) ++= {
       val updateReport = update.value
       if (coverageEnabled.value) {
-        val scoverageDeps: Seq[File] = Deps.scoverageDeps(updateReport, ScoveragePluginConfig.name)
+        val scoverageDeps: Seq[File] = updateReport matching configurationFilter(ScoveragePluginConfig.name)
         val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
           case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
           case Some(pluginPath) => pluginPath
