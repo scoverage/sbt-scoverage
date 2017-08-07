@@ -1,9 +1,13 @@
 language: scala
 
-script: sbt ^scripted
+script: sbt ++$TRAVIS_SCALA_VERSION ^^$TRAVIS_SBT_VERSION scripted
 
-scala:
-  - "2.10.6"
+matrix:
+  include:
+    - scala: 2.10.6
+      env: TRAVIS_SBT_VERSION="0.13.16"
+    - scala: 2.12.3
+      env: TRAVIS_SBT_VERSION="1.0.0-RC3"
 
 before_cache:
   - find $HOME/.sbt -name "*.lock" | xargs rm
