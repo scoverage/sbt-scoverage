@@ -19,7 +19,7 @@ publishArtifact in Test := false
 ScriptedPlugin.scriptedSettings
 
 scriptedLaunchOpts ++= Seq(
-  "-Xmx1024M", "-XX:MaxPermSize=256M",
+  "-Xmx1024M",
   "-Dplugin.version=" + version.value
 )
 
