@@ -23,7 +23,20 @@ scriptedLaunchOpts ++= Seq(
   "-Dplugin.version=" + version.value
 )
 
-releasePublishArtifactsAction := PgpKeys.publishSigned.value
+import ReleaseTransformations._
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  releaseStepCommandAndRemaining("^ test"),
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("^ publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
 
 releaseCrossBuild := false
 
