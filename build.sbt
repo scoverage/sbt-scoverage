@@ -16,8 +16,6 @@ publishMavenStyle := true
 
 publishArtifact in Test := false
 
-ScriptedPlugin.scriptedSettings
-
 scriptedLaunchOpts ++= Seq(
   "-Xmx1024M",
   "-Dplugin.version=" + version.value
@@ -69,4 +67,4 @@ pomExtra := {
     </developers>
 }
 
-crossSbtVersions := Vector("0.13.16", "1.0.0")
+crossSbtVersions := Vector("0.13.16", "1.0.2")
