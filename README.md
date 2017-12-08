@@ -9,7 +9,7 @@ discussion on scoverage.
 
 [![Build Status](https://travis-ci.org/scoverage/sbt-scoverage.png?branch=master)](https://travis-ci.org/scoverage/sbt-scoverage)
 [![License](http://img.shields.io/:license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
-[<img src="https://img.shields.io/maven-central/v/org.scoverage/sbt-scoverage.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22sbt-scoverage%22)
+[![Latest release: 1.5.1](https://img.shields.io/badge/latest%20release-1.5.1-green.svg)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22sbt-scoverage%22)
 
 ## How to use
 
