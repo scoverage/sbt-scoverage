@@ -208,9 +208,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     def statsKeyValue(key: String, value: Int): String = s"##teamcity[buildStatisticValue key='$key' value='$value']"
 
-    // Log statement coverage as per: https://devnet.jetbrains.com/message/5467985
+    // Log statement and branch coverage as per: https://confluence.jetbrains.com/display/TCD10/Custom+Chart#CustomChart-DefaultStatisticsValuesProvidedbyTeamCity
     log.info(statsKeyValue("CodeCoverageAbsSCovered", coverage.invokedStatementCount))
     log.info(statsKeyValue("CodeCoverageAbsSTotal", coverage.statementCount))
+    log.info(statsKeyValue("CodeCoverageAbsRCovered", coverage.invokedBranchesCount))
+    log.info(statsKeyValue("CodeCoverageAbsRTotal", coverage.branchCount))
 
     // Log branch coverage as a custom metrics (in percent)
     log.info(statsKeyValue("CodeCoverageBranch", "%.0f".format(coverage.branchCoveragePercent).toInt))
