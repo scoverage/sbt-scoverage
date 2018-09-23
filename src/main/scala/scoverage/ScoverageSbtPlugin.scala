@@ -51,7 +51,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     aggregate in coverageAggregate := false
   ) ++ coverageSettings ++ scalacSettings
 
-  private lazy val coverageSettings = Seq(
+  private def coverageSettings = Seq(
     libraryDependencies  ++= {
       if (coverageEnabled.value)
         Seq(
@@ -66,7 +66,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
   )
 
-  private lazy val scalacSettings = Seq(
+  private def scalacSettings = Seq(
     scalacOptions in(Compile, compile) ++= {
       val updateReport = update.value
       if (coverageEnabled.value) {
