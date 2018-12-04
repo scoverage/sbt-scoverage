@@ -44,11 +44,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
     addCommandAlias("coverageOn", ";set coverageEnabled in ThisBuild := true") ++
     addCommandAlias("coverageOff", ";set coverageEnabled in ThisBuild := false")
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
+  override def projectSettings: Seq[Setting[_]] = super.projectSettings ++ Seq(
     ivyConfigurations += ScoveragePluginConfig,
     coverageReport := coverageReport0.value,
     coverageAggregate := coverageAggregate0.value,
-    aggregate in coverageAggregate := false
+    aggregate in coverageAggregate := false,
+    coverageDataDir := crossTarget.value
   ) ++ coverageSettings ++ scalacSettings
 
   private lazy val coverageSettings = Seq(
@@ -77,7 +78,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
         }
         Seq(
           Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
-          Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
+          Some(s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}/scoverage-data"),
           Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
           Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v"),
           // rangepos is broken in some releases of scala so option to turn it off
@@ -103,7 +104,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private lazy val coverageReport0 = Def.task {
-    val target = crossTarget.value
+    val target = coverageDataDir.value
     val log = streams.value.log
 
     log.info(s"Waiting for measurement data to sync...")
@@ -132,12 +133,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val log = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
-    val xmlReportFiles = crossTarget.all(aggregateFilter).value map (_ / "scoverage-report" / Constants
+    val xmlReportFiles = coverageDataDir.all(aggregateFilter).value map (_ / "scoverage-report" / Constants
       .XMLReportFilename) filter (_.isFile())
     CoverageAggregator.aggregate(xmlReportFiles, coverageCleanSubprojectFiles.value) match {
       case Some(cov) =>
         writeReports(
-          crossTarget.value,
+          coverageDataDir.value,
           sourceDirectories.all(aggregateFilter).value.flatten,
           cov,
           coverageOutputCobertura.value,
