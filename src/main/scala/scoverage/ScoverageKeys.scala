@@ -15,6 +15,7 @@ object ScoverageKeys {
   lazy val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
   lazy val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
   lazy val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
+  @deprecated("", "1.6.0")
   lazy val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
   lazy val coverageOutputTeamCity = settingKey[Boolean]("turn on teamcity reporting")
   lazy val coverageScalacPluginVersion = settingKey[String]("version of scalac-scoverage-plugin to use")

@@ -54,6 +54,14 @@ turn it back off when you're done running reports, use the `coverageOff` command
 
 Sample project with scoverage in both sbt and maven - [the scoverage samples project](https://github.com/scoverage/sbt-scoverage-samples).
 
+## Notes on upgrading to version 1.6.0
+
+* `coverageAggregate` aggregates raw coverage data, not coverage xml reports for modules.
+There is no requirement to generate individual coverage reports for modules (`coverageReport`)
+before generating aggregated report (`coverageAggregate`).
+
+If only aggregated report is required, not executing `coverageReport` can reduce the build time significantly.
+
 ## Notes on upgrading to version 1.3.0
 
 * The object containing the keys has changed from nested to top level so you might need to adjust the import. It's also an auto plugin now, so you might not need the import at all.

@@ -3,7 +3,7 @@ package scoverage
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import scoverage.report.{CoverageAggregator, CoberturaXmlWriter, ScoverageHtmlWriter, ScoverageXmlWriter}
+import scoverage.report.{CoberturaXmlWriter, CoverageAggregator, ScoverageHtmlWriter, ScoverageXmlWriter}
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
@@ -11,7 +11,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   // this should match the version defined in build.sbt
-  val DefaultScoverageVersion = "1.4.0-M5"
+  val DefaultScoverageVersion = "1.4.0-SNAPSHOT"
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
 
@@ -132,9 +132,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val log = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
-    val xmlReportFiles = crossTarget.all(aggregateFilter).value map (_ / "scoverage-report" / Constants
-      .XMLReportFilename) filter (_.isFile())
-    CoverageAggregator.aggregate(xmlReportFiles, coverageCleanSubprojectFiles.value) match {
+    val dataDirs = crossTarget.all(aggregateFilter).value map (_ / Constants.DataDir) filter (_.isDirectory)
+    CoverageAggregator.aggregate(dataDirs) match {
       case Some(cov) =>
         writeReports(
           crossTarget.value,
