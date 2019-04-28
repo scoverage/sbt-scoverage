@@ -4,8 +4,8 @@ script: sbt ^^$TRAVIS_SBT_VERSION scripted
 
 matrix:
   include:
-    - env: TRAVIS_SBT_VERSION="0.13.17"
-    - env: TRAVIS_SBT_VERSION="1.1.1"
+    - env: TRAVIS_SBT_VERSION="0.13.18"
+    - env: TRAVIS_SBT_VERSION="1.2.8"
 
 before_cache:
   - find $HOME/.sbt -name "*.lock" | xargs rm

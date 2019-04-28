@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 organization := "org.scoverage"
 
-sbtPlugin := true
+enablePlugins(SbtPlugin)
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 
@@ -64,9 +64,14 @@ pomExtra := {
         <name>sksamuel</name>
         <url>http://github.com/sksamuel</url>
       </developer>
+      <developer>
+        <id>gslowikowski</id>
+        <name>Grzegorz Slowikowski</name>
+        <url>http://github.com/gslowikowski</url>
+      </developer>
     </developers>
 }
 
-crossSbtVersions := Vector("0.13.17", "1.1.1")
+crossSbtVersions := Vector("0.13.18", "1.2.8")
 
 scalariformAutoformat := false
