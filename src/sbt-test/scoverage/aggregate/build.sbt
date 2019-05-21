@@ -6,10 +6,10 @@
 lazy val commonSettings = Seq(
   organization := "org.scoverage",
   version := "0.1.0",
-  scalaVersion := "2.10.4"
+  scalaVersion := "2.12.8"
 )
 
-lazy val specs2Lib = "org.specs2" %% "specs2" % "2.3.13" % "test"
+lazy val specs2Lib = "org.specs2" %% "specs2" % "2.5" % "test"
 
 def module(name: String) = {
   val id = s"part$name"

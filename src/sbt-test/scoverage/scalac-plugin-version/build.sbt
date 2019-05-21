@@ -1,12 +1,12 @@
 lazy val root = (project in file(".")).settings(
-  coverageScalacPluginVersion := "1.1.0"
+  coverageScalacPluginVersion := "1.3.0"
 )
 
 TaskKey[Unit]("check") := {
   assert(
     libraryDependencies.value
       .filter(module =>
-        module.organization == "org.scoverage" && module.revision == "1.1.0")
+        module.organization == "org.scoverage" && module.revision == "1.3.0")
       .size == 2)
 }
 
