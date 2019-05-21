@@ -1,10 +1,10 @@
 # check scalaVersion setting
-> checkScalaVersion "2.11.8"
+> checkScalaVersion "2.12.8"
 > checkScoverageEnabled "false"
 > coverage
 > checkScoverageEnabled "true"
 > coverageOff
-> checkScalaVersion "2.11.8"
+> checkScalaVersion "2.12.8"
 > checkScoverageEnabled "false"
 # changs scala version
 > ++2.10.6
