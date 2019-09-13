@@ -72,6 +72,6 @@ pomExtra := {
     </developers>
 }
 
-crossSbtVersions := Vector("0.13.18", "1.2.8")
+crossSbtVersions := Vector("0.13.18", "1.3.0")
 
 scalariformAutoformat := false

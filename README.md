@@ -15,11 +15,11 @@ discussion on scoverage.
 
 Make sure your SBT version in project/build.properties:
 ```
-sbt.version = 0.13.17
+sbt.version = 0.13.18
 ```
 or
 ```
-sbt.version = 1.1.1
+sbt.version = 1.3.0
 ```
 
 Add the plugin in project/plugins.sbt:
