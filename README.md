@@ -19,7 +19,7 @@ sbt.version = 0.13.18
 ```
 or
 ```
-sbt.version = 1.3.0
+sbt.version = 1.3.2
 ```
 
 Add the plugin in project/plugins.sbt:
