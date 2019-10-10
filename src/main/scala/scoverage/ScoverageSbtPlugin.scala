@@ -101,6 +101,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           Option(coverageExcludedFiles.value.trim)
             .filter(_.nonEmpty)
             .map(v => s"-P:scoverage:excludedFiles:$v"),
+          Some("-P:scoverage:reportTestName"),
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
         ).flatten
