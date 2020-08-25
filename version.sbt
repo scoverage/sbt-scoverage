@@ -1,1 +1,1 @@
-version in ThisBuild := "1.6.2-Livongo"
+version in ThisBuild := "1.6.2-livongo"
