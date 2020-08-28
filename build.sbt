@@ -38,12 +38,10 @@ releaseProcess := Seq[ReleaseStep](
 
 releaseCrossBuild := false
 
-publishTo := {
-  if (isSnapshot.value)
-    Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-  else
-    Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-}
+updateOptions := updateOptions.value.withGigahorse(false)
+
+publishTo := Some("Artifactory Realm" at "http://artifactory.prod.livongo.com/artifactory/plugins-release-local")
+credentials += Credentials("Artifactory Realm", "artifactory.prod.livongo.com", "admin", "<REDACTED>>")
 
 pomExtra := {
   <url>https://github.com/scoverage/sbt-scoverage</url>
