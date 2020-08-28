@@ -222,7 +222,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   private def loadCoverage(crossTarget: File, log: Logger): Option[Coverage] = {
 
-    val dataDir = crossTarget / "/scoverage-data"
+    val dataDir = crossTarget
     val coverageFile = Serializer.coverageFile(dataDir)
 
     log.info(s"Reading scoverage instrumentation [$coverageFile]")
