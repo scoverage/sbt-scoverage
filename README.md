@@ -79,7 +79,7 @@ By default, scoverage will generate reports for each project separately. You can
 
 (Note, you must do this after all the coverage data is complete as a separate command, so you cannot do `sbt coverage test coverageAggregate` (at least until a way around this is found).)
 
-(You must have first run `sbt coverageReport` for `coverageAggregate` to work. It aggregates over the sub-projects' report xml rather than over the coverage data directly.)
+(You do not need to run `coverageReport` before `coverageAggregate`; it aggregates over the sub-projects' coverage data directly, not the report xml.)
 
 ## Exclude classes and packages
 
