@@ -55,7 +55,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     libraryDependencies  ++= {
       if (coverageEnabled.value)
         Seq(
-          // We only add for "compile"" because of macros. This setting could be optimed to just "test" if the handling
+          // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
           OrgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value,
           // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
