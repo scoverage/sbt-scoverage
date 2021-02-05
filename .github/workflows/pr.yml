@@ -1,0 +1,39 @@
+name: pr
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'doc/**'
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  scala:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '11' ]
+        scala: [
+            { version: '2.12.13' },
+            { version: '2.12.12' },
+            { version: '2.12.11' },
+            { version: '2.12.10' },
+            { version: '2.13.4' },
+            { version: '2.13.3' },
+            { version: '2.13.2' },
+            { version: '2.13.1' },
+            { version: '2.13.0' }
+          ]
+    steps:
+      - name: checkout the repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+
+      - name: run tests
+        run: sbt ++${{ matrix.scala.version }} test scripted
