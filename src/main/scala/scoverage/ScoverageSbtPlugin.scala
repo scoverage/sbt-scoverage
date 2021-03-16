@@ -40,9 +40,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
   )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
-    addCommandAlias("coverage", ";set coverageEnabled in ThisBuild := true") ++
-    addCommandAlias("coverageOn", ";set coverageEnabled in ThisBuild := true") ++
-    addCommandAlias("coverageOff", ";set coverageEnabled in ThisBuild := false")
+    addCommandAlias("coverage", ";set ThisBuild / coverageEnabled := true") ++
+    addCommandAlias("coverageOn", ";set ThisBuild / coverageEnabled := true") ++
+    addCommandAlias("coverageOff", ";set ThisBuild / coverageEnabled := false")
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     ivyConfigurations += ScoveragePluginConfig,
