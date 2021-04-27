@@ -4,7 +4,7 @@ val pluginVersion = sys.props.getOrElse(
     """|The system property 'plugin.version' is not defined.
        |Specify this property using the scriptedLaunchOpts -D.""".stripMargin))
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % pluginVersion)
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % pluginVersion withCrossVersion(CrossVersion.full))
 
 resolvers ++= {
   if (pluginVersion.endsWith("-SNAPSHOT"))

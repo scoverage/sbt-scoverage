@@ -6,7 +6,7 @@
 lazy val commonSettings = Seq(
   organization := "org.scoverage",
   version := "0.1.0",
-  scalaVersion := "2.12.8"
+  scalaVersion := "2.12.13"
 )
 
 lazy val specs2Lib = "org.specs2" %% "specs2" % "2.5" % "test"
@@ -34,7 +34,7 @@ lazy val root = (project in file("."))
     partB
   )
 
-resolvers in ThisBuild ++= {
-  if (sys.props.get("plugin.version").map(_.endsWith("-SNAPSHOT")).getOrElse(false)) Seq(Resolver.sonatypeRepo("snapshots"))
+ThisBuild / resolvers ++= {
+  if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT"))) Seq(Resolver.sonatypeRepo("snapshots"))
   else Seq.empty
 }

@@ -2,9 +2,9 @@ import sbt.complete.DefaultParsers._
 
 version := "0.1"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.13"
 
-crossScalaVersions := Seq("2.10.6", "2.12.8")
+crossScalaVersions := Seq("2.12.13")
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.5" % "test"
 
@@ -24,14 +24,14 @@ checkScoverageEnabled := {
 
 
 resolvers ++= {
-  if (sys.props.get("plugin.version").map(_.endsWith("-SNAPSHOT")).getOrElse(false)) Seq(Resolver.sonatypeRepo("snapshots"))
+  if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT"))) Seq(Resolver.sonatypeRepo("snapshots"))
   else Seq.empty
 }
 
 // We force coverage to be always disabled for 2.10. This is not an uncommon real world scenario
 coverageEnabled := {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 10)) => false
+//    case Some((2, 10)) => false
     case _ => coverageEnabled.value
   }
 }

@@ -18,6 +18,7 @@ jobs:
             { version: '2.12.12' },
             { version: '2.12.11' },
             { version: '2.12.10' },
+            { version: '2.13.5' },
             { version: '2.13.4' },
             { version: '2.13.3' },
             { version: '2.13.2' },
