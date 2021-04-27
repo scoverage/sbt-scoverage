@@ -2,9 +2,9 @@ import sbt.complete.DefaultParsers._
 
 version := "0.1"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.13"
 
-crossScalaVersions := Seq("2.10.6", "2.12.8")
+crossScalaVersions := Seq("2.10.6", "2.12.13")
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.5" % "test"
 

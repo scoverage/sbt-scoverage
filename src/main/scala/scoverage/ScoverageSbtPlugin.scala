@@ -11,7 +11,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   // this should match the version defined in build.sbt
-  val DefaultScoverageVersion = "1.4.2"
+  val DefaultScoverageVersion = "1.4.3-SNAPSHOT"
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
 
@@ -48,7 +48,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     ivyConfigurations += ScoveragePluginConfig,
     coverageReport := coverageReport0.value,
     coverageAggregate := coverageAggregate0.value,
-    aggregate in coverageAggregate := false
+    coverageAggregate / aggregate := false
   ) ++ coverageSettings ++ scalacSettings
 
   private lazy val coverageSettings = Seq(
@@ -57,7 +57,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
         Seq(
           // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
-          (OrgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value).cross(CrossVersion.full),
+          (OrgScoverage %% ScalacRuntimeArtifact % coverageScalacPluginVersion.value).cross(CrossVersion.full),
+          //(OrgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value).cross(CrossVersion.full),
           // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
           (OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name).cross(CrossVersion.full)
         )
@@ -67,7 +68,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   )
 
   private lazy val scalacSettings = Seq(
-    scalacOptions in(Compile, compile) ++= {
+    Compile / compile / scalacOptions ++= {
       val updateReport = update.value
       if (coverageEnabled.value) {
         val scoverageDeps: Seq[File] = updateReport matching configurationFilter(ScoveragePluginConfig.name)
@@ -113,14 +114,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
       case Some(cov) =>
         writeReports(
           target,
-          (sourceDirectories in Compile).value,
+          (Compile / sourceDirectories).value,
           cov,
           coverageOutputCobertura.value,
           coverageOutputXML.value,
           coverageOutputHTML.value,
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
-          sourceEncoding((scalacOptions in (Compile)).value),
+          sourceEncoding((Compile / scalacOptions).value),
           log)
 
         checkCoverage(cov, log, coverageMinimum.value, coverageFailOnMinimum.value)
@@ -144,7 +145,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputHTML.value,
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
-          sourceEncoding((scalacOptions in (Compile)).value),
+          sourceEncoding((Compile / scalacOptions).value),
           log)
         val cfmt = cov.statementCoverageFormatted
         log.info(s"Aggregation complete. Coverage was [$cfmt]")

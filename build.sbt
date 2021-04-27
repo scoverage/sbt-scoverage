@@ -10,11 +10,12 @@ resolvers ++= {
   if (isSnapshot.value) Seq(Resolver.sonatypeRepo("snapshots")) else Nil
 }
 
-libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.4.2"
+libraryDependencies +=
+  "org.scoverage" %% "scalac-scoverage-plugin" % "1.4.3-SNAPSHOT" cross CrossVersion.full
 
 publishMavenStyle := true
 
-publishArtifact in Test := false
+Test / publishArtifact := false
 
 scriptedLaunchOpts ++= Seq(
   "-Xmx1024M",

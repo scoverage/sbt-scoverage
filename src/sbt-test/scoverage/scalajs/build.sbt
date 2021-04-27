@@ -4,11 +4,10 @@ import sbtcrossproject.CrossType
 lazy val root = (project in file(".")).aggregate(crossJS, crossJVM)
 
 lazy val cross = CrossProject("sjstest", file("sjstest"))(JVMPlatform, JSPlatform)
-  .crossType(CrossType.Full)
   .settings(
-    scalaVersion := "2.12.8",
+    scalaVersion := "2.13.5",
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
+      "org.scalatest" %%% "scalatest" % "3.2.8" % "test"
     )
   )
 
