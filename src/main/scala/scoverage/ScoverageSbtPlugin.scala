@@ -96,7 +96,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   private def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
     val sjsClassifier = deps.collectFirst {
       case moduleId if moduleId.organization == "org.scala-js" && moduleId.name == "scalajs-library" => moduleId.revision
-    }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion)
+    }.map(_.take(1)).map(sjsVersion => "_sjs" + sjsVersion)
 
     sjsClassifier getOrElse ""
   }

@@ -28,10 +28,8 @@ resolvers ++= {
   else Seq.empty
 }
 
-// We force coverage to be always disabled for 2.10. This is not an uncommon real world scenario
 coverageEnabled := {
   CrossVersion.partialVersion(scalaVersion.value) match {
-//    case Some((2, 10)) => false
     case _ => coverageEnabled.value
   }
 }

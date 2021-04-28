@@ -8,7 +8,7 @@ lazy val cross = CrossProject("sjstest", file("sjstest"))(JVMPlatform, JSPlatfor
   .settings(
     scalaVersion := "2.12.13",
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.2.8" % "test" cross(CrossVersion.binary)
+      "org.scalatest" %% "scalatest" % "3.2.8" % "test"
     )
   )
 

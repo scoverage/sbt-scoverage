@@ -15,7 +15,7 @@ discussion on scoverage.
 
 Make sure your SBT version in project/build.properties:
 ```
-sbt.version = 1.5.1
+sbt.version = 1.2.8
 ```
 
 Add the plugin in project/plugins.sbt:
@@ -52,7 +52,7 @@ Sample project with scoverage in both sbt and maven - [the scoverage samples pro
 
 ## Notes on upgrading to version 1.6.x
 * ´coverageCleanSubprojectFiles´ key has been removed
-* scala version 2.12+ is required as a minimum
+* scala version 2.12+ is required as a minimum (due to scoverage suppport)
 
 ## Notes on upgrading to version 1.6.0
 
