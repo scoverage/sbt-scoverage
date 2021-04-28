@@ -11,7 +11,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
   val ScalacPluginArtifact = "scalac-scoverage-plugin"
   // this should match the version defined in build.sbt
-  val DefaultScoverageVersion = "1.4.1"
+  val DefaultScoverageVersion = "1.4.3"
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
 
@@ -34,26 +34,25 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputHTML := true,
     coverageOutputCobertura := true,
     coverageOutputDebug := false,
-    coverageCleanSubprojectFiles := true,
     coverageOutputTeamCity := false,
     coverageScalacPluginVersion := DefaultScoverageVersion
   )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
-    addCommandAlias("coverage", ";set coverageEnabled in ThisBuild := true") ++
-    addCommandAlias("coverageOn", ";set coverageEnabled in ThisBuild := true") ++
-    addCommandAlias("coverageOff", ";set coverageEnabled in ThisBuild := false")
+    addCommandAlias("coverage", ";set ThisBuild / coverageEnabled := true") ++
+    addCommandAlias("coverageOn", ";set ThisBuild / coverageEnabled := true") ++
+    addCommandAlias("coverageOff", ";set ThisBuild / coverageEnabled := false")
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     ivyConfigurations += ScoveragePluginConfig,
     coverageReport := coverageReport0.value,
     coverageAggregate := coverageAggregate0.value,
-    aggregate in coverageAggregate := false
+    coverageAggregate / aggregate := false
   ) ++ coverageSettings ++ scalacSettings
 
   private lazy val coverageSettings = Seq(
-    libraryDependencies  ++= {
-      if (coverageEnabled.value)
+    libraryDependencies ++= {
+      if (coverageEnabled.value) {
         Seq(
           // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
@@ -61,13 +60,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
           // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
           (OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name).cross(CrossVersion.full)
         )
-      else
+      } else
         Nil
     }
   )
 
   private lazy val scalacSettings = Seq(
-    scalacOptions in(Compile, compile) ++= {
+    Compile / compile / scalacOptions ++= {
       val updateReport = update.value
       if (coverageEnabled.value) {
         val scoverageDeps: Seq[File] = updateReport matching configurationFilter(ScoveragePluginConfig.name)
@@ -97,7 +96,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   private def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
     val sjsClassifier = deps.collectFirst {
       case moduleId if moduleId.organization == "org.scala-js" && moduleId.name == "scalajs-library" => moduleId.revision
-    }.map(_.take(3)).map(sjsVersion => "_sjs" + sjsVersion)
+    }.map(_.take(1)).map(sjsVersion => "_sjs" + sjsVersion)
 
     sjsClassifier getOrElse ""
   }
@@ -113,14 +112,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
       case Some(cov) =>
         writeReports(
           target,
-          (sourceDirectories in Compile).value,
+          (Compile / sourceDirectories).value,
           cov,
           coverageOutputCobertura.value,
           coverageOutputXML.value,
           coverageOutputHTML.value,
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
-          sourceEncoding((scalacOptions in (Compile)).value),
+          sourceEncoding((Compile / scalacOptions).value),
           log)
 
         checkCoverage(cov, log, coverageMinimum.value, coverageFailOnMinimum.value)
@@ -144,7 +143,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputHTML.value,
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
-          sourceEncoding((scalacOptions in (Compile)).value),
+          sourceEncoding((Compile / scalacOptions).value),
           log)
         val cfmt = cov.statementCoverageFormatted
         log.info(s"Aggregation complete. Coverage was [$cfmt]")

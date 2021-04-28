@@ -15,16 +15,12 @@ discussion on scoverage.
 
 Make sure your SBT version in project/build.properties:
 ```
-sbt.version = 0.13.17
-```
-or
-```
-sbt.version = 1.1.1
+sbt.version = 1.2.8
 ```
 
 Add the plugin in project/plugins.sbt:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.1")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.2")
 ```
 
 Run the tests with enabled coverage:
@@ -53,6 +49,10 @@ opposed to one command per sbt launch), then the `coverage` command is sticky. T
 turn it back off when you're done running reports, use the `coverageOff` command or reset `coverageEnabled` with `set coverageEnabled := false`.
 
 Sample project with scoverage in both sbt and maven - [the scoverage samples project](https://github.com/scoverage/sbt-scoverage-samples).
+
+## Notes on upgrading to version 1.6.x
+* ´coverageCleanSubprojectFiles´ key has been removed
+* scala version 2.12+ is required as a minimum (due to scoverage suppport)
 
 ## Notes on upgrading to version 1.6.0
 
@@ -116,14 +116,6 @@ coverageFailOnMinimum := true
 
 These settings will be enforced when the reports are generated.
 If you generate an aggregate report using `coverageAggregate` then these settings will apply to that report.
-
-## Highlighting
-
-If you are using Scala 2.11.1 or less, then highlighting will not work (due to this bug which was fixed in 2.11.2 https://github.com/scala/scala/pull/3799). In that case you must disable highlighting by adding the following to your build:
-
-```scala
-coverageHighlighting := false
-```
 
 ## Failing tests
 Scoverage does a lot of file writing behind the scenes in order to track which statements have been executed.

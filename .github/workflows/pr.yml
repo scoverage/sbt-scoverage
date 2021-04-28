@@ -15,14 +15,7 @@ jobs:
         java: [ '11' ]
         scala: [
             { version: '2.12.13' },
-            { version: '2.12.12' },
-            { version: '2.12.11' },
-            { version: '2.12.10' },
-            { version: '2.13.4' },
-            { version: '2.13.3' },
-            { version: '2.13.2' },
-            { version: '2.13.1' },
-            { version: '2.13.0' }
+            { version: '2.12.10' }
           ]
     steps:
       - name: checkout the repo
