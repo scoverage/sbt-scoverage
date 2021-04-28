@@ -24,7 +24,7 @@ lazy val root = Project("sbt-scoverage", file("."))
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-compiler" % scalaVersion.value % Compile
     ),
-    libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.4.3-SNAPSHOT" cross(CrossVersion.full),
+    libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.4.3" cross(CrossVersion.full),
     scalaVersion := "2.12.13",
     publishMavenStyle := true,
     publishConfiguration := publishConfiguration.value.withOverwrite(true),
