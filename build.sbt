@@ -8,7 +8,7 @@ releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
   runClean,
-  releaseStepCommandAndRemaining("^ test"),
+  releaseStepCommandAndRemaining("test"),
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
