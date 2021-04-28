@@ -14,8 +14,7 @@ jobs:
       matrix:
         java: [ '11' ]
         scala: [
-            { version: '2.12.13' },
-            { version: '2.12.10' }
+            { version: '2.12.13' }
           ]
     steps:
       - name: checkout the repo
