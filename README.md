@@ -1,24 +1,21 @@
-sbt-scoverage
-========
+# sbt-scoverage
 
-sbt-scoverage is a plugin for SBT that integrates the scoverage code coverage library. Find out more about [scoverage](https://github.com/scoverage/scalac-scoverage-plugin).
-
-Join the [scoverage](http://groups.google.com/group/scala-code-coverage-tool)
-google group for help, bug reports, feature requests, and general
-discussion on scoverage.
-
-[![Build Status](https://travis-ci.org/scoverage/sbt-scoverage.png?branch=master)](https://travis-ci.org/scoverage/sbt-scoverage)
+[![Gitter](https://img.shields.io/gitter/room/scoverage/scoverage.svg)](https://gitter.im/scoverage/scoverage)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scoverage/sbt-scoverage/badge.svg?kill_cache=1)](https://search.maven.org/artifact/org.scoverage/sbt-scoverage/)
 [![License](http://img.shields.io/:license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
-[<img src="https://img.shields.io/maven-central/v/org.scoverage/sbt-scoverage.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22sbt-scoverage%22)
+
+sbt-scoverage is a plugin for sbt that integrates the scoverage code coverage
+library. Find out more about
+[scoverage](https://github.com/scoverage/scalac-scoverage-plugin).
 
 ## How to use
 
-Make sure your SBT version in project/build.properties:
-```
+Make sure your sbt version in project/build.properties:
+```scala
 sbt.version = 1.2.8
 ```
 
-Add the plugin in project/plugins.sbt:
+Add the plugin in `project/plugins.sbt`:
 ```scala
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.2")
 ```
@@ -33,7 +30,7 @@ $ sbt clean coverage it:test
 ```
 
 To enable coverage directly in your build, use:
-```
+```scala
 coverageEnabled := true
 ```
 
