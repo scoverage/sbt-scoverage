@@ -17,7 +17,7 @@ sbt.version = 1.2.8
 
 Add the plugin in `project/plugins.sbt`:
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.2")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.7.0")
 ```
 
 Run the tests with enabled coverage:
@@ -39,7 +39,7 @@ To generate the coverage reports run
 $ sbt coverageReport
 ```
 
-Coverage reports will be in `target/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
+Coverage reports will be in `target/scala-<scala-version>/scoverage-report`. There are HTML and XML reports. The XML is useful if you need to programatically use the results, or if you're writing a tool.
 
 If you're running the coverage reports from within an sbt console session (as
 opposed to one command per sbt launch), then the `coverage` command is sticky. To
