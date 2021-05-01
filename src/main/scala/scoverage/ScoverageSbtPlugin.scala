@@ -4,6 +4,7 @@ import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
 import scoverage.report.{CoberturaXmlWriter, CoverageAggregator, ScoverageHtmlWriter, ScoverageXmlWriter}
+import java.time.Instant
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
@@ -215,7 +216,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     // Create the coverage report for teamcity (HTML files)
     if (createCoverageZip)
-      IO.zip(Path.allSubpaths(reportDir), crossTarget / "coverage.zip")
+      IO.zip(Path.allSubpaths(reportDir), crossTarget / "coverage.zip", Some(Instant.now().toEpochMilli()))
   }
 
   private def loadCoverage(crossTarget: File, log: Logger): Option[Coverage] = {
