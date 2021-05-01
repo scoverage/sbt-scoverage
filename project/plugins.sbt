@@ -1,7 +1,2 @@
 libraryDependencies += "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
-
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.1")
-
-addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.1")
-
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.13")
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.7")
