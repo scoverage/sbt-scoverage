@@ -4,6 +4,7 @@ import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
 
 def localSnapshotVersion = "1.7.1-SNAPSHOT"
 def isCI = System.getenv("CI") != null
+def scoverageVersion = "1.4.4"
 
 inThisBuild(
   List(
@@ -35,12 +36,13 @@ inThisBuild(
 )
 
 lazy val root = Project("sbt-scoverage", file("."))
-  .enablePlugins(SbtPlugin)
+  .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value % Compile
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value % Compile,
+      "org.scoverage" %% "scalac-scoverage-plugin" % scoverageVersion cross (CrossVersion.full),
     ),
-    libraryDependencies += "org.scoverage" %% "scalac-scoverage-plugin" % "1.4.3" cross (CrossVersion.full),
+    buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
     Test / fork := false,
     Test / publishArtifact := false,
     Test / parallelExecution := false,
