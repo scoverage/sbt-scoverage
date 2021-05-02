@@ -4,7 +4,7 @@ import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
 
 def localSnapshotVersion = "1.7.1-SNAPSHOT"
 def isCI = System.getenv("CI") != null
-def scoverageVersion = "1.4.4"
+def scoverageVersion = "1.4.5"
 
 inThisBuild(
   List(
