@@ -16,8 +16,9 @@ sbt.version = 1.2.8
 ```
 
 Add the plugin in `project/plugins.sbt`:
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scoverage/sbt-scoverage/badge.svg?kill_cache=1)](https://search.maven.org/artifact/org.scoverage/sbt-scoverage/)
 ```scala
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.7.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "x.x.x")
 ```
 
 Run the tests with enabled coverage:
