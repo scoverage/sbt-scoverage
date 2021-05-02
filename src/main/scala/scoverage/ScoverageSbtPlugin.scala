@@ -5,14 +5,14 @@ import sbt._
 import sbt.plugins.JvmPlugin
 import scoverage.report.{CoberturaXmlWriter, CoverageAggregator, ScoverageHtmlWriter, ScoverageXmlWriter}
 import java.time.Instant
+import buildinfo.BuildInfo
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
-  val OrgScoverage = "org.scoverage"
-  val ScalacRuntimeArtifact = "scalac-scoverage-runtime"
-  val ScalacPluginArtifact = "scalac-scoverage-plugin"
-  // this should match the version defined in build.sbt
-  val DefaultScoverageVersion = "1.4.3"
+  val orgScoverage = "org.scoverage"
+  val scalacRuntimeArtifact = "scalac-scoverage-runtime"
+  val scalacPluginArtifact = "scalac-scoverage-plugin"
+  val defaultScoverageVersion = BuildInfo.scoverageVersion
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
 
@@ -36,7 +36,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageOutputCobertura := true,
     coverageOutputDebug := false,
     coverageOutputTeamCity := false,
-    coverageScalacPluginVersion := DefaultScoverageVersion
+    coverageScalacPluginVersion := defaultScoverageVersion
   )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
@@ -57,9 +57,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
         Seq(
           // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
-          (OrgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value).cross(CrossVersion.full),
+          (orgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value).cross(CrossVersion.full),
           // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
-          (OrgScoverage %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name).cross(CrossVersion.full)
+          (orgScoverage %% scalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name).cross(CrossVersion.full)
         )
       } else
         Nil
@@ -71,8 +71,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
       val updateReport = update.value
       if (coverageEnabled.value) {
         val scoverageDeps: Seq[File] = updateReport matching configurationFilter(ScoveragePluginConfig.name)
-        val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
-          case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
+        val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(scalacPluginArtifact)) match {
+          case None => throw new Exception(s"Fatal: $scalacPluginArtifact not in libraryDependencies")
           case Some(pluginPath) => pluginPath
         }
         Seq(
@@ -90,7 +90,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   )
 
   private def scalacRuntime(deps: Seq[ModuleID]): String = {
-    ScalacRuntimeArtifact + optionalScalaJsSuffix(deps)
+    scalacRuntimeArtifact + optionalScalaJsSuffix(deps)
   }
 
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
