@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - '*.md'
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
