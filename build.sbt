@@ -43,6 +43,7 @@ lazy val root = Project("sbt-scoverage", file("."))
       "org.scoverage" %% "scalac-scoverage-plugin" % scoverageVersion cross (CrossVersion.full),
     ),
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
+    buildInfoPackage := "scoverage",
     Test / fork := false,
     Test / publishArtifact := false,
     Test / parallelExecution := false,
