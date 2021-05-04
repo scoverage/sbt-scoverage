@@ -5,7 +5,6 @@ import sbt._
 import sbt.plugins.JvmPlugin
 import scoverage.report.{CoberturaXmlWriter, CoverageAggregator, ScoverageHtmlWriter, ScoverageXmlWriter}
 import java.time.Instant
-import buildinfo.BuildInfo
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
