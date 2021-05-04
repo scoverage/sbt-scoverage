@@ -2,7 +2,6 @@ name := "sbt-scoverage"
 
 import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
 
-def localSnapshotVersion = "1.7.1-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 def scoverageVersion = "1.4.5"
 
@@ -27,11 +26,7 @@ inThisBuild(
     licenses := Seq(
       "Apache-2.0" -> url("http://www.apache.org/license/LICENSE-2.0")
     ),
-    scalaVersion := "2.12.13",
-    version ~= { dynVer =>
-      if (isCI) dynVer
-      else localSnapshotVersion // only for local publishing
-    }
+    scalaVersion := "2.12.13"
   )
 )
 
