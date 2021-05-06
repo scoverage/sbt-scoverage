@@ -33,7 +33,6 @@ lazy val root = Project("sbt-scoverage", file("."))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value % Compile,
       "org.scoverage" %% "scalac-scoverage-plugin" % scoverageVersion cross (CrossVersion.full)
     ),
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
