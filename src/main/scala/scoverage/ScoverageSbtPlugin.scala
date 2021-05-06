@@ -3,7 +3,11 @@ package scoverage
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import scoverage.report.{CoberturaXmlWriter, CoverageAggregator, ScoverageHtmlWriter, ScoverageXmlWriter}
+import scoverage.report.CoberturaXmlWriter
+import scoverage.report.CoverageAggregator
+import scoverage.report.ScoverageHtmlWriter
+import scoverage.report.ScoverageXmlWriter
+
 import java.time.Instant
 
 object ScoverageSbtPlugin extends AutoPlugin {
@@ -17,26 +21,29 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   import autoImport._
 
-  val aggregateFilter = ScopeFilter(inAggregates(ThisProject),
-    inConfigurations(Compile)) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
+  val aggregateFilter = ScopeFilter(
+    inAggregates(ThisProject),
+    inConfigurations(Compile)
+  ) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
 
   override def requires: JvmPlugin.type = plugins.JvmPlugin
   override def trigger: PluginTrigger = allRequirements
 
-  override def globalSettings: Seq[Def.Setting[_]] = super.globalSettings ++ Seq(
-    coverageEnabled := false,
-    coverageExcludedPackages := "",
-    coverageExcludedFiles := "",
-    coverageMinimum := 0, // default is no minimum
-    coverageFailOnMinimum := false,
-    coverageHighlighting := true,
-    coverageOutputXML := true,
-    coverageOutputHTML := true,
-    coverageOutputCobertura := true,
-    coverageOutputDebug := false,
-    coverageOutputTeamCity := false,
-    coverageScalacPluginVersion := defaultScoverageVersion
-  )
+  override def globalSettings: Seq[Def.Setting[_]] =
+    super.globalSettings ++ Seq(
+      coverageEnabled := false,
+      coverageExcludedPackages := "",
+      coverageExcludedFiles := "",
+      coverageMinimum := 0, // default is no minimum
+      coverageFailOnMinimum := false,
+      coverageHighlighting := true,
+      coverageOutputXML := true,
+      coverageOutputHTML := true,
+      coverageOutputCobertura := true,
+      coverageOutputDebug := false,
+      coverageOutputTeamCity := false,
+      coverageScalacPluginVersion := defaultScoverageVersion
+    )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
     addCommandAlias("coverage", ";set ThisBuild / coverageEnabled := true") ++
@@ -56,9 +63,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
         Seq(
           // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
-          (orgScoverage %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value).cross(CrossVersion.full),
+          (orgScoverage %% (scalacRuntime(
+            libraryDependencies.value
+          )) % coverageScalacPluginVersion.value).cross(CrossVersion.full),
           // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
-          (orgScoverage %% scalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name).cross(CrossVersion.full)
+          (orgScoverage %% scalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name)
+            .cross(CrossVersion.full)
         )
       } else
         Nil
@@ -69,16 +79,28 @@ object ScoverageSbtPlugin extends AutoPlugin {
     Compile / compile / scalacOptions ++= {
       val updateReport = update.value
       if (coverageEnabled.value) {
-        val scoverageDeps: Seq[File] = updateReport matching configurationFilter(ScoveragePluginConfig.name)
-        val pluginPath: File =  scoverageDeps.find(_.getAbsolutePath.contains(scalacPluginArtifact)) match {
-          case None => throw new Exception(s"Fatal: $scalacPluginArtifact not in libraryDependencies")
+        val scoverageDeps: Seq[File] =
+          updateReport matching configurationFilter(ScoveragePluginConfig.name)
+        val pluginPath: File = scoverageDeps.find(
+          _.getAbsolutePath.contains(scalacPluginArtifact)
+        ) match {
+          case None =>
+            throw new Exception(
+              s"Fatal: $scalacPluginArtifact not in libraryDependencies"
+            )
           case Some(pluginPath) => pluginPath
         }
         Seq(
           Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
-          Some(s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"),
-          Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedPackages:$v"),
-          Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scoverage:excludedFiles:$v"),
+          Some(
+            s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"
+          ),
+          Option(coverageExcludedPackages.value.trim)
+            .filter(_.nonEmpty)
+            .map(v => s"-P:scoverage:excludedPackages:$v"),
+          Option(coverageExcludedFiles.value.trim)
+            .filter(_.nonEmpty)
+            .map(v => s"-P:scoverage:excludedFiles:$v"),
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
         ).flatten
@@ -94,9 +116,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   // returns "_sjs$sjsVersion" for Scala.js projects or "" otherwise
   private def optionalScalaJsSuffix(deps: Seq[ModuleID]): String = {
-    val sjsClassifier = deps.collectFirst {
-      case moduleId if moduleId.organization == "org.scala-js" && moduleId.name == "scalajs-library" => moduleId.revision
-    }.map(_.take(1)).map(sjsVersion => "_sjs" + sjsVersion)
+    val sjsClassifier = deps
+      .collectFirst {
+        case moduleId
+            if moduleId.organization == "org.scala-js" && moduleId.name == "scalajs-library" =>
+          moduleId.revision
+      }
+      .map(_.take(1))
+      .map(sjsVersion => "_sjs" + sjsVersion)
 
     sjsClassifier getOrElse ""
   }
@@ -106,7 +133,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val log = streams.value.log
 
     log.info(s"Waiting for measurement data to sync...")
-    Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
+    Thread.sleep(
+      1000
+    ) // have noticed some delay in writing on windows, hacky but works
 
     loadCoverage(target, log) match {
       case Some(cov) =>
@@ -120,9 +149,15 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
           sourceEncoding((Compile / scalacOptions).value),
-          log)
+          log
+        )
 
-        checkCoverage(cov, log, coverageMinimum.value, coverageFailOnMinimum.value)
+        checkCoverage(
+          cov,
+          log,
+          coverageMinimum.value,
+          coverageFailOnMinimum.value
+        )
       case None => log.warn("No coverage data, skipping reports")
     }
   }
@@ -131,7 +166,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
     val log = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
-    val dataDirs = crossTarget.all(aggregateFilter).value map (_ / Constants.DataDir) filter (_.isDirectory)
+    val dataDirs = crossTarget
+      .all(aggregateFilter)
+      .value map (_ / Constants.DataDir) filter (_.isDirectory)
     CoverageAggregator.aggregate(dataDirs) match {
       case Some(cov) =>
         writeReports(
@@ -144,26 +181,34 @@ object ScoverageSbtPlugin extends AutoPlugin {
           coverageOutputDebug.value,
           coverageOutputTeamCity.value,
           sourceEncoding((Compile / scalacOptions).value),
-          log)
+          log
+        )
         val cfmt = cov.statementCoverageFormatted
         log.info(s"Aggregation complete. Coverage was [$cfmt]")
 
-        checkCoverage(cov, log, coverageMinimum.value, coverageFailOnMinimum.value)
+        checkCoverage(
+          cov,
+          log,
+          coverageMinimum.value,
+          coverageFailOnMinimum.value
+        )
       case None =>
         log.info("No subproject data to aggregate, skipping reports")
     }
   }
 
-  private def writeReports(crossTarget: File,
-                           compileSourceDirectories: Seq[File],
-                           coverage: Coverage,
-                           coverageOutputCobertura: Boolean,
-                           coverageOutputXML: Boolean,
-                           coverageOutputHTML: Boolean,
-                           coverageDebug: Boolean,
-                           coverageOutputTeamCity: Boolean,
-                           coverageSourceEncoding: Option[String],
-                           log: Logger): Unit = {
+  private def writeReports(
+      crossTarget: File,
+      compileSourceDirectories: Seq[File],
+      coverage: Coverage,
+      coverageOutputCobertura: Boolean,
+      coverageOutputXML: Boolean,
+      coverageOutputHTML: Boolean,
+      coverageDebug: Boolean,
+      coverageOutputTeamCity: Boolean,
+      coverageSourceEncoding: Option[String],
+      log: Logger
+  ): Unit = {
     log.info(s"Generating scoverage reports...")
 
     val coberturaDir = crossTarget / "coverage-report"
@@ -172,24 +217,46 @@ object ScoverageSbtPlugin extends AutoPlugin {
     reportDir.mkdirs()
 
     if (coverageOutputCobertura) {
-      new CoberturaXmlWriter(compileSourceDirectories, coberturaDir).write(coverage)
-      log.info(s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]")
+      new CoberturaXmlWriter(compileSourceDirectories, coberturaDir).write(
+        coverage
+      )
+      log.info(
+        s"Written Cobertura report [${coberturaDir.getAbsolutePath}/cobertura.xml]"
+      )
     }
 
     if (coverageOutputXML) {
-      new ScoverageXmlWriter(compileSourceDirectories, reportDir, false).write(coverage)
+      new ScoverageXmlWriter(compileSourceDirectories, reportDir, false).write(
+        coverage
+      )
       if (coverageDebug) {
-        new ScoverageXmlWriter(compileSourceDirectories, reportDir, true).write(coverage)
+        new ScoverageXmlWriter(compileSourceDirectories, reportDir, true).write(
+          coverage
+        )
       }
-      log.info(s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]")
+      log.info(
+        s"Written XML coverage report [${reportDir.getAbsolutePath}/scoverage.xml]"
+      )
     }
 
     if (coverageOutputHTML) {
-      new ScoverageHtmlWriter(compileSourceDirectories, reportDir, coverageSourceEncoding).write(coverage)
-      log.info(s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]")
+      new ScoverageHtmlWriter(
+        compileSourceDirectories,
+        reportDir,
+        coverageSourceEncoding
+      ).write(coverage)
+      log.info(
+        s"Written HTML coverage report [${reportDir.getAbsolutePath}/index.html]"
+      )
     }
     if (coverageOutputTeamCity) {
-      reportToTeamcity(coverage, coverageOutputHTML, reportDir, crossTarget, log)
+      reportToTeamcity(
+        coverage,
+        coverageOutputHTML,
+        reportDir,
+        crossTarget,
+        log
+      )
       log.info("Written coverage report to TeamCity")
     }
 
@@ -198,24 +265,38 @@ object ScoverageSbtPlugin extends AutoPlugin {
     log.info("Coverage reports completed")
   }
 
-  private def reportToTeamcity(coverage: Coverage,
-                               createCoverageZip: Boolean,
-                               reportDir: File,
-                               crossTarget: File,
-                               log: Logger) {
+  private def reportToTeamcity(
+      coverage: Coverage,
+      createCoverageZip: Boolean,
+      reportDir: File,
+      crossTarget: File,
+      log: Logger
+  ) {
 
-    def statsKeyValue(key: String, value: Int): String = s"##teamcity[buildStatisticValue key='$key' value='$value']"
+    def statsKeyValue(key: String, value: Int): String =
+      s"##teamcity[buildStatisticValue key='$key' value='$value']"
 
     // Log statement coverage as per: https://devnet.jetbrains.com/message/5467985
-    log.info(statsKeyValue("CodeCoverageAbsSCovered", coverage.invokedStatementCount))
+    log.info(
+      statsKeyValue("CodeCoverageAbsSCovered", coverage.invokedStatementCount)
+    )
     log.info(statsKeyValue("CodeCoverageAbsSTotal", coverage.statementCount))
 
     // Log branch coverage as a custom metrics (in percent)
-    log.info(statsKeyValue("CodeCoverageBranch", "%.0f".format(coverage.branchCoveragePercent).toInt))
+    log.info(
+      statsKeyValue(
+        "CodeCoverageBranch",
+        "%.0f".format(coverage.branchCoveragePercent).toInt
+      )
+    )
 
     // Create the coverage report for teamcity (HTML files)
     if (createCoverageZip)
-      IO.zip(Path.allSubpaths(reportDir), crossTarget / "coverage.zip", Some(Instant.now().toEpochMilli()))
+      IO.zip(
+        Path.allSubpaths(reportDir),
+        crossTarget / "coverage.zip",
+        Some(Instant.now().toEpochMilli())
+      )
   }
 
   private def loadCoverage(crossTarget: File, log: Logger): Option[Coverage] = {
@@ -240,10 +321,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
   }
 
-  private def checkCoverage(coverage: Coverage,
-                            log: Logger,
-                            min: Double,
-                            failOnMin: Boolean): Unit = {
+  private def checkCoverage(
+      coverage: Coverage,
+      log: Logger,
+      min: Double,
+      failOnMin: Boolean
+  ): Unit = {
 
     val cper = coverage.statementCoveragePercent
     val cfmt = coverage.statementCoverageFormatted

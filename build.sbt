@@ -2,7 +2,6 @@ name := "sbt-scoverage"
 
 import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
 
-def isCI = System.getenv("CI") != null
 def scoverageVersion = "1.4.5"
 
 inThisBuild(
@@ -35,7 +34,7 @@ lazy val root = Project("sbt-scoverage", file("."))
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-compiler" % scalaVersion.value % Compile,
-      "org.scoverage" %% "scalac-scoverage-plugin" % scoverageVersion cross (CrossVersion.full),
+      "org.scoverage" %% "scalac-scoverage-plugin" % scoverageVersion cross (CrossVersion.full)
     ),
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
     buildInfoPackage := "scoverage",
