@@ -1,10 +1,8 @@
-import org.specs2.mutable._
+import munit.FunSuite
 
-class PreserveSetSpec extends Specification {
+class PreserveSetSpec extends FunSuite {
 
-  "PreserveSet" should {
-    "sum two numbers" in {
-      PreserveSet.sum(1, 2) mustEqual 3
-    }
+  test("PreserveSet should sum two numbers") {
+    assertEquals(PreserveSet.sum(1, 2), 3)
   }
 }
