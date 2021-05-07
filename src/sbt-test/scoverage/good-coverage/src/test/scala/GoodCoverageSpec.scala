@@ -1,13 +1,10 @@
-import org.specs2.mutable._
+import munit.FunSuite
 
-/**
- * Created by tbarke001c on 7/8/14.
- */
-class GoodCoverageSpec extends Specification {
+/** Created by tbarke001c on 7/8/14.
+  */
+class GoodCoverageSpec extends FunSuite {
 
-  "GoodCoverage" should {
-    "sum two numbers" in {
-      GoodCoverage.sum(1, 2) mustEqual 3
-    }
+  test("GoodCoverage should sum two numbers") {
+    assertEquals(GoodCoverage.sum(1, 2), 3)
   }
 }

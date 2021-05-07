@@ -1,10 +1,9 @@
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class SharedTest extends AnyFlatSpec with Matchers {
+class SharedTest extends FunSuite {
 
-  "Shared UnderTest" should "return where it works" in {
-    UnderTest.onJsAndJvm shouldBe "js and jvm"
+  test("Shared UnderTest return where it works") {
+    assertEquals(UnderTest.onJsAndJvm, "js and jvm")
   }
 
 }

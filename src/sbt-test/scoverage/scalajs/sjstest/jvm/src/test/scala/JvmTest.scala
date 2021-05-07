@@ -1,11 +1,9 @@
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class JvmTest extends AnyFlatSpec with Matchers {
+class JvmTest extends FunSuite {
 
-  "JVM UnderTest" should "work on JVM" in {
-    UnderTest.jvmMethod shouldBe "jvm"
+  test("JVM UnderTest work on JVM") {
+    assertEquals(UnderTest.jvmMethod, "jvm")
   }
 
 }
-

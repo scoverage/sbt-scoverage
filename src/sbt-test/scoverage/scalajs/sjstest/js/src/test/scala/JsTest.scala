@@ -1,11 +1,9 @@
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class JsTest extends AnyFlatSpec with Matchers {
+class JsTest extends FunSuite {
 
-  "JS UnderTest" should "work on JS" in {
-    UnderTest.jsMethod shouldBe "js"
+  test("JS UnderTest should work on JS") {
+    assertEquals(UnderTest.jsMethod, "js")
   }
 
 }
-
