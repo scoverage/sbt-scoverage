@@ -282,6 +282,10 @@ object ScoverageSbtPlugin extends AutoPlugin {
       statsKeyValue("CodeCoverageAbsSCovered", coverage.invokedStatementCount)
     )
     log.info(statsKeyValue("CodeCoverageAbsSTotal", coverage.statementCount))
+    log.info(
+      statsKeyValue("CodeCoverageAbsRCovered", coverage.invokedBranchesCount)
+    )
+    log.info(statsKeyValue("CodeCoverageAbsRTotal", coverage.branchCount))
 
     // Log branch coverage as a custom metrics (in percent)
     log.info(
