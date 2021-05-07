@@ -1,0 +1,14 @@
+# run scoverage using the coverage task
+> clean
+> coverage
+> test
+# There should be scoverage-data directories for modules
+$ exists partA/target/scala-2.12/scoverage-data
+$ exists partB/target/scala-2.12/scoverage-data
+# Generate aggregated reports without generating per-module reports first
+> coverageAggregate
+# There shouldn't be scoverage-report directories for modules
+-$ exists partA/target/scala-2.12/scoverage-report
+-$ exists partB/target/scala-2.12/scoverage-report
+# There should be a root scoverage-report directory
+$ exists target/scala-2.12/scoverage-report

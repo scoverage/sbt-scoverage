@@ -3,7 +3,10 @@ package scoverage
 import sbt._
 
 object ScoverageKeys {
-  lazy val coverageEnabled = settingKey[Boolean]("controls whether code instrumentation is enabled or not")
+  // format: off
+  lazy val coverageEnabled = settingKey[Boolean](
+    "controls whether code instrumentation is enabled or not"
+  )
   lazy val coverageReport = taskKey[Unit]("run report generation")
   lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
   lazy val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
@@ -15,7 +18,7 @@ object ScoverageKeys {
   lazy val coverageOutputXML = settingKey[Boolean]("enables xml report generation")
   lazy val coverageOutputHTML = settingKey[Boolean]("enables html report generation")
   lazy val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
-  lazy val coverageCleanSubprojectFiles = settingKey[Boolean]("removes subproject data after an aggregation")
   lazy val coverageOutputTeamCity = settingKey[Boolean]("turn on teamcity reporting")
   lazy val coverageScalacPluginVersion = settingKey[String]("version of scalac-scoverage-plugin to use")
+  // format: on
 }

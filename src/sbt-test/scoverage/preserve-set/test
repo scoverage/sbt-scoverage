@@ -1,19 +1,8 @@
 # check scalaVersion setting
-> checkScalaVersion "2.11.8"
+> checkScalaVersion "2.12.13"
 > checkScoverageEnabled "false"
 > coverage
 > checkScoverageEnabled "true"
 > coverageOff
-> checkScalaVersion "2.11.8"
-> checkScoverageEnabled "false"
-# changs scala version
-> ++2.10.6
-> checkScalaVersion "2.10.6"
-> checkScoverageEnabled "false"
-> coverage
-> checkScalaVersion "2.10.6"
-# We want coverage to be false, as we set it in the build.sbt
-> checkScoverageEnabled "false"
-> coverageOff
-> checkScalaVersion "2.10.6"
+> checkScalaVersion "2.12.13"
 > checkScoverageEnabled "false"

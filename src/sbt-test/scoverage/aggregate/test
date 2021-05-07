@@ -3,12 +3,12 @@
 > coverage
 > test
 # There should be scoverage-data directory
-$ exists partA/target/scala-2.10/scoverage-data
-$ exists partB/target/scala-2.10/scoverage-data
+$ exists partA/target/scala-2.12/scoverage-data
+$ exists partB/target/scala-2.12/scoverage-data
 > coverageReport
 # There should be scoverage-report directory
-$ exists partA/target/scala-2.10/scoverage-report
-$ exists partB/target/scala-2.10/scoverage-report
+$ exists partA/target/scala-2.12/scoverage-report
+$ exists partB/target/scala-2.12/scoverage-report
 > coverageAggregate
 # There should be a root scoverage-report directory
-$ exists target/scala-2.10/scoverage-report
+$ exists target/scala-2.12/scoverage-report
