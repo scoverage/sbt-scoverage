@@ -35,6 +35,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
       coverageExcludedPackages := "",
       coverageExcludedFiles := "",
       coverageMinimum := 0, // default is no minimum
+      coverageMinimumStmtTotal := 0,
+      coverageMinimumBranchTotal := 0,
+      coverageMinimumStmtPerPackage := 0,
+      coverageMinimumBranchPerPackage := 0,
+      coverageMinimumStmtPerFile := 0,
+      coverageMinimumBranchPerFile := 0,
       coverageFailOnMinimum := false,
       coverageHighlighting := true,
       coverageOutputXML := true,
@@ -131,7 +137,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   private lazy val coverageReport0 = Def.task {
     val target = crossTarget.value
-    val log = streams.value.log
+    implicit val log = streams.value.log
 
     log.info(s"Waiting for measurement data to sync...")
     Thread.sleep(
@@ -153,18 +159,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
           log
         )
 
-        checkCoverage(
-          cov,
-          log,
-          coverageMinimum.value,
-          coverageFailOnMinimum.value
-        )
+        CoverageMinimum.all.value
+          .checkCoverage(cov, coverageFailOnMinimum.value)
       case None => log.warn("No coverage data, skipping reports")
     }
   }
 
   private lazy val coverageAggregate0 = Def.task {
-    val log = streams.value.log
+    implicit val log = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
     val dataDirs = crossTarget
@@ -187,12 +189,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
         val cfmt = cov.statementCoverageFormatted
         log.info(s"Aggregation complete. Coverage was [$cfmt]")
 
-        checkCoverage(
-          cov,
-          log,
-          coverageMinimum.value,
-          coverageFailOnMinimum.value
-        )
+        CoverageMinimum.all.value
+          .checkCoverage(cov, coverageFailOnMinimum.value)
       case None =>
         log.info("No subproject data to aggregate, skipping reports")
     }
@@ -324,34 +322,6 @@ object ScoverageSbtPlugin extends AutoPlugin {
     } else {
       None
     }
-  }
-
-  private def checkCoverage(
-      coverage: Coverage,
-      log: Logger,
-      min: Double,
-      failOnMin: Boolean
-  ): Unit = {
-
-    val cper = coverage.statementCoveragePercent
-    val cfmt = coverage.statementCoverageFormatted
-
-    // check for default minimum
-    if (min > 0) {
-      def is100(d: Double) = Math.abs(100 - d) <= 0.00001
-
-      if (is100(min) && is100(cper)) {
-        log.info(s"100% Coverage !")
-      } else if (min > cper) {
-        log.error(s"Coverage is below minimum [$cfmt% < $min%]")
-        if (failOnMin)
-          throw new RuntimeException("Coverage minimum was not reached")
-      } else {
-        log.info(s"Coverage is above minimum [$cfmt% > $min%]")
-      }
-    }
-
-    log.info(s"All done. Coverage was [$cfmt%]")
   }
 
   private def sourceEncoding(scalacOptions: Seq[String]): Option[String] = {
