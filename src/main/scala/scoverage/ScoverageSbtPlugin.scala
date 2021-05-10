@@ -69,9 +69,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
         Seq(
           // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
-          (orgScoverage %% (scalacRuntime(
+          orgScoverage %% (scalacRuntime(
             libraryDependencies.value
-          )) % coverageScalacPluginVersion.value).cross(CrossVersion.full),
+          )) % coverageScalacPluginVersion.value,
           // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
           (orgScoverage %% scalacPluginArtifact % coverageScalacPluginVersion.value % ScoveragePluginConfig.name)
             .cross(CrossVersion.full)
