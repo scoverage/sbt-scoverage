@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
 
-def scoverageVersion = "1.4.5"
+def scoverageVersion = "1.4.6"
 
 inThisBuild(
   List(
