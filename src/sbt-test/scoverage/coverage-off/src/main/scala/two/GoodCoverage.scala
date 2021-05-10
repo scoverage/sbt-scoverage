@@ -1,3 +1,5 @@
+package two
+
 object GoodCoverage {
 
   def sum(num1: Int, num2: Int) = {

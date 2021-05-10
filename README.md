@@ -89,8 +89,13 @@ coverage report.
 Based on minimum coverage, you can fail the build with the following keys:
 
 ```scala
-coverageMinimum := 80
 coverageFailOnMinimum := true
+coverageMinimumStmtTotal := 90
+coverageMinimumBranchTotal := 90
+coverageMinimumStmtPerPackage := 90
+coverageMinimumBranchPerPackage := 85
+coverageMinimumStmtPerFile := 85
+coverageMinimumBranchPerFile := 80
 ```
 
 These settings will be enforced when the reports are generated.  If you generate
