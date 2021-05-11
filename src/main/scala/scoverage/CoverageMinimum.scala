@@ -76,7 +76,7 @@ object CoverageMinimum {
       log.info(
         s"All done. Coverage was" +
           s" stmt=[${coverage.statementCoverageFormatted}%]" +
-          s" branch=[${coverage.branchCoverageFormatted}]"
+          s" branch=[${coverage.branchCoverageFormatted}%]"
       )
     }
 
