@@ -2,9 +2,9 @@ import sbt.complete.DefaultParsers._
 
 version := "0.1"
 
-scalaVersion := "2.13.5"
+scalaVersion := "2.13.6"
 
-crossScalaVersions := Seq("2.13.5")
+crossScalaVersions := Seq("2.13.6")
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.25" % Test
 
