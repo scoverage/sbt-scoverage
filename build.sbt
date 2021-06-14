@@ -40,7 +40,7 @@ releaseCrossBuild := false
 
 updateOptions := updateOptions.value.withGigahorse(false)
 
-publishTo := Some("Artifactory Realm" at "http://artifactory.prod.livongo.com/artifactory/plugins-release-local")
+publishTo := Some("Artifactory Realm" at "https://artifactory.internal.livongo.com/artifactory/plugins-release-local")
 credentials += Credentials("Artifactory Realm", "artifactory.prod.livongo.com", "admin", "<REDACTED>>")
 
 pomExtra := {
