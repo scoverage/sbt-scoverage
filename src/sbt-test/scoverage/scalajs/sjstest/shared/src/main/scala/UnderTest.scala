@@ -1,4 +1,3 @@
-
 object UnderTest {
   def onJsAndJvm: String = "js and jvm"
 

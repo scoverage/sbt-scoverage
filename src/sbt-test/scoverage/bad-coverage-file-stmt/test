@@ -1,0 +1,5 @@
+# run scoverage
+> clean
+> coverage
+> test
+-> coverageReport

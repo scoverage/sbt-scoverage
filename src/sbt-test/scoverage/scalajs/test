@@ -3,9 +3,9 @@
 > coverage
 > test
 # There should be scoverage-data directory
-$ exists sjstest/js/target/scala-2.12/scoverage-data
-$ exists sjstest/jvm/target/scala-2.12/scoverage-data
+$ exists sjstest/js/target/scala-2.13/scoverage-data
+$ exists sjstest/jvm/target/scala-2.13/scoverage-data
 > coverageReport
 # There should be scoverage-report directory
-$ exists sjstest/js/target/scala-2.12/scoverage-report
-$ exists sjstest/jvm/target/scala-2.12/scoverage-report
+$ exists sjstest/js/target/scala-2.13/scoverage-report
+$ exists sjstest/jvm/target/scala-2.13/scoverage-report
