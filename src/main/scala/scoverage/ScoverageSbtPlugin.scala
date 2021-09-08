@@ -56,11 +56,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
     addCommandAlias("coverageOn", ";set ThisBuild / coverageEnabled := true") ++
     addCommandAlias("coverageOff", ";set ThisBuild / coverageEnabled := false")
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
+  override def projectSettings: Seq[Setting[_]] = super.projectSettings ++ Seq(
     ivyConfigurations += ScoveragePluginConfig,
     coverageReport := coverageReport0.value,
     coverageAggregate := coverageAggregate0.value,
-    coverageAggregate / aggregate := false
+    coverageAggregate / aggregate := false,
+    coverageDataDir := crossTarget.value
   ) ++ coverageSettings ++ scalacSettings
 
   private lazy val coverageSettings = Seq(
@@ -99,7 +100,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
         Seq(
           Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
           Some(
-            s"-P:scoverage:dataDir:${crossTarget.value.getAbsolutePath}/scoverage-data"
+            s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}/scoverage-data"
           ),
           Option(coverageExcludedPackages.value.trim)
             .filter(_.nonEmpty)
@@ -136,7 +137,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private lazy val coverageReport0 = Def.task {
-    val target = crossTarget.value
+    val target = coverageDataDir.value
     implicit val log = streams.value.log
 
     log.info(s"Waiting for measurement data to sync...")
@@ -169,13 +170,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
     implicit val log = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
-    val dataDirs = crossTarget
+    val dataDirs = coverageDataDir
       .all(aggregateFilter)
       .value map (_ / Constants.DataDir) filter (_.isDirectory)
     CoverageAggregator.aggregate(dataDirs) match {
       case Some(cov) =>
         writeReports(
-          crossTarget.value,
+          coverageDataDir.value,
           sourceDirectories.all(aggregateFilter).value.flatten,
           cov,
           coverageOutputCobertura.value,
