@@ -18,7 +18,7 @@ object ScoverageKeys {
   lazy val coverageOutputDebug = settingKey[Boolean]("turn on the debug report")
   lazy val coverageOutputTeamCity = settingKey[Boolean]("turn on teamcity reporting")
   lazy val coverageScalacPluginVersion = settingKey[String]("version of scalac-scoverage-plugin to use")
-  lazy val coverageDataDir = settingKey[File]("directory where the measurements will be stored to use")
+  lazy val coverageDataDir = settingKey[File]("directory where the measurements and report files will be stored")
   // format: on
 
   @deprecated("Use coverageMinimumStmtTotal instead", "v1.8.0")
