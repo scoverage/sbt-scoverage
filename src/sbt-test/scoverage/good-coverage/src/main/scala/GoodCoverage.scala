@@ -1,6 +1,7 @@
 object GoodCoverage {
 
   def sum(num1: Int, num2: Int) = {
-    num1 + num2
+    if (0 == num1) num2 else if (0 == num2) num1 else num1 + num2
   }
+
 }

@@ -1,0 +1,7 @@
+# run scoverage
+> clean
+> coverage
+> test
+> coverageReport
+$ exists target/custom-test/scoverage-data
+$ exists target/custom-test/scoverage-report
