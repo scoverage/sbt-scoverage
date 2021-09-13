@@ -102,6 +102,21 @@ These settings will be enforced when the reports are generated.  If you generate
 an aggregate report using `coverageAggregate` then these settings will apply to
 that report.
 
+### Override Location for Coverage Data And Report
+
+If desired, one could override the default location for generating the sbt report and data through setting `coverageDataDir`:
+
+Example in data-dir test:
+```scala
+coverageDataDir := target.value / "custom-test"
+```
+
+Can also be set through the sbt set directive
+```scala
+set coverageDataDir := file("/tmp")
+```
+
+
 ## Trouble-shooting failing tests
 
 scoverage does a lot of file writing behind the scenes in order to track which
