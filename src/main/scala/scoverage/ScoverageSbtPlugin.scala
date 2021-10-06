@@ -48,7 +48,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
       coverageOutputCobertura := true,
       coverageOutputDebug := false,
       coverageOutputTeamCity := false,
-      coverageScalacPluginVersion := defaultScoverageVersion
+      coverageScalacPluginVersion := defaultScoverageVersion,
+      coverageSourceRoot := (ThisBuild / baseDirectory).value
     )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
@@ -102,6 +103,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
           Some(
             s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}/scoverage-data"
           ),
+          Some(
+            s"-P:scoverage:sourceRoot:${coverageSourceRoot.value.getAbsolutePath}"
+          ),
           Option(coverageExcludedPackages.value.trim)
             .filter(_.nonEmpty)
             .map(v => s"-P:scoverage:excludedPackages:$v"),
@@ -145,7 +149,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
       1000
     ) // have noticed some delay in writing on windows, hacky but works
 
-    loadCoverage(target, log) match {
+    loadCoverage(
+      target,
+      log,
+      coverageSourceRoot.value.getAbsoluteFile()
+    ) match {
       case Some(cov) =>
         writeReports(
           target,
@@ -306,7 +314,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
       )
   }
 
-  private def loadCoverage(crossTarget: File, log: Logger): Option[Coverage] = {
+  private def loadCoverage(
+      crossTarget: File,
+      log: Logger,
+      sourceRoot: File
+  ): Option[Coverage] = {
 
     val dataDir = crossTarget / "/scoverage-data"
     val coverageFile = Serializer.coverageFile(dataDir)
@@ -315,7 +327,10 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     if (coverageFile.exists) {
 
-      val coverage = Serializer.deserialize(coverageFile)
+      val coverage = Serializer.deserialize(
+        coverageFile,
+        sourceRoot
+      )
 
       log.info(s"Reading scoverage measurements...")
       val measurementFiles = IOUtils.findMeasurementFiles(dataDir)
