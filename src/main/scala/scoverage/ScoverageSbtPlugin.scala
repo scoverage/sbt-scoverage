@@ -170,9 +170,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
     implicit val log = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
-    val dataDirs = coverageDataDir
-      .all(aggregateFilter)
-      .value map (_ / Constants.DataDir) filter (_.isDirectory)
+    val dataDirs = coverageDataDir.?.all(aggregateFilter).value
+      .collect {
+        case Some(file) if (file / Constants.DataDir).isDirectory =>
+          file / Constants.DataDir
+      }
+
     CoverageAggregator.aggregate(dataDirs) match {
       case Some(cov) =>
         writeReports(
