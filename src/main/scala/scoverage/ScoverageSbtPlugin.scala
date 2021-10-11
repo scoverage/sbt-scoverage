@@ -184,7 +184,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
           file / Constants.DataDir
       }
 
-    CoverageAggregator.aggregate(dataDirs) match {
+    CoverageAggregator.aggregate(dataDirs, coverageSourceRoot.value) match {
       case Some(cov) =>
         writeReports(
           coverageDataDir.value,
@@ -228,7 +228,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
     reportDir.mkdirs()
 
     if (coverageOutputCobertura) {
-      new CoberturaXmlWriter(compileSourceDirectories, coberturaDir).write(
+      new CoberturaXmlWriter(
+        compileSourceDirectories,
+        coberturaDir,
+        coverageSourceEncoding
+      ).write(
         coverage
       )
       log.info(
@@ -237,11 +241,21 @@ object ScoverageSbtPlugin extends AutoPlugin {
     }
 
     if (coverageOutputXML) {
-      new ScoverageXmlWriter(compileSourceDirectories, reportDir, false).write(
+      new ScoverageXmlWriter(
+        compileSourceDirectories,
+        reportDir,
+        false,
+        coverageSourceEncoding
+      ).write(
         coverage
       )
       if (coverageDebug) {
-        new ScoverageXmlWriter(compileSourceDirectories, reportDir, true).write(
+        new ScoverageXmlWriter(
+          compileSourceDirectories,
+          reportDir,
+          true,
+          coverageSourceEncoding
+        ).write(
           coverage
         )
       }
