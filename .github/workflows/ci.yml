@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '8', '11' ]
+        java: [ '8', '11', '17' ]
 
     steps:
       - name: checkout the repo
@@ -24,7 +24,7 @@ jobs:
       - name: Set up JVM
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: ${{ matrix.java }}
 
       - name: Run tests
@@ -42,8 +42,8 @@ jobs:
       - name: Set up JVM
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
-          java-version: '8'
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Check Formatting
         run: sbt scalafmtCheckAll
