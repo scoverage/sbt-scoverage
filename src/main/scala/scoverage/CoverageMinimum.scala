@@ -1,7 +1,9 @@
 package scoverage
 
 import sbt._
-import scoverage.DoubleFormat.twoFractionDigits
+import scoverage.domain.Coverage
+import scoverage.domain.CoverageMetrics
+import scoverage.domain.DoubleFormat.twoFractionDigits
 
 case class CoverageMinimum(
     statement: Double,
