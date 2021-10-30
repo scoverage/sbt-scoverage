@@ -3,10 +3,14 @@ package scoverage
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import scoverage.report.CoberturaXmlWriter
-import scoverage.report.CoverageAggregator
-import scoverage.report.ScoverageHtmlWriter
-import scoverage.report.ScoverageXmlWriter
+import scoverage.reporter.CoberturaXmlWriter
+import scoverage.domain.Constants
+import scoverage.domain.Coverage
+import scoverage.reporter.CoverageAggregator
+import scoverage.reporter.IOUtils
+import scoverage.reporter.ScoverageHtmlWriter
+import scoverage.reporter.ScoverageXmlWriter
+import scoverage.reporter.Deserializer
 
 import java.time.Instant
 
@@ -15,6 +19,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val orgScoverage = "org.scoverage"
   val scalacRuntimeArtifact = "scalac-scoverage-runtime"
   val scalacPluginArtifact = "scalac-scoverage-plugin"
+  val scalacDomainArtifact = "scalac-scoverage-domain"
+  val scalacReporterArtifact = "scalac-scoverage-reporter"
   val defaultScoverageVersion = BuildInfo.scoverageVersion
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
@@ -65,10 +71,21 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageDataDir := crossTarget.value
   ) ++ coverageSettings ++ scalacSettings
 
+  private def isScala2(scalaVersion: String) =
+    CrossVersion
+      .partialVersion(scalaVersion)
+      .collect { case (2, _) =>
+        true
+      }
+      .getOrElse(false)
+
   private lazy val coverageSettings = Seq(
     libraryDependencies ++= {
-      if (coverageEnabled.value) {
+      // TODO check will need to go here for Scala 3 to not add everthing
+      if (coverageEnabled.value && isScala2(scalaVersion.value)) {
         Seq(
+          orgScoverage %% scalacDomainArtifact % coverageScalacPluginVersion.value,
+          orgScoverage %% scalacReporterArtifact % coverageScalacPluginVersion.value,
           // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
           orgScoverage %% (scalacRuntime(
@@ -84,22 +101,40 @@ object ScoverageSbtPlugin extends AutoPlugin {
   )
 
   private lazy val scalacSettings = Seq(
+    // TODO check will need to go here for scala 3
     Compile / compile / scalacOptions ++= {
       val updateReport = update.value
-      if (coverageEnabled.value) {
+      if (coverageEnabled.value && isScala2(scalaVersion.value)) {
         val scoverageDeps: Seq[File] =
-          updateReport matching configurationFilter(ScoveragePluginConfig.name)
-        val pluginPath: File = scoverageDeps.find(
-          _.getAbsolutePath.contains(scalacPluginArtifact)
-        ) match {
-          case None =>
-            throw new Exception(
-              s"Fatal: $scalacPluginArtifact not in libraryDependencies"
-            )
-          case Some(pluginPath) => pluginPath
+          updateReport.matching(configurationFilter(ScoveragePluginConfig.name))
+
+        // Since everything isn't contained in a single plugin jar since we
+        // want to share reporter/domain code between the plugin and the
+        // reporter which can be used for Scala3 we need to essentially put
+        // together the little classpath to pass in to the compiler which
+        // includes everything it needs for the compiler plugin phase:
+        //  1. the plugin jar
+        //  2. the domain jar
+        //  NOTE: Even though you'd think that since plugin relies on domain
+        //  it'd just auto include it... it doesn't.
+        //  https://github.com/sbt/sbt/issues/2255
+        val pluginPaths = scoverageDeps.collect {
+          case path
+              if path.getAbsolutePath().contains(scalacPluginArtifact) || path
+                .getAbsolutePath()
+                .contains(scalacDomainArtifact) =>
+            path.getAbsolutePath()
         }
+
+        if (pluginPaths.size != 2)
+          throw new Exception(
+            s"Fatal: Not finding either $scalacDomainArtifact or $scalacPluginArtifact in libraryDependencies."
+          )
+
         Seq(
-          Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
+          Some(
+            s"-Xplugin:${pluginPaths.mkString(":")}"
+          ),
           Some(
             s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}/scoverage-data"
           ),
@@ -116,6 +151,15 @@ object ScoverageSbtPlugin extends AutoPlugin {
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
         ).flatten
+      } else if (
+        // TODO this is very temporary until support for this gets merged in.
+        // For now we restrict this to this exact SNAPSHOT version
+        coverageEnabled.value && scalaVersion.value == "3.1.1-RC1-bin-SNAPSHOT"
+      ) {
+        Seq(
+          "-coverage",
+          s"${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
+        )
       } else {
         Nil
       }
@@ -335,13 +379,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
   ): Option[Coverage] = {
 
     val dataDir = crossTarget / "/scoverage-data"
-    val coverageFile = Serializer.coverageFile(dataDir)
+    val coverageFile = Deserializer.coverageFile(dataDir)
 
     log.info(s"Reading scoverage instrumentation [$coverageFile]")
 
     if (coverageFile.exists) {
 
-      val coverage = Serializer.deserialize(
+      val coverage = Deserializer.deserialize(
         coverageFile,
         sourceRoot
       )
