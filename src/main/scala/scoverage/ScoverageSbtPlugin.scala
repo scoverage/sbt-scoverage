@@ -10,7 +10,7 @@ import scoverage.reporter.CoverageAggregator
 import scoverage.reporter.IOUtils
 import scoverage.reporter.ScoverageHtmlWriter
 import scoverage.reporter.ScoverageXmlWriter
-import scoverage.reporter.Deserializer
+import scoverage.serialize.Serializer
 
 import java.time.Instant
 
@@ -21,6 +21,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   val scalacPluginArtifact = "scalac-scoverage-plugin"
   val scalacDomainArtifact = "scalac-scoverage-domain"
   val scalacReporterArtifact = "scalac-scoverage-reporter"
+  val scalacSerializerArtifact = "scalac-scoverage-serializer"
   val defaultScoverageVersion = BuildInfo.scoverageVersion
   val autoImport = ScoverageKeys
   lazy val ScoveragePluginConfig = config("scoveragePlugin").hide
@@ -81,11 +82,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   private lazy val coverageSettings = Seq(
     libraryDependencies ++= {
-      // TODO check will need to go here for Scala 3 to not add everthing
       if (coverageEnabled.value && isScala2(scalaVersion.value)) {
         Seq(
           orgScoverage %% scalacDomainArtifact % coverageScalacPluginVersion.value,
           orgScoverage %% scalacReporterArtifact % coverageScalacPluginVersion.value,
+          orgScoverage %% scalacSerializerArtifact % coverageScalacPluginVersion.value,
           // We only add for "compile" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
           orgScoverage %% (scalacRuntime(
@@ -115,6 +116,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
         // includes everything it needs for the compiler plugin phase:
         //  1. the plugin jar
         //  2. the domain jar
+        //  3. the serializer jar
         //  NOTE: Even though you'd think that since plugin relies on domain
         //  it'd just auto include it... it doesn't.
         //  https://github.com/sbt/sbt/issues/2255
@@ -122,13 +124,16 @@ object ScoverageSbtPlugin extends AutoPlugin {
           case path
               if path.getAbsolutePath().contains(scalacPluginArtifact) || path
                 .getAbsolutePath()
-                .contains(scalacDomainArtifact) =>
+                .contains(scalacDomainArtifact) ||
+                path.getAbsolutePath().contains(scalacSerializerArtifact) =>
             path.getAbsolutePath()
         }
 
-        if (pluginPaths.size != 2)
+        // NOTE: A little hacky, but make sure we are matching on the exact
+        // number of deps that we expect to collect up above.
+        if (pluginPaths.size != 3)
           throw new Exception(
-            s"Fatal: Not finding either $scalacDomainArtifact or $scalacPluginArtifact in libraryDependencies."
+            s"Fatal: Not finding either $scalacDomainArtifact or $scalacPluginArtifact or $scalacSerializerArtifact in libraryDependencies."
           )
 
         Seq(
@@ -379,13 +384,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
   ): Option[Coverage] = {
 
     val dataDir = crossTarget / "/scoverage-data"
-    val coverageFile = Deserializer.coverageFile(dataDir)
+    val coverageFile = Serializer.coverageFile(dataDir)
 
     log.info(s"Reading scoverage instrumentation [$coverageFile]")
 
     if (coverageFile.exists) {
 
-      val coverage = Deserializer.deserialize(
+      val coverage = Serializer.deserialize(
         coverageFile,
         sourceRoot
       )

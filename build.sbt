@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
 
-lazy val scoverageVersion = "14.0.0"
+lazy val scoverageVersion = "15.0.0"
 
 inThisBuild(
   List(
@@ -36,6 +36,7 @@ lazy val root = Project("sbt-scoverage", file("."))
       "org.scoverage" %% "scalac-scoverage-plugin" % scoverageVersion cross (CrossVersion.full),
       "org.scoverage" %% "scalac-scoverage-reporter" % scoverageVersion,
       "org.scoverage" %% "scalac-scoverage-domain" % scoverageVersion,
+      "org.scoverage" %% "scalac-scoverage-serializer" % scoverageVersion
     ),
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
     buildInfoPackage := "scoverage",
