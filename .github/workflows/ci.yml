@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '8', '11', '17' ]
+        java: [ '8', '11' ]
 
     steps:
       - name: checkout the repo
@@ -43,7 +43,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '11'
 
       - name: Check Formatting
         run: sbt scalafmtCheckAll
