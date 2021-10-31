@@ -102,7 +102,6 @@ object ScoverageSbtPlugin extends AutoPlugin {
   )
 
   private lazy val scalacSettings = Seq(
-    // TODO check will need to go here for scala 3
     Compile / compile / scalacOptions ++= {
       val updateReport = update.value
       if (coverageEnabled.value && isScala2(scalaVersion.value)) {
@@ -158,8 +157,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
         ).flatten
       } else if (
         // TODO this is very temporary until support for this gets merged in.
-        // For now we restrict this to this exact SNAPSHOT version
-        coverageEnabled.value && scalaVersion.value == "3.1.1-RC1-bin-SNAPSHOT"
+        // For now we restrict this to this exact SNAPSHOT version which needs
+        // to be published localled in order to test
+        coverageEnabled.value && scalaVersion.value == "3.1.2-RC1-bin-SNAPSHOT"
       ) {
         Seq(
           "-coverage",
