@@ -155,15 +155,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
         ).flatten
-      } else if (
-        // TODO this is very temporary until support for this gets merged in.
-        // For now we restrict this to this exact SNAPSHOT version which needs
-        // to be published localled in order to test
-        coverageEnabled.value && scalaVersion.value == "3.1.2-RC1-bin-SNAPSHOT"
-      ) {
+      } else if (coverageEnabled.value) {
         Seq(
-          "-coverage",
-          s"${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
+          s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
         )
       } else {
         Nil
