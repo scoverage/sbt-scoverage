@@ -6,7 +6,7 @@ scalaVersion := "2.13.6"
 
 crossScalaVersions := Seq("2.13.6")
 
-libraryDependencies += "org.scalameta" %% "munit" % "0.7.25" % Test
+libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 
 val checkScalaVersion = inputKey[Unit](
   "Input task to compare the value of scalaVersion setting with a given input."

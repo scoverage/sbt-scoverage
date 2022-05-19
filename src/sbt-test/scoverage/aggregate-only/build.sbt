@@ -15,7 +15,7 @@ def module(name: String) = {
     .settings(commonSettings: _*)
     .settings(
       Keys.name := name,
-      libraryDependencies += "org.scalameta" %% "munit" % "0.7.25" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
     )
 }
 

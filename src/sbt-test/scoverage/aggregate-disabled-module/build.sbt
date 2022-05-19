@@ -2,7 +2,7 @@ inThisBuild(
   List(
     organization := "org.scoverage",
     scalaVersion := "2.13.6",
-    libraryDependencies += "org.scalameta" %% "munit" % "0.7.25" % Test
+    libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
   )
 )
 
