@@ -80,6 +80,14 @@ object ScoverageSbtPlugin extends AutoPlugin {
       }
       .getOrElse(false)
 
+  private def isScala3SupportingScoverage(scalaVersion: String) =
+    CrossVersion
+      .partialVersion(scalaVersion)
+      .collect {
+        case (3, minor) if minor >= 2 => true
+      }
+      .getOrElse(false)
+
   private lazy val coverageSettings = Seq(
     libraryDependencies ++= {
       if (coverageEnabled.value && isScala2(scalaVersion.value)) {
@@ -155,7 +163,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
         ).flatten
-      } else if (coverageEnabled.value) {
+      } else if (
+        coverageEnabled.value && isScala3SupportingScoverage(scalaVersion.value)
+      ) {
         Seq(
           s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
         )
