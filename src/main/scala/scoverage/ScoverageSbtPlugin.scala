@@ -41,7 +41,6 @@ object ScoverageSbtPlugin extends AutoPlugin {
       coverageEnabled := false,
       coverageExcludedPackages := "",
       coverageExcludedFiles := "",
-      coverageMinimum := 0, // default is no minimum
       coverageMinimumStmtTotal := 0,
       coverageMinimumBranchTotal := 0,
       coverageMinimumStmtPerPackage := 0,
