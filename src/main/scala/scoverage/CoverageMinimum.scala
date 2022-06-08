@@ -86,11 +86,9 @@ object CoverageMinimum {
 
   def all = Def.setting {
     import ScoverageKeys._
-    val stmtTotal =
-      math.max(coverageMinimum.value, coverageMinimumStmtTotal.value)
     All(
       total = CoverageMinimum(
-        statement = stmtTotal,
+        statement = coverageMinimumStmtTotal.value,
         branch = coverageMinimumBranchTotal.value
       ),
       perPackage = CoverageMinimum(

@@ -4,7 +4,6 @@ scalaVersion := "3.2.0-RC1-bin-20220523-6783853-NIGHTLY" // TODO: Should be upda
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 
-coverageMinimum := 80
 coverageMinimumStmtTotal := 100
 coverageMinimumBranchTotal := 100
 coverageMinimumStmtPerPackage := 100

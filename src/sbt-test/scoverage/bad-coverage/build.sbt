@@ -4,7 +4,7 @@ scalaVersion := "2.13.6"
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 
-coverageMinimum := 80
+coverageMinimumStmtTotal := 80
 
 coverageFailOnMinimum := true
 

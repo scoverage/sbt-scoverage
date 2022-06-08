@@ -22,9 +22,6 @@ object ScoverageKeys {
   lazy val coverageSourceRoot = settingKey[File]("the source root of the project")
   // format: on
 
-  @deprecated("Use coverageMinimumStmtTotal instead", "v1.8.0")
-  lazy val coverageMinimum =
-    settingKey[Double]("see coverageMinimumStmtTotal")
   lazy val coverageMinimumStmtTotal =
     settingKey[Double]("scoverage minimum coverage: statement total")
   lazy val coverageMinimumBranchTotal =
