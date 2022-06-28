@@ -11,10 +11,11 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         java: [ '8', '17' ]
+        os: [ 'ubuntu-latest', 'windows-latest']
 
     steps:
       - name: checkout the repo
