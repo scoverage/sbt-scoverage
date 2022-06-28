@@ -147,7 +147,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
             s"-Xplugin:${pluginPaths.mkString(":")}"
           ),
           Some(
-            s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}/scoverage-data"
+            s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}${FileSystems.getDefault().getSeparator()}scoverage-data"
           ),
           Some(
             s"-P:scoverage:sourceRoot:${coverageSourceRoot.value.getAbsolutePath}"
@@ -166,7 +166,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
         coverageEnabled.value && isScala3SupportingScoverage(scalaVersion.value)
       ) {
         Seq(
-          s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
+          s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}${FileSystems.getDefault().getSeparator()}scoverage-data"
         )
       } else {
         Nil
@@ -386,7 +386,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
       sourceRoot: File
   ): Option[Coverage] = {
 
-    val dataDir = crossTarget / "/scoverage-data"
+    val dataDir = crossTarget / "scoverage-data"
     val coverageFile = Serializer.coverageFile(dataDir)
 
     log.info(s"Reading scoverage instrumentation [$coverageFile]")
