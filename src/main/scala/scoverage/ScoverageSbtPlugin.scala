@@ -3,15 +3,16 @@ package scoverage
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import scoverage.reporter.CoberturaXmlWriter
 import scoverage.domain.Constants
 import scoverage.domain.Coverage
+import scoverage.reporter.CoberturaXmlWriter
 import scoverage.reporter.CoverageAggregator
 import scoverage.reporter.IOUtils
 import scoverage.reporter.ScoverageHtmlWriter
 import scoverage.reporter.ScoverageXmlWriter
 import scoverage.serialize.Serializer
 
+import java.nio.file.FileSystems
 import java.time.Instant
 
 object ScoverageSbtPlugin extends AutoPlugin {
@@ -166,7 +167,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
         coverageEnabled.value && isScala3SupportingScoverage(scalaVersion.value)
       ) {
         Seq(
-          s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}${FileSystems.getDefault().getSeparator()}scoverage-data"
+          s"-coverage-out:${coverageDataDir.value
+              .getAbsolutePath()}${FileSystems.getDefault().getSeparator()}scoverage-data"
         )
       } else {
         Nil
