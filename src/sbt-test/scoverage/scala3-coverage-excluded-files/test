@@ -1,0 +1,9 @@
+# run scoverage using the coverage task
+> clean
+> coverage
+> test
+> coverageReport
+# There should be no directory for the excluded files
+#-$ exists target/scala-3.2.0-RC1/scoverage-report/two
+# But right now there is, because Scala3 does not support excluding files
+$ exists target/scala-3.2.0-RC1/scoverage-report/two

@@ -62,7 +62,7 @@ $ sbt coverageAggregate
 **NOTE**: You do not need to run `coverageReport` before `coverageAggregate`; it
 aggregates over the sub-projects' coverage data directly, not the report xml.
 
-### Exclude classes and packages
+### Exclude classes and packages and files
 
 You can exclude classes from being considered for coverage measurement by
 providing semicolon-separated list of regular expressions.
@@ -74,6 +74,15 @@ coverageExcludedPackages := "<empty>;Reverse.*;.*AuthService.*;models\\.data\\..
 The regular expressions are matched against the fully qualified class name, and
 must match the entire string to take effect.  Any matched classes will not be
 instrumented or included in the coverage report.
+
+You can also exclude files and file paths.
+
+```scala
+coverageExcludedFiles := ".*\\/two\\/GoodCoverage\.scala;.*\\/three\\/.*"
+```
+
+Note: This only works for Scala2. Right now Scala3 does not support
+a way to exclude packages or files from being instrumented.
 
 You can also mark sections of code with comments like:
 
@@ -117,7 +126,6 @@ Can also be set through the sbt set directive
 ```scala
 set coverageDataDir := file("/tmp")
 ```
-
 
 ## Trouble-shooting failing tests
 

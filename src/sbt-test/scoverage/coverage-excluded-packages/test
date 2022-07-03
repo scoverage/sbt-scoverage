@@ -1,0 +1,7 @@
+# run scoverage using the coverage task
+> clean
+> coverage
+> test
+> coverageReport
+# There should be no directory for the excluded package
+-$ exists target/scala-2.13/scoverage-report/two
