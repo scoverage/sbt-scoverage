@@ -55,7 +55,7 @@ false`.
 By default, scoverage will generate reports for each project separately. You can
 merge them into an aggregated report by using the following:
 
-```
+```bash
 $ sbt coverageAggregate
 ```
 
@@ -83,9 +83,6 @@ coverageExcludedFiles := ".*\\/two\\/GoodCoverage;.*\\/three\\/.*"
 
 Note: The `.scala` file extension needs to be omitted from the filename, if one is given.
 
-Note: These two options only work for Scala2. Right now Scala3 does not support
-a way to exclude packages or files from being instrumented.
-
 You can also mark sections of code with comments like:
 
 ```scala
@@ -96,6 +93,16 @@ You can also mark sections of code with comments like:
 
 Any code between two such comments will not be instrumented or included in the
 coverage report.
+
+Note: This only works for scala2. To make this work for scala3 you have to use
+the `coverageExclude` task.
+
+```bash
+$ sbt clean coverage test coverageExclude coverageReport
+```
+
+Note: This will take `excludedPackages` and `excludedFiles` into consideration,
+but not lines of code that are excluded with `COVERAGE-OFF/-ON`.
 
 ### Minimum coverage
 
