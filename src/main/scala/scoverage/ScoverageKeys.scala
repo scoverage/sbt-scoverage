@@ -8,6 +8,7 @@ object ScoverageKeys {
     "controls whether code instrumentation is enabled or not"
   )
   lazy val coverageReport = taskKey[Unit]("run report generation")
+  lazy val coverageExclude = taskKey[Unit]("exclude/remove files and packages from coverage file (after the fact)")
   lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")
   lazy val coverageExcludedPackages = settingKey[String]("regex for excluded packages")
   lazy val coverageExcludedFiles = settingKey[String]("regex for excluded file paths")
