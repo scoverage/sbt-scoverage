@@ -13,7 +13,6 @@ import scoverage.reporter.ScoverageXmlWriter
 import scoverage.serialize.Serializer
 
 import java.time.Instant
-import scala.tools.nsc.reporters.NoReporter
 import scala.tools.nsc
 
 object ScoverageSbtPlugin extends AutoPlugin {
