@@ -19,6 +19,11 @@ In `project/plugins.sbt`:
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "x.x.x")
 ```
 
+If you are in an enterprise environment, and the above does not work, try:
+```scala
+libraryDependencies += "org.scoverage" % "sbt-scoverage_2.12_1.0" % "x.x.x"
+```
+
 ## Usage
 
 Run the tests with enabled coverage:
