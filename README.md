@@ -8,7 +8,9 @@ sbt-scoverage is an sbt plugin that offers support for Scala code coverage using
 [scoverage](https://github.com/scoverage/scalac-scoverage-plugin). This plugin
 supports Scala 2.12, 2.13, and 3.
 
-*NOTE*: that ScalaJS and Scala Native support is limited to Scala 2.
+**NOTE**: that ScalaJS and Scala Native support is limited to Scala 2.
+**NOTE**: that Scala 3 support starts with 3.2.x.
+
 
 ## Setup
 
