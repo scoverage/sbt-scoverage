@@ -110,6 +110,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   private lazy val scalacSettings = Seq(
     Compile / compile / scalacOptions ++= {
+
+      implicit val log = streams.value.log
+
       val updateReport = update.value
       if (coverageEnabled.value && isScala2(scalaVersion.value)) {
         val scoverageDeps: Seq[File] =
@@ -168,6 +171,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
         Seq(
           s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
         )
+      } else if (coverageEnabled.value && !isScala2(scalaVersion.value)) {
+        log.warn(
+          "coverage in Scala 3 needs at lease 3.2.x. Please update your Scala version and try again."
+        )
+        Nil
       } else {
         Nil
       }
