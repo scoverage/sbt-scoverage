@@ -173,7 +173,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
         )
       } else if (coverageEnabled.value && !isScala2(scalaVersion.value)) {
         log.warn(
-          "coverage in Scala 3 needs at lease 3.2.x. Please update your Scala version and try again."
+          "coverage in Scala 3 needs at least 3.2.x. Please update your Scala version and try again."
         )
         Nil
       } else {
