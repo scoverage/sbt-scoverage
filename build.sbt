@@ -2,7 +2,7 @@ name := "sbt-scoverage"
 
 import sbt.ScriptedPlugin.autoImport.scriptedLaunchOpts
 
-lazy val scoverageVersion = "2.0.5"
+lazy val scoverageVersion = "2.0.7"
 
 inThisBuild(
   List(
