@@ -2,6 +2,7 @@ package scoverage
 
 import sbt.Keys._
 import sbt._
+import sbt.internal.util.Util.isWindows
 import sbt.plugins.JvmPlugin
 import scoverage.reporter.CoberturaXmlWriter
 import scoverage.domain.Constants
@@ -147,7 +148,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
         Seq(
           Some(
-            s"-Xplugin:${pluginPaths.mkString(":")}"
+            s"-Xplugin:${pluginPaths.mkString(java.io.File.pathSeparator)}"
           ),
           Some(
             s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}/scoverage-data"
@@ -160,6 +161,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
             .map(v => s"-P:scoverage:excludedPackages:$v"),
           Option(coverageExcludedFiles.value.trim)
             .filter(_.nonEmpty)
+            .map(v =>
+              // On windows, replace unix file separators with windows file
+              // separators. Note that we need to replace / with \\ because
+              // the plugin treats this string as a regular expression and
+              // backslashes must be escaped in regular expressions.
+              if (isWindows) v.replace("/", """\\""") else v
+            )
             .map(v => s"-P:scoverage:excludedFiles:$v"),
           Some("-P:scoverage:reportTestName"),
           // rangepos is broken in some releases of scala so option to turn it off
