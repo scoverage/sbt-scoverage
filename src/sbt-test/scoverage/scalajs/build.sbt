@@ -7,7 +7,7 @@ lazy val cross =
   CrossProject("sjstest", file("sjstest"))(JVMPlatform, JSPlatform)
     .crossType(CrossType.Full)
     .settings(
-      scalaVersion := "2.13.6",
+      scalaVersion := "2.13.10",
       libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
     )
 
