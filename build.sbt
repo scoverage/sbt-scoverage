@@ -51,7 +51,7 @@ lazy val root = Project("sbt-scoverage", file("."))
       "utf8"
     ),
     resolvers ++= {
-      if (isSnapshot.value) Seq(Resolver.sonatypeRepo("snapshots")) else Nil
+      if (isSnapshot.value) Resolver.sonatypeOssRepos("snapshots") else Nil
     },
     scriptedLaunchOpts ++= Seq(
       "-Xmx1024M",
