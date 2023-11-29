@@ -30,11 +30,11 @@ libraryDependencies += "org.scoverage" % "sbt-scoverage_2.12_1.0" % "x.x.x"
 
 Run the tests with enabled coverage:
 ```
-$ sbt clean coverage test
+sbt clean coverage test
 ```
 or if you have integration tests as well
 ```
-$ sbt clean coverage it:test
+sbt clean coverage it:test
 ```
 
 To enable coverage directly in your build, use:
@@ -44,7 +44,7 @@ coverageEnabled := true
 
 To generate the coverage reports run
 ```
-$ sbt coverageReport
+sbt coverageReport
 ```
 
 Coverage reports will be in your `target/scala-<scala-version>/scoverage-report`
