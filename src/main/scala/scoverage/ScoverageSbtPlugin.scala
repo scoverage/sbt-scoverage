@@ -213,9 +213,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
     implicit val log = streams.value.log
 
     log.info(s"Waiting for measurement data to sync...")
-    Thread.sleep(
-      1000
-    ) // have noticed some delay in writing on windows, hacky but works
+    if (System.getProperty("os.name").toLowerCase.contains("windows")) {
+      Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
+    }
 
     loadCoverage(
       target,
