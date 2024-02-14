@@ -214,7 +214,9 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     log.info(s"Waiting for measurement data to sync...")
     if (System.getProperty("os.name").toLowerCase.contains("windows")) {
-      Thread.sleep(1000) // have noticed some delay in writing on windows, hacky but works
+      Thread.sleep(
+        1000
+      ) // have noticed some delay in writing on windows, hacky but works
     }
 
     loadCoverage(
