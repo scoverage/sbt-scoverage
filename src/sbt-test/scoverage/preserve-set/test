@@ -1,8 +1,8 @@
 # check scalaVersion setting
-> checkScalaVersion "2.13.6"
+> checkScalaVersion "2.13.13"
 > checkScoverageEnabled "false"
 > coverage
 > checkScoverageEnabled "true"
 > coverageOff
-> checkScalaVersion "2.13.6"
+> checkScalaVersion "2.13.13"
 > checkScoverageEnabled "false"

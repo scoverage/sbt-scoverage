@@ -1,6 +1,6 @@
 version := "0.1"
 
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.13"
 
 libraryDependencies += "org.specs2" %% "specs2-core" % "4.12.10" % "test"
 
