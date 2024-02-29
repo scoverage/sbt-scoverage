@@ -251,7 +251,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
         )
 
         CoverageMinimum.all.value
-          .checkCoverage(cov, coverageFailOnMinimum.value)
+          .checkCoverage(coverage, coverageFailOnMinimum.value)
       case None => log.warn("No coverage data, skipping reports")
     }
   }
@@ -289,11 +289,11 @@ object ScoverageSbtPlugin extends AutoPlugin {
           sourceEncoding((Compile / scalacOptions).value),
           log
         )
-        val cfmt = cov.statementCoverageFormatted
+        val cfmt = coverage.statementCoverageFormatted
         log.info(s"Aggregation complete. Coverage was [$cfmt]")
 
         CoverageMinimum.all.value
-          .checkCoverage(cov, coverageFailOnMinimum.value)
+          .checkCoverage(coverage, coverageFailOnMinimum.value)
       case None =>
         log.info("No subproject data to aggregate, skipping reports")
     }
