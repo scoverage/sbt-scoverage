@@ -7,6 +7,7 @@ import sbt.plugins.JvmPlugin
 import scoverage.reporter.CoberturaXmlWriter
 import scoverage.domain.Constants
 import scoverage.domain.Coverage
+import scoverage.domain.Statement
 import scoverage.reporter.CoverageAggregator
 import scoverage.reporter.IOUtils
 import scoverage.reporter.ScoverageHtmlWriter
@@ -14,6 +15,8 @@ import scoverage.reporter.ScoverageXmlWriter
 import scoverage.serialize.Serializer
 
 import java.time.Instant
+import scala.util.Try
+import scala.util.matching.Regex
 
 object ScoverageSbtPlugin extends AutoPlugin {
 
@@ -225,10 +228,19 @@ object ScoverageSbtPlugin extends AutoPlugin {
       coverageSourceRoot.value.getAbsoluteFile()
     ) match {
       case Some(cov) =>
+        val coverage = if (isScala3SupportingScoverage(scalaVersion.value)) {
+          filterCoverage(
+            cov,
+            coverageExcludedFiles.value,
+            coverageExcludedPackages.value,
+            log
+          )
+        } else cov
+
         writeReports(
           target,
           (Compile / sourceDirectories).value,
-          cov,
+          coverage,
           coverageOutputCobertura.value,
           coverageOutputXML.value,
           coverageOutputHTML.value,
@@ -256,10 +268,19 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
     CoverageAggregator.aggregate(dataDirs, coverageSourceRoot.value) match {
       case Some(cov) =>
+        val coverage = if (isScala3SupportingScoverage(scalaVersion.value)) {
+          filterCoverage(
+            cov,
+            coverageExcludedFiles.value,
+            coverageExcludedPackages.value,
+            log
+          )
+        } else cov
+
         writeReports(
           coverageDataDir.value,
           sourceDirectories.all(aggregateFilter).value.flatten,
-          cov,
+          coverage,
           coverageOutputCobertura.value,
           coverageOutputXML.value,
           coverageOutputHTML.value,
@@ -275,6 +296,73 @@ object ScoverageSbtPlugin extends AutoPlugin {
           .checkCoverage(cov, coverageFailOnMinimum.value)
       case None =>
         log.info("No subproject data to aggregate, skipping reports")
+    }
+  }
+
+  private def compileRegex(regexString: String): Option[Regex] =
+    Try(regexString.r).toOption
+
+  private def asRegexList(strSetting: String) = strSetting
+    .split(';')
+    .map(_.trim)
+    .filter(_.nonEmpty)
+    .flatMap(compileRegex)
+
+  private def filterStatements(
+      statements: Iterable[Statement],
+      excludedFiles: Array[Regex],
+      excludedPackages: Array[Regex],
+      log: Logger
+  ) = statements
+    .groupBy { statement =>
+      (statement.location.sourcePath, statement.location.fullClassName)
+    }
+    .filterKeys { case t @ (sourcePath, fullClassName) =>
+      val preserveSource = excludedFiles.isEmpty || excludedFiles.forall(
+        _.findFirstMatchIn(sourcePath).isEmpty
+      )
+      val preservePackage = excludedPackages.isEmpty || excludedPackages
+        .forall(_.findFirstMatchIn(fullClassName).isEmpty)
+      if (!preserveSource) log.info(s"Excluded file from report: $sourcePath")
+      if (!preservePackage)
+        log.info(s"Excluded package from report: $fullClassName")
+      preserveSource && preservePackage
+    }
+    .values
+    .flatten
+
+  private def filterCoverage(
+      originalCoverage: Coverage,
+      excludedFilesSetting: String,
+      excludedPackagesSetting: String,
+      log: Logger
+  ): Coverage = {
+
+    val excludedFiles: Array[Regex] = asRegexList(excludedFilesSetting)
+    val excludedPackages: Array[Regex] = asRegexList(excludedPackagesSetting)
+
+    if (excludedFiles.isEmpty && excludedPackages.isEmpty) {
+      log.debug("Skipping filter")
+      originalCoverage
+    } else {
+      log.debug("Applying filter")
+      val updatedCoverage = Coverage()
+
+      filterStatements(
+        originalCoverage.statements,
+        excludedFiles,
+        excludedPackages,
+        log
+      ).foreach(updatedCoverage.add)
+
+      filterStatements(
+        originalCoverage.ignoredStatements,
+        excludedFiles,
+        excludedPackages,
+        log
+      ).foreach(updatedCoverage.addIgnoredStatement)
+
+      updatedCoverage
     }
   }
 
