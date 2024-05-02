@@ -8,9 +8,10 @@ target/
 .project
 .settings/
 
-# Scala-IDE specific
-.cache-main
-.cache-tests
+# Metals specific
+.bsp
+metals.sbt
+.metals
 
 # IntelliJ IDEA specific
 .idea
