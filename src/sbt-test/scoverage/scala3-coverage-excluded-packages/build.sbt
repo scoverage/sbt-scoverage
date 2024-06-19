@@ -4,7 +4,7 @@ scalaVersion := "3.4.2"
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 
-coverageExcludedFiles := ".*/two/GoodCoverage"
+coverageExcludedPackages := "two\\..*"
 
 resolvers ++= {
   if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
