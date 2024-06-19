@@ -75,18 +75,28 @@ object ScoverageSbtPlugin extends AutoPlugin {
   private def isScala2(scalaVersion: String) =
     CrossVersion
       .partialVersion(scalaVersion)
-      .collect { case (2, _) =>
-        true
+      .exists {
+        case (2, _) => true
+        case _      => false
       }
-      .getOrElse(false)
 
   private def isScala3SupportingScoverage(scalaVersion: String) =
     CrossVersion
       .partialVersion(scalaVersion)
-      .collect {
+      .exists {
         case (3, minor) if minor >= 2 => true
+        case _                        => false
       }
-      .getOrElse(false)
+
+  private def isScala3SupportingFilePackageExclusion(scalaVersion: String) = {
+    def patch = scalaVersion.split('.').drop(2).headOption
+    CrossVersion
+      .partialVersion(scalaVersion)
+      .exists {
+        case (3, minor) if minor >= 4 && patch.exists(_ >= "2") => true
+        case _                                                  => false
+      }
+  }
 
   private lazy val coverageSettings = Seq(
     libraryDependencies ++= {
@@ -113,6 +123,18 @@ object ScoverageSbtPlugin extends AutoPlugin {
     Compile / compile / scalacOptions ++= {
 
       implicit val log = streams.value.log
+
+      val excludedPackages =
+        Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty)
+      val excludedFiles = Option(coverageExcludedFiles.value.trim)
+        .filter(_.nonEmpty)
+        .map(v =>
+          // On windows, replace unix file separators with windows file
+          // separators. Note that we need to replace / with \\ because
+          // the plugin treats this string as a regular expression and
+          // backslashes must be escaped in regular expressions.
+          if (isWindows) v.replace("/", """\\""") else v
+        )
 
       val updateReport = update.value
       if (coverageEnabled.value && isScala2(scalaVersion.value)) {
@@ -156,19 +178,8 @@ object ScoverageSbtPlugin extends AutoPlugin {
           Some(
             s"-P:scoverage:sourceRoot:${coverageSourceRoot.value.getAbsolutePath}"
           ),
-          Option(coverageExcludedPackages.value.trim)
-            .filter(_.nonEmpty)
-            .map(v => s"-P:scoverage:excludedPackages:$v"),
-          Option(coverageExcludedFiles.value.trim)
-            .filter(_.nonEmpty)
-            .map(v =>
-              // On windows, replace unix file separators with windows file
-              // separators. Note that we need to replace / with \\ because
-              // the plugin treats this string as a regular expression and
-              // backslashes must be escaped in regular expressions.
-              if (isWindows) v.replace("/", """\\""") else v
-            )
-            .map(v => s"-P:scoverage:excludedFiles:$v"),
+          excludedPackages.map(v => s"-P:scoverage:excludedPackages:$v"),
+          excludedFiles.map(v => s"-P:scoverage:excludedFiles:$v"),
           Some("-P:scoverage:reportTestName"),
           // rangepos is broken in some releases of scala so option to turn it off
           if (coverageHighlighting.value) Some("-Yrangepos") else None
@@ -177,8 +188,26 @@ object ScoverageSbtPlugin extends AutoPlugin {
         coverageEnabled.value && isScala3SupportingScoverage(scalaVersion.value)
       ) {
         Seq(
-          s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
-        )
+          Some(
+            s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
+          ),
+          excludedPackages
+            .collect {
+              case v
+                  if isScala3SupportingFilePackageExclusion(
+                    scalaVersion.value
+                  ) =>
+                s"-coverage-exclude-classlikes:$v"
+            },
+          excludedFiles
+            .collect {
+              case v
+                  if isScala3SupportingFilePackageExclusion(
+                    scalaVersion.value
+                  ) =>
+                s"-coverage-exclude-files:$v"
+            }
+        ).flatten
       } else if (coverageEnabled.value && !isScala2(scalaVersion.value)) {
         log.warn(
           "coverage in Scala 3 needs at least 3.2.x. Please update your Scala version and try again."

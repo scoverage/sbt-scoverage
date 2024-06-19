@@ -90,8 +90,7 @@ coverageExcludedFiles := ".*\\/two\\/GoodCoverage;.*\\/three\\/.*"
 
 Note: The `.scala` file extension needs to be omitted from the filename, if one is given.
 
-Note: These two options only work for Scala2. Right now Scala3 does not support
-a way to exclude packages or files from being instrumented.
+Note: These two options only work for Scala2 and Scala 3.4.2+.
 
 You can also mark sections of code with comments like:
 
@@ -103,6 +102,8 @@ You can also mark sections of code with comments like:
 
 Any code between two such comments will not be instrumented or included in the
 coverage report.
+
+Note: Comments exclusion works only for Scala2.
 
 ### Minimum coverage
 
