@@ -193,19 +193,19 @@ integration process and a required quality standard.
 For any information on releases and upgrading, please refer to the
 [release][] page.
 
-[gitter]: https://gitter.im/scoverage/scoverage
-[gitter-badge]: https://img.shields.io/gitter/room/scoverage/scoverage.svg
-[maven]: https://search.maven.org/artifact/org.scoverage/sbt-scoverage
-[maven-badge]: https://index.scala-lang.org/scoverage/sbt-scoverage/sbt-scoverage/latest.svg&label=maven-central
-[license]: http://www.apache.org/licenses/LICENSE-2.0.txt
-[license-badge]: http://img.shields.io/:license-Apache%202-red.svg
-[scoverage]: https://github.com/scoverage/scalac-scoverage-plugin
-[samples]: https://github.com/scoverage/sbt-scoverage-samples
-[codacy-coverage-reporter]: https://github.com/codacy/codacy-coverage-reporter
 [Codacy]: https://www.codacy.com
-[Coveralls]: https://coveralls.io
-[sbt-coveralls]: https://github.com/scoverage/sbt-coveralls
 [Codecov]: https://about.codecov.io
-[codecov-example-scala]: https://github.com/codecov/example-scala
+[Coveralls]: https://coveralls.io
 [SonarQube]: https://github.com/RadoBuransky/sonar-scoverage-plugin
+[codacy-coverage-reporter]: https://github.com/codacy/codacy-coverage-reporter
+[codecov-example-scala]: https://github.com/codecov/example-scala
+[gitter-badge]: https://img.shields.io/gitter/room/scoverage/scoverage.svg
+[gitter]: https://gitter.im/scoverage/scoverage
+[license-badge]: http://img.shields.io/:license-Apache%202-red.svg
+[license]: http://www.apache.org/licenses/LICENSE-2.0.txt
+[maven-badge]: https://index.scala-lang.org/scoverage/sbt-scoverage/sbt-scoverage/latest.svg
+[maven]: https://search.maven.org/artifact/org.scoverage/sbt-scoverage
 [release]: https://github.com/scoverage/sbt-scoverage/releases
+[samples]: https://github.com/scoverage/sbt-scoverage-samples
+[sbt-coveralls]: https://github.com/scoverage/sbt-coveralls
+[scoverage]: https://github.com/scoverage/scalac-scoverage-plugin
