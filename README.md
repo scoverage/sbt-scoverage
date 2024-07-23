@@ -1,7 +1,7 @@
 # sbt-scoverage
 
 [![Gitter](https://img.shields.io/gitter/room/scoverage/scoverage.svg)](https://gitter.im/scoverage/scoverage)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scoverage/sbt-scoverage/badge.svg?kill_cache=1)](https://search.maven.org/artifact/org.scoverage/sbt-scoverage/)
+[![Maven Central](https://img.shields.io/github/v/release/scoverage/sbt-scoverage?label=maven-central)](https://search.maven.org/artifact/org.scoverage/sbt-scoverage/)
 [![License](http://img.shields.io/:license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 sbt-scoverage is an sbt plugin that offers support for Scala code coverage using
@@ -10,7 +10,6 @@ supports Scala 2.12, 2.13, and 3.
 
 **NOTE**: that ScalaJS and Scala Native support is limited to Scala 2.
 **NOTE**: that Scala 3 support starts with 3.2.x.
-
 
 ## Setup
 
