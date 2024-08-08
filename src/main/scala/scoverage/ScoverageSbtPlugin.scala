@@ -197,7 +197,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
                   if isScala3SupportingFilePackageExclusion(
                     scalaVersion.value
                   ) =>
-                s"-coverage-exclude-classlikes:$v"
+                s"-coverage-exclude-classlikes:${v.replace(';', ',')}"
             },
           excludedFiles
             .collect {
@@ -205,7 +205,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
                   if isScala3SupportingFilePackageExclusion(
                     scalaVersion.value
                   ) =>
-                s"-coverage-exclude-files:$v"
+                s"-coverage-exclude-files:${v.replace(';', ',')}"
             }
         ).flatten
       } else if (coverageEnabled.value && !isScala2(scalaVersion.value)) {
