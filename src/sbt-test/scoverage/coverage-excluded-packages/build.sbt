@@ -4,10 +4,10 @@ scalaVersion := "2.13.13"
 
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 
-coverageExcludedPackages := "two\\..*"
+coverageExcludedPackages := "two\\..*;three\\..*"
 
 resolvers ++= {
   if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
-    Seq(Resolver.sonatypeRepo("snapshots"))
+    Resolver.sonatypeOssRepos("snapshots")
   else Seq.empty
 }

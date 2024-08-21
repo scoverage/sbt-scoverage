@@ -12,6 +12,6 @@ coverageFailOnMinimum := true
 
 resolvers ++= {
   if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
-    Seq(Resolver.sonatypeRepo("snapshots"))
+    Resolver.sonatypeOssRepos("snapshots")
   else Seq.empty
 }

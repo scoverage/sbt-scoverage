@@ -14,6 +14,6 @@ resolvers ++= {
       .get("plugin.version")
       .map(_.endsWith("-SNAPSHOT"))
       .getOrElse(false)
-  ) Seq(Resolver.sonatypeRepo("snapshots"))
+  ) Resolver.sonatypeOssRepos("snapshots")
   else Seq.empty
 }
