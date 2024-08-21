@@ -4,4 +4,6 @@
 > test
 > coverageReport
 # There should be no directory for the excluded files
+$ exists target/scala-3.4.2/scoverage-report/GoodCoverage.scala.html
 -$ exists target/scala-3.4.2/scoverage-report/two
+-$ exists target/scala-3.4.2/scoverage-report/three
