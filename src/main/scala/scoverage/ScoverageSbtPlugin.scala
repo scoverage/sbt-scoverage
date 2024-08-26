@@ -93,8 +93,10 @@ object ScoverageSbtPlugin extends AutoPlugin {
     CrossVersion
       .partialVersion(scalaVersion)
       .exists {
-        case (3, minor) if minor >= 4 && patch.exists(_ >= "2") => true
-        case _                                                  => false
+        case (3, minor)
+            if minor > 4 || (minor == 4 && patch.exists(_ >= "2")) =>
+          true
+        case _ => false
       }
   }
 
