@@ -89,14 +89,13 @@ object ScoverageSbtPlugin extends AutoPlugin {
       }
 
   private def isScala3SupportingFilePackageExclusion(scalaVersion: String) = {
-    def patch = scalaVersion.split('.').drop(2).headOption
+    def patch = scalaVersion.split('.').map(_.toInt).drop(2).headOption
     CrossVersion
       .partialVersion(scalaVersion)
       .exists {
-        case (3, minor)
-            if minor > 4 || (minor == 4 && patch.exists(_ >= "2")) =>
-          true
-        case _ => false
+        case (3, minor) if minor > 4                            => true
+        case (3, minor) if (minor == 4 && patch.exists(_ >= 2)) => true
+        case _                                                  => false
       }
   }
 
