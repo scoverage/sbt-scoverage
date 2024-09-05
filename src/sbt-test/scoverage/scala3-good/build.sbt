@@ -1,8 +1,8 @@
 version := "0.1"
 
-scalaVersion := "3.2.0-RC1"
+scalaVersion := "3.5.0"
 
-libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
+libraryDependencies += "org.scalameta" %% "munit" % "1.0.1" % Test
 
 coverageMinimumStmtTotal := 100
 coverageMinimumBranchTotal := 100
