@@ -2,11 +2,11 @@ import sbt.complete.DefaultParsers._
 
 version := "0.1"
 
-scalaVersion := "2.13.13"
+scalaVersion := "2.13.14"
 
-crossScalaVersions := Seq("2.13.13")
+crossScalaVersions := Seq("2.13.14")
 
-libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
+libraryDependencies += "org.scalameta" %% "munit" % "1.0.1" % Test
 
 val checkScalaVersion = inputKey[Unit](
   "Input task to compare the value of scalaVersion setting with a given input."
