@@ -95,6 +95,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
       .exists {
         case (3, minor) if minor > 4                            => true
         case (3, minor) if (minor == 4 && patch.exists(_ >= 2)) => true
+        case (3, minor) if (minor == 3 && patch.exists(_ >= 4)) => true
         case _                                                  => false
       }
   }

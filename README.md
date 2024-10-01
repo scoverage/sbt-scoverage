@@ -94,7 +94,7 @@ coverageExcludedFiles := ".*\\/two\\/GoodCoverage;.*\\/three\\/.*"
 **NOTE**: The `.scala` file extension needs to be omitted from the
 filename, if one is given.
 
-**NOTE**: These two options only work for Scala2 and Scala 3.4.2+.
+**NOTE**: These two options only work for Scala2, Scala 3.3.4+ and Scala 3.4.2+.
 
 You can also mark sections of code with comments like:
 
