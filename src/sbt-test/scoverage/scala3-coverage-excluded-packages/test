@@ -4,6 +4,6 @@
 > test
 > coverageReport
 # There should be no directory for the excluded package
-$ exists target/scala-3.3.4/scoverage-report/GoodCoverage.scala.html
--$ exists target/scala-3.3.4/scoverage-report/two
--$ exists target/scala-3.3.4/scoverage-report/three
+$ exists target/scala-3.5.0/scoverage-report/GoodCoverage.scala.html
+-$ exists target/scala-3.5.0/scoverage-report/two
+-$ exists target/scala-3.5.0/scoverage-report/three
