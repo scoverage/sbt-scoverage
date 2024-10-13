@@ -397,7 +397,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
       reportDir: File,
       crossTarget: File,
       log: Logger
-  ) {
+  ): Unit = {
 
     def statsKeyValue(key: String, value: Int): String =
       s"##teamcity[buildStatisticValue key='$key' value='$value']"
