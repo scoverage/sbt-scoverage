@@ -32,15 +32,25 @@ inThisBuild(
 lazy val root = Project("sbt-scoverage", file("."))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
+    crossScalaVersions += "3.3.3",
     libraryDependencies ++= Seq(
       "org.scoverage" %% "scalac-scoverage-reporter" % scoverageVersion
     ),
+    pluginCrossBuild / sbtVersion := {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          (pluginCrossBuild / sbtVersion).value
+        case _ =>
+          "2.0.0-M2"
+      }
+    },
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
     buildInfoPackage := "scoverage",
     Test / fork := false,
     Test / publishArtifact := false,
     Test / parallelExecution := false,
     scalacOptions := Seq(
+      "-language:implicitConversions",
       "-unchecked",
       "-deprecation",
       "-feature",

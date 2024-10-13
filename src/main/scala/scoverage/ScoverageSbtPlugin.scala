@@ -1,7 +1,7 @@
 package scoverage
 
 import sbt.Keys._
-import sbt._
+import sbt.{given, _}
 import sbt.internal.util.Util.isWindows
 import sbt.plugins.JvmPlugin
 import scoverage.reporter.CoberturaXmlWriter
@@ -124,7 +124,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   private lazy val scalacSettings = Seq(
     Compile / compile / scalacOptions ++= {
 
-      implicit val log = streams.value.log
+      implicit val log: Logger = streams.value.log
 
       val excludedPackages =
         Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty)
@@ -241,7 +241,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   private lazy val coverageReport0 = Def.task {
     val target = coverageDataDir.value
-    implicit val log = streams.value.log
+    implicit val log: Logger = streams.value.log
 
     log.info(s"Waiting for measurement data to sync...")
     if (System.getProperty("os.name").toLowerCase.contains("windows")) {
@@ -276,7 +276,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private lazy val coverageAggregate0 = Def.task {
-    implicit val log = streams.value.log
+    implicit val log: Logger = streams.value.log
     log.info(s"Aggregating coverage from subprojects...")
 
     val dataDirs = coverageDataDir.?.all(aggregateFilter).value
