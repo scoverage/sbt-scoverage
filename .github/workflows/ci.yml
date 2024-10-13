@@ -32,7 +32,7 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - name: Run tests
-        run: sbt scripted
+        run: sbt scripted "++ 3.x" test
 
   formatting:
     runs-on: ubuntu-latest
@@ -52,4 +52,4 @@ jobs:
       - uses: sbt/setup-sbt@v1
 
       - name: Check Formatting
-        run: sbt scalafmtSbtCheck scalafmtCheckAll
+        run: sbt scalafmtSbtCheck "+ scalafmtCheckAll"
