@@ -23,6 +23,8 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: sbt/setup-sbt@v1
+
       - name: Set up JVM
         uses: actions/setup-java@v4
         with:
@@ -46,6 +48,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+
+      - uses: sbt/setup-sbt@v1
 
       - name: Check Formatting
         run: sbt scalafmtCheckAll
