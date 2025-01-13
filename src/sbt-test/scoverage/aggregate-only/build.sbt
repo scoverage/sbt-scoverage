@@ -6,7 +6,7 @@
 lazy val commonSettings = Seq(
   organization := "org.scoverage",
   version := "0.1.0",
-  scalaVersion := "2.13.15"
+  scalaVersion := "2.13.16"
 )
 
 def module(name: String) = {
@@ -15,7 +15,7 @@ def module(name: String) = {
     .settings(commonSettings: _*)
     .settings(
       Keys.name := name,
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.1" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test
     )
 }
 
