@@ -175,7 +175,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
             s"-Xplugin:${pluginPaths.mkString(java.io.File.pathSeparator)}"
           ),
           Some(
-            s"-P:scoverage:dataDir:${coverageDataDir.value.getAbsolutePath}/scoverage-data"
+            s"-P:scoverage:dataDir:${new java.io.File(coverageDataDir.value, "scoverage-data").getAbsolutePath}"
           ),
           Some(
             s"-P:scoverage:sourceRoot:${coverageSourceRoot.value.getAbsolutePath}"
@@ -191,7 +191,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
       ) {
         Seq(
           Some(
-            s"-coverage-out:${coverageDataDir.value.getAbsolutePath()}/scoverage-data"
+            s"-coverage-out:${new java.io.File(coverageDataDir.value, "scoverage-data").getAbsolutePath}"
           ),
           excludedPackages
             .collect {
