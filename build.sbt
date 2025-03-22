@@ -32,7 +32,7 @@ inThisBuild(
 lazy val root = Project("sbt-scoverage", file("."))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
-    crossScalaVersions += "3.6.2",
+    crossScalaVersions += "3.7.2",
     libraryDependencies ++= Seq(
       "org.scoverage" %% "scalac-scoverage-reporter" % scoverageVersion
     ),
@@ -41,7 +41,7 @@ lazy val root = Project("sbt-scoverage", file("."))
         case "2.12" =>
           (pluginCrossBuild / sbtVersion).value
         case _ =>
-          "2.0.0-M3"
+          "2.0.0-RC3"
       }
     },
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
