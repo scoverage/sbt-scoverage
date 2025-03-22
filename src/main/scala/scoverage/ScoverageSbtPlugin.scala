@@ -4,6 +4,7 @@ import sbt.Keys._
 import sbt.{given, _}
 import sbt.internal.util.Util.isWindows
 import sbt.plugins.JvmPlugin
+import scoverage.ScoverageSbtPluginCompat.*
 import scoverage.reporter.CoberturaXmlWriter
 import scoverage.domain.Constants
 import scoverage.domain.Coverage
@@ -122,7 +123,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   )
 
   private lazy val scalacSettings = Seq(
-    Compile / compile / scalacOptions ++= {
+    Compile / compile / scalacOptions ++= Def.uncached {
 
       implicit val log: Logger = streams.value.log
 
