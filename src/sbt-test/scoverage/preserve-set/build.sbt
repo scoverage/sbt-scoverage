@@ -32,12 +32,6 @@ checkScoverageEnabled := {
   ()
 }
 
-resolvers ++= {
-  if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
-    Resolver.sonatypeOssRepos("snapshots")
-  else Seq.empty
-}
-
 coverageEnabled := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case _ => coverageEnabled.value

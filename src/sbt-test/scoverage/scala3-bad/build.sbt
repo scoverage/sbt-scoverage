@@ -9,9 +9,3 @@ coverageMinimumStmtTotal := 80
 coverageFailOnMinimum := true
 
 coverageEnabled := true
-
-resolvers ++= {
-  if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
-    Resolver.sonatypeOssRepos("snapshots")
-  else Seq.empty
-}
