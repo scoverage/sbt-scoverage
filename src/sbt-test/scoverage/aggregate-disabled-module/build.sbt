@@ -9,9 +9,3 @@ inThisBuild(
 lazy val a = project
 lazy val b = project
 lazy val c = project.disablePlugins(ScoverageSbtPlugin)
-
-ThisBuild / resolvers ++= {
-  if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
-    Resolver.sonatypeOssRepos("snapshots")
-  else Seq.empty
-}

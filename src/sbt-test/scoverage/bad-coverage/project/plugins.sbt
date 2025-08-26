@@ -7,10 +7,3 @@ val pluginVersion = sys.props.getOrElse(
 )
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % pluginVersion)
-
-resolvers ++= {
-  if (pluginVersion.endsWith("-SNAPSHOT"))
-    Seq(Resolver.sonatypeRepo("snapshots"))
-  else
-    Seq.empty
-}

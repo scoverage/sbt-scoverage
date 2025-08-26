@@ -13,9 +13,3 @@ lazy val cross =
 
 lazy val crossJS = cross.js
 lazy val crossJVM = cross.jvm
-
-ThisBuild / resolvers ++= {
-  if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
-    Resolver.sonatypeOssRepos("snapshots")
-  else Seq.empty
-}

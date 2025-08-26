@@ -12,9 +12,3 @@ coverageMinimumStmtPerFile := 100
 coverageMinimumBranchPerFile := 100
 
 coverageFailOnMinimum := true
-
-resolvers ++= {
-  if (sys.props.get("plugin.version").exists(_.endsWith("-SNAPSHOT")))
-    Resolver.sonatypeOssRepos("snapshots")
-  else Seq.empty
-}
