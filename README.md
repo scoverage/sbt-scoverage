@@ -37,10 +37,15 @@ or if you have integration tests as well
 sbt clean coverage it:test
 ```
 
+This instruments standard build output so remember to clean again with coverage disabled before publishing your build to avoid including instrumentation.
+
 To enable coverage directly in your build, use:
 ```scala
 coverageEnabled := true
 ```
+
+Note that this will result in code being always instrumented which is unlikely what you want.
+
 
 To generate the coverage reports run
 ```
