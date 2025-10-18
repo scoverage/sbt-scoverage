@@ -7,7 +7,7 @@ lazy val commonSettings = Seq(
   organization := "org.scoverage",
   allowUnsafeScalaLibUpgrade := true,
   version := "0.1.0",
-  scalaVersion := "2.13.13"
+  scalaVersion := "2.13.17"
 )
 
 def module(name: String) = {
