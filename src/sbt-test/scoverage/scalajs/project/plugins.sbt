@@ -8,6 +8,6 @@ val pluginVersion = sys.props.getOrElse(
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % pluginVersion)
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.18.1")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.1")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
