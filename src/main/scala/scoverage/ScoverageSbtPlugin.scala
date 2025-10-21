@@ -70,7 +70,18 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageReport := coverageReport0.value,
     coverageAggregate := coverageAggregate0.value,
     coverageAggregate / aggregate := false,
-    coverageDataDir := crossTarget.value
+    coverageDataDir := crossTarget.value,
+    coverageScalacPluginVersion := {
+      scalaVersion.value match {
+        case "2.13.11" => "2.3.0"
+        case "2.13.12" => "2.3.0"
+        case "2.13.13" => "2.3.0"
+        case "2.13.14" => "2.3.0"
+        case "2.13.15" => "2.3.0"
+        case "2.12.16" => "2.3.0"
+        case _         => defaultScoverageVersion
+      }
+    }
   ) ++ coverageSettings ++ scalacSettings
 
   private def isScala2(scalaVersion: String) =
