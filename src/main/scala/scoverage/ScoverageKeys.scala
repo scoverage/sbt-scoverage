@@ -8,6 +8,8 @@ object ScoverageKeys {
     "controls whether code instrumentation is enabled or not"
   )
   @transient
+  lazy val coverageDeleteMeasurements = taskKey[Unit]("delete existing coverage measurements")
+  @transient
   lazy val coverageReport = taskKey[Unit]("run report generation")
   @transient
   lazy val coverageAggregate = taskKey[Unit]("aggregate reports from subprojects")

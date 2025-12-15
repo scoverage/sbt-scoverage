@@ -67,6 +67,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     ivyConfigurations += ScoveragePluginConfig,
+    coverageDeleteMeasurements := coverageDeleteMeasurements0.value,
     coverageReport := coverageReport0.value,
     coverageAggregate := coverageAggregate0.value,
     coverageAggregate / aggregate := false,
@@ -251,11 +252,19 @@ object ScoverageSbtPlugin extends AutoPlugin {
     sjsClassifier getOrElse ""
   }
 
+  private lazy val coverageDeleteMeasurements0 = Def.task {
+    val dataDir = coverageDataDir.value
+    implicit val log: Logger = streams.value.log
+
+    log.info("Deleting existing coverage measurements...")
+    IOUtils.findMeasurementFiles(dataDir).foreach(IO.delete)
+  }
+
   private lazy val coverageReport0 = Def.task {
     val target = coverageDataDir.value
     implicit val log: Logger = streams.value.log
 
-    log.info(s"Waiting for measurement data to sync...")
+    log.info("Waiting for measurement data to sync...")
     if (System.getProperty("os.name").toLowerCase.contains("windows")) {
       Thread.sleep(
         1000
