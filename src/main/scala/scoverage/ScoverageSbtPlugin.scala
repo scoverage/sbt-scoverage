@@ -253,7 +253,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   }
 
   private lazy val coverageDeleteMeasurements0 = Def.task {
-    val dataDir = coverageDataDir.value
+    val dataDir = coverageDataDir.value / "scoverage-data"
     implicit val log: Logger = streams.value.log
 
     log.info("Deleting existing coverage measurements...")
@@ -456,7 +456,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
       sourceRoot: File
   ): Option[Coverage] = {
 
-    val dataDir = crossTarget / "/scoverage-data"
+    val dataDir = crossTarget / "scoverage-data"
     val coverageFile = Serializer.coverageFile(dataDir)
 
     log.info(s"Reading scoverage instrumentation [$coverageFile]")
