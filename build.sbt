@@ -32,7 +32,7 @@ inThisBuild(
 lazy val root = Project("sbt-scoverage", file("."))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
-    crossScalaVersions += "3.7.2",
+    crossScalaVersions += "3.8.1",
     libraryDependencies ++= Seq(
       "org.scoverage" %% "scalac-scoverage-reporter" % scoverageVersion
     ),
@@ -41,7 +41,7 @@ lazy val root = Project("sbt-scoverage", file("."))
         case "2.12" =>
           (pluginCrossBuild / sbtVersion).value
         case _ =>
-          "2.0.0-RC6"
+          "2.0.0-RC9"
       }
     },
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
@@ -57,6 +57,14 @@ lazy val root = Project("sbt-scoverage", file("."))
       "-encoding",
       "utf8"
     ),
+    scalacOptions ++= {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          Seq("-release:8")
+        case _ =>
+          Nil
+      }
+    },
     scriptedLaunchOpts ++= Seq(
       "-Xmx1024M",
       "-Dplugin.version=" + version.value

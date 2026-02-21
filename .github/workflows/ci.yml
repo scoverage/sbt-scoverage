@@ -31,8 +31,12 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
 
-      - name: Run tests
-        run: sbt scripted "++ 3.x" test
+      - name: Run tests sbt 1
+        run: sbt scripted test
+
+      - name: Run tests sbt 2
+        if: "${{ matrix.java != 8 }}"
+        run: sbt "++ 3.x" test
 
   formatting:
     runs-on: ubuntu-latest
