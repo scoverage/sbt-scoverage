@@ -38,7 +38,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
   override def requires: JvmPlugin.type = plugins.JvmPlugin
   override def trigger: PluginTrigger = allRequirements
 
-  override def globalSettings: Seq[Def.Setting[_]] =
+  override def globalSettings: Seq[Def.Setting[?]] =
     super.globalSettings ++ Seq(
       coverageEnabled := false,
       coverageExcludedPackages := "",
@@ -60,12 +60,12 @@ object ScoverageSbtPlugin extends AutoPlugin {
       coverageSourceRoot := (ThisBuild / baseDirectory).value
     )
 
-  override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
+  override def buildSettings: Seq[Setting[?]] = super.buildSettings ++
     addCommandAlias("coverage", ";set ThisBuild / coverageEnabled := true") ++
     addCommandAlias("coverageOn", ";set ThisBuild / coverageEnabled := true") ++
     addCommandAlias("coverageOff", ";set ThisBuild / coverageEnabled := false")
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
+  override def projectSettings: Seq[Setting[?]] = Seq(
     ivyConfigurations += ScoveragePluginConfig,
     coverageDeleteMeasurements := coverageDeleteMeasurements0.value,
     coverageReport := coverageReport0.value,
