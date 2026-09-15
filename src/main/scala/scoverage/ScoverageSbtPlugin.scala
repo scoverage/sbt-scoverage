@@ -83,7 +83,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
         case _         => defaultScoverageVersion
       }
     }
-  ) ++ coverageSettings ++ scalacSettings
+  ) ++ coverageSettings ++ scalacSettings ++ coverageTestRuntimeSettings(Test)
 
   private def isScala2(scalaVersion: String) =
     CrossVersion
@@ -203,9 +203,6 @@ object ScoverageSbtPlugin extends AutoPlugin {
         coverageEnabled.value && isScala3SupportingScoverage(scalaVersion.value)
       ) {
         Seq(
-          Some(
-            s"-coverage-out:${new java.io.File(coverageDataDir.value, "scoverage-data").getAbsolutePath}"
-          ),
           excludedPackages
             .collect {
               case v
@@ -233,6 +230,16 @@ object ScoverageSbtPlugin extends AutoPlugin {
       }
     }
   )
+
+  // See https://github.com/scoverage/sbt-scoverage/issues/522
+  private def coverageTestRuntimeSettings(
+      config: Configuration
+  ): Seq[Setting[_]] =
+    Seq(
+      config / fork := coverageEnabled.value && isScala3SupportingScoverage(
+        scalaVersion.value
+      )
+    )
 
   private def scalacRuntime(deps: Seq[ModuleID]): String = {
     scalacRuntimeArtifact + optionalScalaJsSuffix(deps)

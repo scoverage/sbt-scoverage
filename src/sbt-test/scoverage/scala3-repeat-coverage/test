@@ -1,0 +1,18 @@
+# https://github.com/scoverage/sbt-scoverage/issues/522
+# Scala 3 coverage in a single sbt session used to report 0% after the first
+# `clean; coverage; test` because measurement files were not rewritten.
+> clean
+> coverage
+> test
+> coverageReport
+$ exists target/scala-3.5.0/scoverage-data
+> clean
+> coverage
+> test
+> coverageReport
+$ exists target/scala-3.5.0/scoverage-data
+# coverage stays enabled; a third clean/test cycle should still record coverage
+> clean
+> test
+> coverageReport
+$ exists target/scala-3.5.0/scoverage-data
