@@ -71,7 +71,7 @@ object ScoverageSbtPlugin extends AutoPlugin {
     coverageReport := coverageReport0.value,
     coverageAggregate := coverageAggregate0.value,
     coverageAggregate / aggregate := false,
-    coverageDataDir := crossTarget.value,
+    coverageDataDir := defaultCoverageDataDir.value,
     coverageScalacPluginVersion := {
       scalaVersion.value match {
         case "2.13.11" => "2.3.0"
