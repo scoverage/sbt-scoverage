@@ -1,5 +1,5 @@
 version := "0.1"
-scalaVersion := "3.8.4"
+scalaVersion := "2.13.18"
 libraryDependencies += "org.scalameta" %% "munit" % "1.1.1" % Test
 Test / fork := true
 coverageMinimumStmtTotal := 100
