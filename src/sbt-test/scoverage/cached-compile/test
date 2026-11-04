@@ -1,0 +1,14 @@
+# First round compiles with coverage and populates the build cache.
+> clean
+> coverage
+> testOnly CalcSuite
+> checkCoverageData
+> coverageReport
+
+# Second round: on sbt 2, compile is restored from the cache after clean.
+# The scoverage data must come back with it.
+> clean
+> coverage
+> testOnly CalcSuite
+> checkCoverageData
+> coverageReport

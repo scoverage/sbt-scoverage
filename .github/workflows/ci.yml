@@ -38,6 +38,12 @@ jobs:
         if: "${{ matrix.java != 8 }}"
         run: sbt "++ 3.x" test
 
+      # "++ 3.x" selects the sbt 2 plugin build (pluginCrossBuild / sbtVersion), so scripted
+      # launches the test projects with sbt 2. Only tests that support sbt 2 are listed.
+      - name: Run scripted tests sbt 2
+        if: "${{ matrix.java != 8 }}"
+        run: sbt "++ 3.x" "scripted scoverage/cached-compile"
+
   formatting:
     runs-on: ubuntu-latest
 

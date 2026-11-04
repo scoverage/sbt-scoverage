@@ -135,7 +135,11 @@ settings will apply to that report.
 ### Override Location for Coverage Data And Report
 
 If desired, one could override the default location for generating the
-sbt report and data through setting `coverageDataDir`:
+sbt report and data through setting `coverageDataDir`. It defaults to
+`crossTarget` on sbt 1 and to `Compile / classDirectory` on sbt 2. On sbt 2,
+`compile` is cached, and a cache hit only restores the class directory, so the
+scoverage data must live inside it. If you override it on sbt 2, keep it inside
+`Compile / classDirectory`.
 
 Example in data-dir test:
 ```scala
