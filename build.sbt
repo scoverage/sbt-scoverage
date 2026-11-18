@@ -25,23 +25,23 @@ inThisBuild(
     licenses := Seq(
       "Apache-2.0" -> url("http://www.apache.org/license/LICENSE-2.0")
     ),
-    scalaVersion := "2.12.20"
+    scalaVersion := "2.12.21"
   )
 )
 
 lazy val root = Project("sbt-scoverage", file("."))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
-    crossScalaVersions += "3.8.4",
+    crossScalaVersions := Seq("2.12.21", "3.9.0"),
     libraryDependencies ++= Seq(
       "org.scoverage" %% "scalac-scoverage-reporter" % scoverageVersion
     ),
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" =>
-          (pluginCrossBuild / sbtVersion).value
+          "1.13.1"
         case _ =>
-          "2.0.1"
+          "2.1.0"
       }
     },
     buildInfoKeys := Seq[BuildInfoKey]("scoverageVersion" -> scoverageVersion),
@@ -60,7 +60,7 @@ lazy val root = Project("sbt-scoverage", file("."))
     scalacOptions ++= {
       scalaBinaryVersion.value match {
         case "2.12" =>
-          Seq("-release:8")
+          Seq("-Xsource:3", "-release:8")
         case _ =>
           Nil
       }
